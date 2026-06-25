@@ -1,0 +1,85 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-cream-50 text-sage-900 antialiased;
+    background-image:
+      radial-gradient(1200px 600px at 10% -10%, rgba(143, 193, 255, 0.18), transparent),
+      radial-gradient(1000px 500px at 100% 0%, rgba(159, 192, 170, 0.20), transparent);
+    background-attachment: fixed;
+  }
+
+  .dark body {
+    @apply bg-[#0e1512] text-sage-100;
+    background-image:
+      radial-gradient(1200px 600px at 10% -10%, rgba(51, 123, 255, 0.10), transparent),
+      radial-gradient(1000px 500px at 100% 0%, rgba(79, 129, 99, 0.14), transparent);
+  }
+}
+
+@layer components {
+  .glass {
+    @apply bg-white/60 dark:bg-white/[0.06] backdrop-blur-xl border border-white/40 dark:border-white/10 shadow-glass;
+  }
+  .glass-strong {
+    @apply bg-white/80 dark:bg-[#141d19]/80 backdrop-blur-2xl border border-white/50 dark:border-white/10 shadow-glass-lg;
+  }
+  .card {
+    @apply glass rounded-3xl;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-brand-400/50;
+  }
+  .btn-primary {
+    @apply btn bg-brand-600 text-white hover:bg-brand-700 shadow-soft hover:shadow-lg active:scale-[0.98] px-5 py-2.5;
+  }
+  .btn-secondary {
+    @apply btn bg-white/70 dark:bg-white/10 text-sage-800 dark:text-sage-100 hover:bg-white border border-white/60 dark:border-white/10 px-5 py-2.5;
+  }
+  .btn-ghost {
+    @apply btn text-sage-600 dark:text-sage-300 hover:bg-sage-100/60 dark:hover:bg-white/5 px-4 py-2;
+  }
+  .input {
+    @apply w-full rounded-2xl bg-white/70 dark:bg-white/[0.06] border border-sage-200/70 dark:border-white/10 px-4 py-2.5 text-sage-900 dark:text-sage-100 placeholder:text-sage-400 focus:outline-none focus:ring-2 focus:ring-brand-400/50 focus:border-transparent transition;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium;
+  }
+  .nav-link {
+    @apply flex items-center gap-3 rounded-2xl px-3.5 py-2.5 text-sm font-medium text-sage-600 dark:text-sage-300 hover:bg-sage-100/70 dark:hover:bg-white/5 transition-colors;
+  }
+  .nav-link-active {
+    @apply bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-200;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(120, 140, 130, 0.35);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(120, 140, 130, 0.55);
+  background-clip: content-box;
+}
+
+.maplibregl-popup-content {
+  border-radius: 1rem !important;
+  padding: 0 !important;
+  overflow: hidden;
+  box-shadow: 0 20px 60px -10px rgba(31, 38, 135, 0.25) !important;
+}
+.maplibregl-ctrl-attrib { font-size: 9px; opacity: 0.6; }
