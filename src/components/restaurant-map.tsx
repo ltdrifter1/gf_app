@@ -30,17 +30,23 @@ export function RestaurantMap({
 }) {
   const [popup, setPopup] = useState<MapPin | null>(null);
 
-  const center = useMemo(() => {
-    if (pins.length === 0) return { lng: -98.5, lat: 39.8, zoom: 3.4 };
-    const lng = pins.reduce((s, p) => s + p.lng, 0) / pins.length;
-    const lat = pins.reduce((s, p) => s + p.lat, 0) / pins.length;
-    return { lng, lat, zoom: pins.length > 1 ? 10 : 12 };
+  const initialViewState = useMemo(() => {
+    if (pins.length === 0) return { longitude: -98.5, latitude: 39.8, zoom: 3.4 };
+    if (pins.length === 1) return { longitude: pins[0].lng, latitude: pins[0].lat, zoom: 12 };
+    const lngs = pins.map((p) => p.lng);
+    const lats = pins.map((p) => p.lat);
+    const bounds: [[number, number], [number, number]] = [
+      [Math.min(...lngs), Math.min(...lats)],
+      [Math.max(...lngs), Math.max(...lats)],
+    ];
+    return { bounds, fitBoundsOptions: { padding: 70, maxZoom: 12 } };
   }, [pins]);
 
   return (
     <div className="h-full w-full overflow-hidden rounded-3xl" style={{ height }}>
       <Map
-        initialViewState={{ longitude: center.lng, latitude: center.lat, zoom: center.zoom }}
+        key={pins.map((p) => p.id).join(",")}
+        initialViewState={initialViewState}
         mapStyle={OSM_STYLE}
         style={{ width: "100%", height: "100%" }}
       >

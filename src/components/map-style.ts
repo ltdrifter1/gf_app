@@ -21,7 +21,7 @@ export const OSM_STYLE: StyleSpecification = {
       id: "osm",
       type: "raster",
       source: "osm",
-      paint: { "raster-saturation": -0.25, "raster-brightness-min": 0.05 },
+      paint: { "raster-saturation": -0.1 },
     },
   ],
 };
