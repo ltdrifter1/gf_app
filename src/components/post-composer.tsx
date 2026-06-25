@@ -8,7 +8,7 @@ import { Avatar } from "./ui/avatar";
 
 export function PostComposer({ user }: { user: { name: string; avatarUrl: string | null } }) {
   const [open, setOpen] = useState(false);
-  const [category, setCategory] = useState(POST_CATEGORIES[0].slug);
+  const [category, setCategory] = useState<string>(POST_CATEGORIES[0].slug);
   const [imageUrl, setImageUrl] = useState("");
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState("");
