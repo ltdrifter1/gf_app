@@ -13,11 +13,13 @@ export async function createPost(formData: FormData) {
 
   if (!content && !title) return { error: "Write something to share" };
 
+  // Title is optional; store it empty when omitted so the card doesn't
+  // duplicate the body text as a heading.
   await prisma.post.create({
     data: {
       authorId: user.id,
-      title: title || content.slice(0, 60),
-      content,
+      title,
+      content: content || title,
       category,
       imageUrl,
     },
