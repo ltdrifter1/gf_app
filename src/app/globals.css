@@ -9,27 +9,30 @@
 
 @layer base {
   body {
-    @apply bg-cream-50 text-sage-900 antialiased;
+    @apply bg-[#eaeefb] text-sage-900 antialiased;
     background-image:
-      radial-gradient(1200px 600px at 10% -10%, rgba(143, 193, 255, 0.18), transparent),
-      radial-gradient(1000px 500px at 100% 0%, rgba(159, 192, 170, 0.20), transparent);
+      radial-gradient(1100px 560px at 8% -12%, rgba(51, 123, 255, 0.22), transparent),
+      radial-gradient(900px 520px at 100% -6%, rgba(139, 92, 246, 0.18), transparent),
+      radial-gradient(1000px 700px at 60% 115%, rgba(34, 184, 207, 0.14), transparent);
     background-attachment: fixed;
   }
 
   .dark body {
-    @apply bg-[#0c1210] text-sage-100;
+    @apply bg-[#080b12] text-sage-100;
     background-image:
-      radial-gradient(1200px 600px at 10% -10%, rgba(51, 123, 255, 0.10), transparent),
-      radial-gradient(1000px 500px at 100% 0%, rgba(79, 129, 99, 0.14), transparent);
+      radial-gradient(1100px 560px at 8% -12%, rgba(51, 123, 255, 0.16), transparent),
+      radial-gradient(900px 520px at 100% -6%, rgba(139, 92, 246, 0.16), transparent),
+      radial-gradient(1000px 700px at 60% 115%, rgba(34, 184, 207, 0.10), transparent);
   }
 }
 
 @layer components {
+  /* All-over glassmorphism: frosted panel with a subtle glossy top sheen */
   .glass {
-    @apply bg-white/60 dark:bg-[#2a3a33] backdrop-blur-xl border border-white/40 dark:border-white/20 shadow-glass;
+    @apply relative bg-gradient-to-b from-white/70 to-white/45 dark:from-white/[0.09] dark:to-white/[0.03] dark:bg-[#141c2b] backdrop-blur-xl border border-white/50 dark:border-white/[0.14] shadow-glass;
   }
   .glass-strong {
-    @apply bg-white/80 dark:bg-[#33453d] backdrop-blur-2xl border border-white/50 dark:border-white/[0.22] shadow-glass-lg;
+    @apply relative bg-gradient-to-b from-white/85 to-white/65 dark:from-white/[0.10] dark:to-white/[0.04] dark:bg-[#1a2436] backdrop-blur-2xl border border-white/60 dark:border-white/[0.18] shadow-glass-lg;
   }
   .card {
     @apply glass rounded-3xl;
@@ -37,14 +40,17 @@
   .btn {
     @apply inline-flex items-center justify-center gap-2 rounded-full font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-brand-400/50;
   }
+  /* MSN/XP-inspired glossy primary button */
   .btn-primary {
-    @apply btn bg-brand-600 text-white hover:bg-brand-700 shadow-soft hover:shadow-lg active:scale-[0.98] px-5 py-2.5;
+    @apply btn bg-circle-gradient text-white shadow-glow hover:brightness-105 active:scale-[0.98] px-5 py-2.5;
+    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.4), 0 8px 24px -8px rgba(51, 123, 255, 0.55);
   }
   .btn-secondary {
-    @apply btn bg-white/70 dark:bg-white/10 text-sage-800 dark:text-sage-100 hover:bg-white border border-white/60 dark:border-white/10 px-5 py-2.5;
+    @apply btn bg-white/70 dark:bg-white/[0.08] text-sage-800 dark:text-sage-100 hover:bg-white dark:hover:bg-white/[0.14] border border-white/70 dark:border-white/[0.12] px-5 py-2.5;
+    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.5);
   }
   .btn-ghost {
-    @apply btn text-sage-600 dark:text-sage-300 hover:bg-sage-100/60 dark:hover:bg-white/5 px-4 py-2;
+    @apply btn text-sage-600 dark:text-sage-300 hover:bg-white/60 dark:hover:bg-white/5 px-4 py-2;
   }
   .input {
     @apply w-full rounded-2xl bg-white/70 dark:bg-white/[0.06] border border-sage-200/70 dark:border-white/10 px-4 py-2.5 text-sage-900 dark:text-sage-100 placeholder:text-sage-400 focus:outline-none focus:ring-2 focus:ring-brand-400/50 focus:border-transparent transition;
@@ -53,10 +59,14 @@
     @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium;
   }
   .nav-link {
-    @apply flex items-center gap-3 rounded-2xl px-3.5 py-2.5 text-sm font-medium text-sage-600 dark:text-sage-300 hover:bg-sage-100/70 dark:hover:bg-white/5 transition-colors;
+    @apply flex items-center gap-3 rounded-2xl px-3.5 py-2.5 text-sm font-medium text-sage-600 dark:text-sage-300 hover:bg-white/60 dark:hover:bg-white/5 transition-colors;
   }
   .nav-link-active {
-    @apply bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-200;
+    @apply bg-brand-50/90 dark:bg-brand-500/15 text-brand-700 dark:text-brand-200 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.5)];
+  }
+  /* Signature gradient text for the Circle wordmark */
+  .text-gradient {
+    @apply bg-circle-gradient bg-clip-text text-transparent;
   }
 }
 
@@ -66,13 +76,13 @@
   height: 10px;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(120, 140, 130, 0.35);
+  background: rgba(99, 120, 170, 0.35);
   border-radius: 999px;
   border: 2px solid transparent;
   background-clip: content-box;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(120, 140, 130, 0.55);
+  background: rgba(99, 120, 170, 0.55);
   background-clip: content-box;
 }
 

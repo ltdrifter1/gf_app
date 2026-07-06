@@ -1,8 +1,13 @@
-# Gluten Free Collective
+# Circle
 
-A community-driven support platform for people with celiac disease and gluten
-intolerance. Full-stack **Next.js 15** (App Router) + **TypeScript** + **Tailwind CSS**
-+ **Prisma**.
+Circle ("Find your Circle.") is a community-first support platform for people with
+celiac disease and gluten intolerance. Full-stack **Next.js 15** (App Router) +
+**TypeScript** + **Tailwind CSS** + **Prisma**.
+
+Design language: all-over glassmorphism with a subtle early-2000s MSN Messenger
+touch (glossy buttons, presence dots, buddy-list chat), kept minimalist. The
+signature brand gradient is `bg-circle-gradient` (blue→violet→cyan); `.text-gradient`
+applies it to text.
 
 Modules: Community Hub (feed), MSN-style Chat, Safe Restaurant Directory (map),
 Local Community Map, Recipes, Product Database, Mental Health Center, AI Celiac
@@ -31,9 +36,9 @@ and an Admin dashboard.
   missing. All values in `.env.example` are safe local-dev defaults.
 
 ### Demo accounts (seeded, password is `password123`)
-- `maya@glutenfree.dev` — regular Premium member
-- `admin@glutenfree.dev` — admin (sees the Admin dashboard)
-- `drchen@glutenfree.dev` / `nina@glutenfree.dev` — verified professionals
+- `maya@circle.app` — regular Premium member
+- `admin@circle.app` — admin (sees the Admin dashboard)
+- `drchen@circle.app` / `nina@circle.app` — verified professionals
 
 ### Optional integrations — all have working mock fallbacks (no keys required)
 - **Maps** use keyless **MapLibre GL + OpenStreetMap raster tiles** (no Mapbox

@@ -55,7 +55,7 @@ export default async function FeedPage({
             {activeCat ? `${activeCat.emoji} ${activeCat.label}` : "Community Hub"}
           </h1>
           <p className="text-sage-500 dark:text-sage-400">
-            {activeCat ? "Posts in this category" : "Your feed — fresh from the collective"}
+            {activeCat ? "Posts in this category" : "Your feed — fresh from your Circle"}
           </p>
         </div>
 

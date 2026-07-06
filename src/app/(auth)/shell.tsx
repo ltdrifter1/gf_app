@@ -33,28 +33,28 @@ export function AuthShell({
 
       {/* Left brand panel */}
       <div className="relative hidden flex-col justify-between overflow-hidden p-12 lg:flex">
-        <div className="absolute inset-0 bg-gradient-to-br from-brand-500 via-brand-600 to-sage-600" />
+        <div className="absolute inset-0 bg-circle-gradient" />
         <div className="absolute -left-20 top-20 h-72 w-72 rounded-full bg-white/10 blur-3xl animate-float" />
-        <div className="absolute bottom-10 right-10 h-80 w-80 rounded-full bg-sage-300/20 blur-3xl" />
+        <div className="absolute bottom-10 right-10 h-80 w-80 rounded-full bg-white/10 blur-3xl" />
         <Link href="/" className="relative z-10 brightness-0 invert">
           <Logo />
         </Link>
         <div className="relative z-10 max-w-md">
           <h1 className="font-display text-4xl font-bold leading-tight text-white">
-            Living gluten-free shouldn't mean living alone.
+            Find your Circle.
           </h1>
           <p className="mt-4 text-lg text-white/80">
-            Join thousands sharing safe restaurants, trusted recipes, and real
-            support — every step of the celiac journey.
+            A community-first home for gluten-free living — safe restaurants,
+            trusted recipes, and real support, anywhere in the world.
           </p>
           <div className="mt-8 flex items-center gap-6 text-white/90">
             <Stat n="12k+" l="Members" />
+            <Stat n="40+" l="Countries" />
             <Stat n="3.4k" l="Safe spots" />
-            <Stat n="900+" l="Recipes" />
           </div>
         </div>
         <p className="relative z-10 text-sm text-white/60">
-          A calm, caring corner of the internet 🌱
+          Community-first · modern · global 🔵
         </p>
       </div>
 

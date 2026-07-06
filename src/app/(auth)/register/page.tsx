@@ -16,7 +16,7 @@ export default function RegisterPage() {
   const [state, formAction] = useActionState(registerAction, { error: "" } as { error?: string });
 
   return (
-    <AuthShell title="Join the collective" subtitle="It's free, kind, and full of people who get it.">
+    <AuthShell title="Find your Circle" subtitle="It's free, kind, and full of people who get it.">
       <form action={formAction} className="space-y-4">
         {state?.error && (
           <p className="rounded-2xl bg-rose-50 dark:bg-rose-500/10 px-4 py-3 text-sm text-rose-600 dark:text-rose-300">

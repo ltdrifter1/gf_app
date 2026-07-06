@@ -64,7 +64,7 @@ function ruleBased(question: string): AiAnswer {
     content:
       "Great question! Here's how I'd approach it: prioritize **certified gluten-free** products, watch for **cross-contamination**, and lean on the community for real-world experience. Ask me about specific ingredients, restaurants, recipes, or how you're feeling." +
       DISCLAIMER,
-    sources: [{ title: "Gluten Free Collective", note: "Community knowledge & expert articles" }],
+    sources: [{ title: "Circle", note: "Community knowledge & expert articles" }],
     medical: false,
   };
 }
@@ -86,7 +86,7 @@ export async function getAssistantAnswer(
           {
             role: "system",
             content:
-              "You are the Celiac Assistant for Gluten Free Collective. Give warm, accurate, source-aware education about celiac disease and gluten-free living. Always distinguish education from medical advice and encourage professional consultation for diagnosis/lab/treatment questions.",
+              "You are the Celiac Assistant for Circle, a community-first app for gluten-free living. Give warm, accurate, source-aware education about celiac disease and gluten-free living. Always distinguish education from medical advice and encourage professional consultation for diagnosis/lab/treatment questions.",
           },
           ...history.slice(-6).map((m) => ({ role: m.role as "user" | "assistant", content: m.content })),
           { role: "user", content: question },

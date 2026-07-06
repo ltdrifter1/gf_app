@@ -7,19 +7,19 @@ const img = (seed: string, w = 800, h = 600) =>
   `https://picsum.photos/seed/${seed}/${w}/${h}`;
 
 async function main() {
-  console.log("🌱 Seeding Gluten Free Collective…");
+  console.log("🔵 Seeding Circle…");
   const passwordHash = await bcrypt.hash("password123", 10);
 
   // ----------------------------- Users -----------------------------
   const usersData = [
-    { email: "maya@glutenfree.dev", username: "maya", name: "Maya Patel", role: "USER", bio: "Diagnosed 2021. Sharing my safe-eating wins 🌱", location: "Austin, TX", lat: 30.2672, lng: -97.7431, isPremium: true, diagnosis: "celiac" },
-    { email: "leo@glutenfree.dev", username: "leo", name: "Leo Martins", role: "USER", bio: "Dad of a celiac kiddo. Here for the recipes.", location: "Portland, OR", lat: 45.5152, lng: -122.6784, diagnosis: "supporter" },
-    { email: "sara@glutenfree.dev", username: "sara", name: "Sara Kim", role: "USER", bio: "Gluten intolerance + lots of opinions on bread.", location: "Brooklyn, NY", lat: 40.6782, lng: -73.9442, diagnosis: "gluten-intolerance" },
-    { email: "drchen@glutenfree.dev", username: "drchen", name: "Dr. Amara Chen", role: "PROFESSIONAL", bio: "Gastroenterologist specializing in celiac disease.", location: "San Francisco, CA", lat: 37.7749, lng: -122.4194, diagnosis: "supporter" },
-    { email: "nina@glutenfree.dev", username: "nina", name: "Nina Alvarez, RD", role: "PROFESSIONAL", bio: "Registered dietitian. Nutrition without fear.", location: "Chicago, IL", lat: 41.8781, lng: -87.6298, diagnosis: "supporter" },
-    { email: "admin@glutenfree.dev", username: "admin", name: "Collective Admin", role: "ADMIN", bio: "Keeping the community safe & kind.", location: "Remote", diagnosis: "supporter" },
-    { email: "theo@glutenfree.dev", username: "theo", name: "Theo Nguyen", role: "USER", bio: "Travel + gluten-free = my whole personality ✈️", location: "Austin, TX", lat: 30.27, lng: -97.74, diagnosis: "celiac" },
-    { email: "priya@glutenfree.dev", username: "priya", name: "Priya Shah", role: "USER", bio: "Newly diagnosed and figuring it out.", location: "Brooklyn, NY", lat: 40.68, lng: -73.95, diagnosis: "celiac" },
+    { email: "maya@circle.app", username: "maya", name: "Maya Patel", role: "USER", bio: "Diagnosed 2021. Sharing my safe-eating wins 🔵", location: "Austin, TX", lat: 30.2672, lng: -97.7431, isPremium: true, diagnosis: "celiac" },
+    { email: "leo@circle.app", username: "leo", name: "Leo Martins", role: "USER", bio: "Dad of a celiac kiddo. Here for the recipes.", location: "Portland, OR", lat: 45.5152, lng: -122.6784, diagnosis: "supporter" },
+    { email: "sara@circle.app", username: "sara", name: "Sara Kim", role: "USER", bio: "Gluten intolerance + lots of opinions on bread.", location: "Brooklyn, NY", lat: 40.6782, lng: -73.9442, diagnosis: "gluten-intolerance" },
+    { email: "drchen@circle.app", username: "drchen", name: "Dr. Amara Chen", role: "PROFESSIONAL", bio: "Gastroenterologist specializing in celiac disease.", location: "San Francisco, CA", lat: 37.7749, lng: -122.4194, diagnosis: "supporter" },
+    { email: "nina@circle.app", username: "nina", name: "Nina Alvarez, RD", role: "PROFESSIONAL", bio: "Registered dietitian. Nutrition without fear.", location: "Chicago, IL", lat: 41.8781, lng: -87.6298, diagnosis: "supporter" },
+    { email: "admin@circle.app", username: "admin", name: "Circle Admin", role: "ADMIN", bio: "Keeping the community safe & kind.", location: "Remote", diagnosis: "supporter" },
+    { email: "theo@circle.app", username: "theo", name: "Theo Nguyen", role: "USER", bio: "Travel + gluten-free = my whole personality ✈️", location: "Austin, TX", lat: 30.27, lng: -97.74, diagnosis: "celiac" },
+    { email: "priya@circle.app", username: "priya", name: "Priya Shah", role: "USER", bio: "Newly diagnosed and figuring it out.", location: "Brooklyn, NY", lat: 40.68, lng: -73.95, diagnosis: "celiac" },
   ];
 
   const users: Record<string, { id: string }> = {};
@@ -280,7 +280,7 @@ async function main() {
     const res = [
       { title: "Calming the Eating-Out Spiral", category: "eating-out", type: "exercise", content: "A 4-step grounding exercise for when restaurant anxiety hits: breathe, plan, ask, and self-compassion." },
       { title: "When Diagnosis Feels Like Grief", category: "newly-diagnosed", type: "article", content: "Mourning your old relationship with food is normal. Naming the grief is the first step to moving through it." },
-      { title: "Beating Social Isolation", category: "isolation", type: "article", content: "Practical scripts for navigating shared meals, plus how to find your people in the collective." },
+      { title: "Beating Social Isolation", category: "isolation", type: "article", content: "Practical scripts for navigating shared meals, plus how to find your people on Circle." },
       { title: "Anxiety Toolkit for Celiac Life", category: "anxiety", type: "exercise", content: "Box breathing, worry windows, and a 'safe foods' anchor list to reduce daily anxiety." },
       { title: "Finding a Gluten-Aware Therapist", category: "depression", type: "directory", content: "What to look for in a therapist who understands chronic illness, and questions to ask in a first session." },
     ];
@@ -305,8 +305,8 @@ async function main() {
   }
 
   console.log("✅ Seed complete.");
-  console.log("   Demo login → maya@glutenfree.dev / password123");
-  console.log("   Admin login → admin@glutenfree.dev / password123");
+  console.log("   Demo login → maya@circle.app / password123");
+  console.log("   Admin login → admin@circle.app / password123");
 }
 
 main()

@@ -3,9 +3,9 @@ import "./globals.css";
 import "maplibre-gl/dist/maplibre-gl.css";
 
 export const metadata: Metadata = {
-  title: "Gluten Free Collective — You're not alone",
+  title: "Circle — Find your Circle.",
   description:
-    "A community-driven support network for people living with celiac disease, gluten intolerance, and the families supporting them.",
+    "Circle is a community-first support network for people living with celiac disease and gluten intolerance — connect, share, and find your people, anywhere in the world.",
 };
 
 const themeScript = `

@@ -15,7 +15,7 @@ export function Avatar({
 }) {
   const dot =
     presence === "online"
-      ? "bg-emerald-500"
+      ? "bg-emerald-500 shadow-[0_0_0_2px_rgba(255,255,255,0.9),0_0_8px_1px_rgba(16,185,129,0.7)] dark:shadow-[0_0_0_2px_rgba(20,28,43,1),0_0_8px_1px_rgba(16,185,129,0.7)]"
       : presence === "away"
       ? "bg-amber-400"
       : "bg-sage-300";

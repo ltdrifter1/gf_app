@@ -20,7 +20,7 @@ export default async function PremiumPage() {
         <div className="relative bg-gradient-to-br from-warm-400 via-warm-500 to-brand-500 p-8 text-white">
           <div className="absolute -right-8 -top-8 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
           <Crown className="h-9 w-9" />
-          <h1 className="mt-3 font-display text-3xl font-bold">Gluten Free Collective Premium</h1>
+          <h1 className="mt-3 font-display text-3xl font-bold">Circle Premium</h1>
           <p className="mt-1 max-w-lg text-white/90">Go deeper into safe dining, travel, and expert support — for the price of one safe lunch.</p>
           <p className="mt-4 font-display text-4xl font-bold">${PREMIUM_PRICE_USD}<span className="text-lg font-normal text-white/80">/month</span></p>
         </div>

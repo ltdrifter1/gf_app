@@ -87,34 +87,31 @@ export default async function LandingPage() {
       <section className="relative mx-auto max-w-6xl px-4 pb-20 pt-16 sm:pt-24">
         <div className="absolute left-1/2 top-0 -z-10 h-[500px] w-[800px] -translate-x-1/2 rounded-full bg-brand-300/20 blur-3xl" />
         <div className="mx-auto max-w-3xl text-center">
-          <span className="chip mx-auto bg-white/70 dark:bg-white/10 text-sage-600 dark:text-sage-200 shadow-soft">
-            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse-soft" />
-            12,000+ members supporting each other
+          <span className="chip mx-auto glass !py-1.5 text-sage-600 dark:text-sage-200">
+            <span className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_2px_rgba(16,185,129,0.6)] animate-pulse-soft" />
+            12,000+ members online across 40+ countries
           </span>
-          <h1 className="mt-6 font-display text-5xl font-bold leading-[1.05] tracking-tight text-sage-900 dark:text-white sm:text-6xl md:text-7xl">
-            Living Gluten-Free{" "}
-            <span className="bg-gradient-to-r from-brand-500 to-sage-500 bg-clip-text text-transparent">
-              Shouldn't Mean Living Alone.
-            </span>
+          <h1 className="mt-6 font-display text-6xl font-bold leading-[1.02] tracking-tight text-sage-900 dark:text-white sm:text-7xl md:text-8xl">
+            Find your <span className="text-gradient">Circle.</span>
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg text-sage-600 dark:text-sage-300">
-            A warm, modern community for people with celiac disease and gluten
-            intolerance — safe restaurants, trusted recipes, expert guidance, and
-            real human support, all in one calming place.
+            A community-first home for people living gluten-free. Safe restaurants,
+            trusted recipes, expert guidance, and real human support — for celiac
+            disease and gluten intolerance, anywhere in the world.
           </p>
           <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link href={primaryHref} className="btn-primary px-7 py-3.5 text-base">
-              {user ? "Go to your feed" : "Join the collective — it's free"}
+              {user ? "Go to your feed" : "Find your Circle — it's free"}
               <ArrowRight className="h-4 w-4" />
             </Link>
             <a href="#dining" className="btn-secondary px-7 py-3.5 text-base">
               Explore safe dining
             </a>
           </div>
-          <div className="mt-6 flex items-center justify-center gap-6 text-sm text-sage-500 dark:text-sage-400">
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-sage-500 dark:text-sage-400">
             <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-emerald-500" /> Free to join</span>
-            <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-emerald-500" /> No ads</span>
-            <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-emerald-500" /> Privacy-first</span>
+            <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-emerald-500" /> Works globally</span>
+            <span className="flex items-center gap-1.5"><Check className="h-4 w-4 text-emerald-500" /> No ads · Privacy-first</span>
           </div>
         </div>
 
@@ -146,7 +143,7 @@ export default async function LandingPage() {
       <section id="features" className="mx-auto max-w-6xl px-4 py-20">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="font-display text-3xl font-bold text-sage-900 dark:text-white sm:text-4xl">
-            Everything you need, in one caring place
+            Everything your Circle needs, in one place
           </h2>
           <p className="mt-4 text-sage-600 dark:text-sage-300">
             Built with the warmth of a community and the polish of your favorite apps.
@@ -206,15 +203,16 @@ export default async function LandingPage() {
 
       {/* CTA */}
       <section className="mx-auto max-w-6xl px-4 pb-24">
-        <div className="relative overflow-hidden rounded-4xl bg-gradient-to-br from-brand-500 to-sage-600 p-10 text-center sm:p-16">
+        <div className="relative overflow-hidden rounded-4xl bg-circle-gradient p-10 text-center shadow-glow sm:p-16">
           <div className="absolute -right-10 -top-10 h-60 w-60 rounded-full bg-white/10 blur-2xl" />
+          <div className="absolute -bottom-16 -left-10 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
           <h2 className="font-display text-3xl font-bold text-white sm:text-4xl">
             You don't have to figure this out alone.
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-white/80">
-            Join the Gluten Free Collective today and find your people.
+            Join Circle today and find your people.
           </p>
-          <Link href={primaryHref} className="btn mt-8 bg-white px-8 py-3.5 text-base font-semibold text-brand-700 hover:bg-cream-100">
+          <Link href={primaryHref} className="btn mt-8 bg-white px-8 py-3.5 text-base font-semibold text-brand-700 hover:bg-white/90" style={{ boxShadow: "inset 0 1px 0 0 rgba(255,255,255,0.7)" }}>
             {user ? "Open the app" : "Create your free account"}
             <ArrowRight className="h-4 w-4" />
           </Link>
@@ -224,7 +222,7 @@ export default async function LandingPage() {
       <footer className="border-t border-white/40 dark:border-white/10 py-10">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 text-sm text-sage-500 dark:text-sage-400 sm:flex-row">
           <Logo size={28} />
-          <p>© {new Date().getFullYear()} Gluten Free Collective. Made with care 🌱</p>
+          <p>© {new Date().getFullYear()} Circle. Find your Circle. 🔵</p>
         </div>
       </footer>
     </div>

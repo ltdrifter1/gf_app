@@ -11,7 +11,7 @@ export default function LoginPage() {
   return (
     <AuthShell
       title="Welcome back"
-      subtitle="Your community is right where you left it."
+      subtitle="Your Circle is right where you left it."
     >
       <form action={formAction} className="space-y-4">
         {state?.error && (
@@ -31,13 +31,13 @@ export default function LoginPage() {
       </form>
 
       <div className="mt-5 rounded-2xl bg-brand-50/70 dark:bg-brand-500/10 p-3 text-center text-xs text-brand-700 dark:text-brand-200">
-        Demo account: <span className="font-semibold">maya@glutenfree.dev</span> / <span className="font-semibold">password123</span>
+        Demo account: <span className="font-semibold">maya@circle.app</span> / <span className="font-semibold">password123</span>
       </div>
 
       <p className="mt-5 text-center text-sm text-sage-600 dark:text-sage-300">
         New here?{" "}
         <Link href="/register" className="font-semibold text-brand-600 hover:underline">
-          Join the collective
+          Find your Circle
         </Link>
       </p>
     </AuthShell>

@@ -41,7 +41,7 @@ export async function registerAction(_prev: unknown, formData: FormData) {
       email,
       username: makeUsername(name, email),
       passwordHash: await hashPassword(password),
-      bio: "New to the Gluten Free Collective 🌱",
+      bio: "New to Circle 🔵",
       profile: {
         create: {
           diagnosis: diagnosis || "unspecified",
