@@ -50,11 +50,11 @@ export function AuthShell({
           <div className="mt-8 flex items-center gap-6 text-white/90">
             <Stat n="Feed" l="Share & connect" />
             <Stat n="Chat" l="Live presence" />
-            <Stat n="Pro" l="Premium Lounge" />
+            <Stat n="Safe" l="Dining & recipes" />
           </div>
         </div>
         <p className="relative z-10 text-sm text-white/60">
-          Community · Messenger · Premium
+          Community · Messenger · Health
         </p>
       </div>
 

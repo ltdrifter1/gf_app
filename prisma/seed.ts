@@ -11,7 +11,7 @@ async function main() {
   const passwordHash = await bcrypt.hash("password123", 10);
 
   const usersData = [
-    { email: "maya@circle.app", username: "maya", name: "Maya Patel", role: "USER", bio: "Diagnosed 2021. Sharing my safe-eating wins 🔵", location: "Austin, TX", isPremium: true, diagnosis: "celiac" },
+    { email: "maya@circle.app", username: "maya", name: "Maya Patel", role: "USER", bio: "Diagnosed 2021. Sharing my safe-eating wins 🔵", location: "Austin, TX", diagnosis: "celiac" },
     { email: "leo@circle.app", username: "leo", name: "Leo Martins", role: "USER", bio: "Dad of a celiac kiddo. Here for the community.", location: "Portland, OR", diagnosis: "supporter" },
     { email: "sara@circle.app", username: "sara", name: "Sara Kim", role: "USER", bio: "Gluten intolerance + lots of opinions on bread.", location: "Brooklyn, NY", diagnosis: "gluten-intolerance" },
     { email: "admin@circle.app", username: "admin", name: "Circle Admin", role: "ADMIN", bio: "Keeping the community safe & kind.", location: "Remote", diagnosis: "supporter" },
@@ -27,7 +27,6 @@ async function main() {
         name: u.name,
         bio: u.bio,
         role: u.role,
-        isPremium: u.isPremium ?? false,
         location: u.location,
       },
       create: {
@@ -37,17 +36,10 @@ async function main() {
         role: u.role,
         bio: u.bio,
         location: u.location,
-        isPremium: u.isPremium ?? false,
         passwordHash,
         presence: u.username === "maya" || u.username === "sara" || u.username === "theo" ? "online" : "offline",
         lastSeen: new Date(),
         profile: { create: { diagnosis: u.diagnosis } },
-        subscription: {
-          create: {
-            plan: u.isPremium ? "premium" : "free",
-            status: u.isPremium ? "active" : "inactive",
-          },
-        },
       },
     });
     users[u.username] = { id: created.id };

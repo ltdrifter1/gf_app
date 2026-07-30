@@ -47,10 +47,8 @@ export async function registerAction(_prev: unknown, formData: FormData) {
           diagnosis: diagnosis || "unspecified",
         },
       },
-      subscription: { create: { plan: "free", status: "inactive" } },
     },
   });
-
   // Auto-join community rooms
   const rooms = await prisma.chatRoom.findMany({ where: { isCommunity: true } });
   for (const room of rooms) {

@@ -80,5 +80,11 @@ export async function toggleFollow(targetUserId: string) {
   } else {
     await prisma.follow.create({ data: { followerId: user.id, followingId: targetUserId } });
   }
+  const target = await prisma.user.findUnique({
+    where: { id: targetUserId },
+    select: { username: true },
+  });
   revalidatePath("/app");
+  revalidatePath("/app/profile");
+  if (target) revalidatePath(`/app/u/${target.username}`);
 }

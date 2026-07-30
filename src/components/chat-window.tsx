@@ -18,11 +18,17 @@ export function ChatWindow({
   roomName,
   roomEmoji,
   description,
+  isDm,
+  peerAvatar,
+  peerPresence,
 }: {
   roomId: string;
   roomName: string;
   roomEmoji: string;
   description?: string | null;
+  isDm?: boolean;
+  peerAvatar?: string | null;
+  peerPresence?: string | null;
 }) {
   const [messages, setMessages] = useState<Msg[]>([]);
   const [typing, setTyping] = useState<string[]>([]);
@@ -117,15 +123,34 @@ export function ChatWindow({
   return (
     <div className="flex h-[calc(100vh-7rem)] flex-col">
       {/* MSN-style header */}
-      <div className="glass-strong flex items-center gap-3 rounded-t-3xl border-b border-white/40 dark:border-white/10 px-5 py-3">
-        <div className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-brand-400 to-sage-500 text-xl">
-          {roomEmoji}
-        </div>
+      <div className="glass-strong flex items-center gap-3 rounded-t-3xl border-b border-white/40 px-5 py-3 dark:border-white/10">
+        {isDm ? (
+          <Avatar name={roomName} src={peerAvatar ?? null} size={44} presence={peerPresence ?? "offline"} />
+        ) : (
+          <div className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-brand-400 to-sage-500 text-xl">
+            {roomEmoji}
+          </div>
+        )}
         <div className="min-w-0 flex-1">
           <p className="font-display font-semibold text-sage-900 dark:text-white">{roomName}</p>
           <p className="flex items-center gap-1.5 text-xs text-sage-500 dark:text-sage-400">
-            <Circle className="h-2 w-2 fill-emerald-500 text-emerald-500" />
-            {online} online · {memberCount} members
+            {isDm ? (
+              <>
+                <Circle
+                  className={`h-2 w-2 ${
+                    peerPresence === "online"
+                      ? "fill-emerald-500 text-emerald-500"
+                      : "fill-sage-400 text-sage-400"
+                  }`}
+                />
+                {description || peerPresence || "offline"}
+              </>
+            ) : (
+              <>
+                <Circle className="h-2 w-2 fill-emerald-500 text-emerald-500" />
+                {online} online · {memberCount} members
+              </>
+            )}
           </p>
         </div>
       </div>

@@ -9,7 +9,6 @@ import {
   MapPin,
   ChefHat,
   HeartPulse,
-  Crown,
   Shield,
   Menu,
   X,
@@ -28,7 +27,6 @@ type NavUser = {
   username: string;
   avatarUrl: string | null;
   role: string;
-  isPremium: boolean;
   presence: string;
 };
 
@@ -39,7 +37,6 @@ const NAV = [
   { href: "/app/recipes", label: "Recipes", icon: ChefHat },
   { href: "/app/health", label: "Health", icon: HeartPulse },
   { href: "/app/saved", label: "Saved", icon: Bookmark },
-  { href: "/app/premium", label: "Premium", icon: Crown },
 ];
 
 export function AppShell({
@@ -92,9 +89,6 @@ export function AppShell({
                 >
                   <Icon className="h-[18px] w-[18px]" />
                   {item.label}
-                  {item.href === "/app/premium" && !user.isPremium && (
-                    <span className="ml-auto chip bg-warm-400/20 text-warm-500">PRO</span>
-                  )}
                 </Link>
               );
             })}
@@ -109,7 +103,6 @@ export function AppShell({
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-semibold text-sage-900 dark:text-white">
                 {user.name}
-                {user.isPremium && <Crown className="ml-1 inline h-3.5 w-3.5 text-warm-500" />}
               </p>
               <p className="truncate text-xs text-sage-500 dark:text-sage-400">
                 @{user.username}
@@ -136,11 +129,14 @@ export function AppShell({
               <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-sage-400" />
               <input
                 name="q"
-                placeholder="Search posts, restaurants, recipes…"
+                placeholder="Search posts, people, restaurants…"
                 className="input pl-10"
               />
             </form>
             <div className="flex-1 sm:hidden" />
+            <Link href="/app/search" className="btn-ghost p-2 sm:hidden" title="Search">
+              <Search className="h-5 w-5" />
+            </Link>
             <ThemeToggle />
             <form action="/api/auth/logout" method="post">
               <button className="btn-ghost p-2" title="Sign out" type="submit">

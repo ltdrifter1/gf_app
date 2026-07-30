@@ -1,26 +1,49 @@
+import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
 import { Avatar } from "@/components/ui/avatar";
 import { PostCard, type PostCardData } from "@/components/post-card";
-import { ProfileEditForm } from "@/components/profile-edit-form";
+import { FollowButton } from "@/components/follow-button";
+import { MessageButton } from "@/components/message-button";
 import { MapPin, Calendar } from "lucide-react";
 
-export default async function ProfilePage() {
-  const user = await requireUser();
-  const [posts, followers, following, fullUser] = await Promise.all([
+export default async function PublicProfilePage({
+  params,
+}: {
+  params: Promise<{ username: string }>;
+}) {
+  const { username } = await params;
+  const me = await requireUser();
+
+  const profileUser = await prisma.user.findUnique({
+    where: { username },
+    include: { profile: true },
+  });
+  if (!profileUser) notFound();
+
+  if (profileUser.id === me.id) redirect("/app/profile");
+
+  const [posts, followers, following, isFollowing] = await Promise.all([
     prisma.post.findMany({
-      where: { authorId: user.id },
+      where: { authorId: profileUser.id },
       orderBy: { createdAt: "desc" },
       include: {
         author: true,
         _count: { select: { likes: true, comments: true } },
-        likes: { where: { userId: user.id } },
-        savedBy: { where: { userId: user.id } },
+        likes: { where: { userId: me.id } },
+        savedBy: { where: { userId: me.id } },
       },
     }),
-    prisma.follow.count({ where: { followingId: user.id } }),
-    prisma.follow.count({ where: { followerId: user.id } }),
-    prisma.user.findUnique({ where: { id: user.id }, include: { profile: true } }),
+    prisma.follow.count({ where: { followingId: profileUser.id } }),
+    prisma.follow.count({ where: { followerId: profileUser.id } }),
+    prisma.follow.findUnique({
+      where: {
+        followerId_followingId: {
+          followerId: me.id,
+          followingId: profileUser.id,
+        },
+      },
+    }),
   ]);
 
   const data: PostCardData[] = posts.map((p) => ({
@@ -47,35 +70,49 @@ export default async function ProfilePage() {
       <div className="card overflow-hidden">
         <div className="h-28 bg-circle-gradient" />
         <div className="px-6 pb-6">
-          <div className="-mt-10 flex items-end gap-4">
+          <div className="-mt-10 flex flex-wrap items-end gap-4">
             <div className="rounded-full ring-4 ring-white dark:ring-[#141d19]">
-              <Avatar name={user.name} src={user.avatarUrl} size={88} presence={user.presence} />
+              <Avatar
+                name={profileUser.name}
+                src={profileUser.avatarUrl}
+                size={88}
+                presence={profileUser.presence}
+              />
             </div>
             <div className="mb-2 flex-1">
               <h1 className="font-display text-2xl font-bold text-sage-900 dark:text-white">
-                {user.name}
+                {profileUser.name}
               </h1>
-              <p className="text-sage-500 dark:text-sage-400">@{user.username}</p>
+              <p className="text-sage-500 dark:text-sage-400">@{profileUser.username}</p>
+            </div>
+            <div className="mb-2 flex gap-2">
+              <FollowButton
+                targetUserId={profileUser.id}
+                initiallyFollowing={!!isFollowing}
+              />
+              <MessageButton targetUserId={profileUser.id} />
             </div>
           </div>
-          <p className="mt-4 text-sage-700 dark:text-sage-200">{user.bio}</p>
+          {profileUser.bio && (
+            <p className="mt-4 text-sage-700 dark:text-sage-200">{profileUser.bio}</p>
+          )}
           <div className="mt-3 flex flex-wrap gap-4 text-sm text-sage-500">
-            {user.location && (
+            {profileUser.location && (
               <span className="flex items-center gap-1">
-                <MapPin className="h-4 w-4" /> {user.location}
+                <MapPin className="h-4 w-4" /> {profileUser.location}
               </span>
             )}
             <span className="flex items-center gap-1">
               <Calendar className="h-4 w-4" /> Joined{" "}
-              {user.createdAt.toLocaleDateString(undefined, {
+              {profileUser.createdAt.toLocaleDateString(undefined, {
                 month: "long",
                 year: "numeric",
               })}
             </span>
-            {fullUser?.profile?.diagnosis &&
-              fullUser.profile.diagnosis !== "unspecified" && (
+            {profileUser.profile?.diagnosis &&
+              profileUser.profile.diagnosis !== "unspecified" && (
                 <span className="chip bg-sage-100 capitalize text-sage-600 dark:bg-white/10 dark:text-sage-300">
-                  {fullUser.profile.diagnosis.replace("-", " ")}
+                  {profileUser.profile.diagnosis.replace("-", " ")}
                 </span>
               )}
           </div>
@@ -99,27 +136,14 @@ export default async function ProfilePage() {
               <span className="text-sm text-sage-500">following</span>
             </div>
           </div>
-
-          <ProfileEditForm
-            initial={{
-              name: user.name,
-              bio: user.bio || "",
-              location: user.location || "",
-              diagnosis: fullUser?.profile?.diagnosis || "unspecified",
-              avatarUrl: user.avatarUrl || "",
-              presence: user.presence,
-            }}
-          />
         </div>
       </div>
 
       <h2 className="px-1 font-display text-lg font-semibold text-sage-900 dark:text-white">
-        Your posts
+        Posts
       </h2>
       {data.length === 0 ? (
-        <div className="card p-8 text-center text-sage-500">
-          You haven&apos;t posted yet. Share something with the community!
-        </div>
+        <div className="card p-8 text-center text-sage-500">No posts yet.</div>
       ) : (
         data.map((p) => <PostCard key={p.id} post={p} />)
       )}

@@ -18,7 +18,7 @@ const fraunces = Fraunces({
 export const metadata: Metadata = {
   title: "Circle — Find your Circle.",
   description:
-    "Circle is the premium gluten-free social network — community feed and MSN-style messenger for people living with celiac disease and gluten intolerance.",
+    "Circle is a gluten-free social network — community feed and MSN-style messenger for people living with celiac disease and gluten intolerance.",
 };
 
 const themeScript = `

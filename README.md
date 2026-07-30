@@ -1,7 +1,7 @@
 # Circle
 
-**Find your Circle.** A polished gluten-free social network with an MSN
-Messenger–style lounge — community, safe dining, recipes, and health support.
+**Find your Circle.** A gluten-free social network with an MSN Messenger–style
+lounge — community, safe dining, recipes, and health support.
 
 Built with Next.js 15, React, TypeScript, Tailwind CSS, and Prisma.
 
@@ -19,9 +19,9 @@ Demo login: `maya@circle.app` / `password123` (admin: `admin@circle.app`).
 
 ## Features
 
-- **Community feed** — posts, comments, likes, saves
-- **Messenger** — buddy-list rooms, presence, typing
+- **Community feed** — posts, comments, likes, saves, follow people
+- **Messenger** — online buddy list, DMs, community rooms, presence
 - **Restaurants** — community-scored safe dining + map
 - **Recipes** — GF recipe database with ratings
 - **Health** — mental check-ins + physical healing tips
-- **Premium** — optional supporter badge (Stripe-ready or simulated)
+- **Profiles** — public profiles, follow, edit your own

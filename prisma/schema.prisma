@@ -22,7 +22,6 @@ model User {
   avatarUrl    String?
   bio          String?
   location     String?
-  isPremium    Boolean  @default(false)
   presence     String   @default("offline") // online | away | offline
   lastSeen     DateTime @default(now())
   createdAt    DateTime @default(now())
@@ -49,8 +48,7 @@ model User {
   moodEntries    MoodEntry[]
   journalEntries JournalEntry[]
 
-  subscription Subscription?
-  flagsRaised  FlaggedContent[] @relation("reporter")
+  flagsRaised FlaggedContent[] @relation("reporter")
 }
 
 model Profile {
@@ -273,18 +271,6 @@ model JournalEntry {
   prompt    String?
   content   String
   createdAt DateTime @default(now())
-}
-
-model Subscription {
-  id               String    @id @default(cuid())
-  userId           String    @unique
-  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  plan             String    @default("free")
-  status           String    @default("inactive")
-  stripeCustomerId String?
-  stripeSubId      String?
-  currentPeriodEnd DateTime?
-  createdAt        DateTime  @default(now())
 }
 
 model FlaggedContent {
