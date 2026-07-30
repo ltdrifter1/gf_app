@@ -38,17 +38,24 @@ export default async function ChatRoomPage({
   });
   if (!room) notFound();
 
-  await prisma.chatRoomMember.upsert({
+  const membership = await prisma.chatRoomMember.findUnique({
     where: { roomId_userId: { roomId: room.id, userId: user.id } },
-    create: { roomId: room.id, userId: user.id },
-    update: {},
   });
+
+  if (!membership) {
+    if (room.isCommunity) {
+      await prisma.chatRoomMember.create({
+        data: { roomId: room.id, userId: user.id },
+      });
+    } else {
+      notFound(); // don't leak DM existence
+    }
+  }
 
   const isDm = !room.isCommunity;
   const peer = room.members[0]?.user;
   const displayName = isDm && peer ? peer.name : room.name;
-  const displayEmoji =
-    isDm && peer ? null : ROOM_EMOJI[room.slug] ?? "💬";
+  const displayEmoji = isDm && peer ? null : ROOM_EMOJI[room.slug] ?? "💬";
 
   const [rooms, dms] = await Promise.all([
     getRoomsWithStats(),

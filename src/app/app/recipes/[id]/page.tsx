@@ -84,10 +84,14 @@ export default async function RecipeDetail({ params }: { params: Promise<{ id: s
             <div className="mt-3 space-y-3">
               {r.ratings.filter((x) => x.review).map((rev) => (
                 <div key={rev.id} className="flex gap-3">
-                  <Avatar name={rev.user.name} src={rev.user.avatarUrl} size={36} />
+                  <Link href={`/app/u/${rev.user.username}`}>
+                    <Avatar name={rev.user.name} src={rev.user.avatarUrl} size={36} />
+                  </Link>
                   <div className="flex-1 rounded-2xl bg-white/60 dark:bg-white/5 p-3">
                     <div className="flex items-center justify-between">
-                      <p className="text-sm font-semibold text-sage-900 dark:text-white">{rev.user.name}</p>
+                      <Link href={`/app/u/${rev.user.username}`} className="text-sm font-semibold text-sage-900 hover:underline dark:text-white">
+                        {rev.user.name}
+                      </Link>
                       <Stars value={rev.rating} />
                     </div>
                     <p className="mt-1 text-sm text-sage-700 dark:text-sage-200">{rev.review}</p>
@@ -115,13 +119,13 @@ export default async function RecipeDetail({ params }: { params: Promise<{ id: s
             </div>
           </div>
           <div className="card p-5">
-            <div className="mb-3 flex items-center gap-2">
+            <Link href={`/app/u/${r.author.username}`} className="mb-3 flex items-center gap-2 hover:opacity-90">
               <Avatar name={r.author.name} src={r.author.avatarUrl} size={36} />
               <div>
                 <p className="text-sm font-semibold text-sage-900 dark:text-white">{r.author.name}</p>
-                <p className="text-xs text-sage-400">Recipe author</p>
+                <p className="text-xs text-sage-400">@{r.author.username}</p>
               </div>
-            </div>
+            </Link>
             <RecipeRatingForm recipeId={r.id} saved={r.savedBy.length > 0} />
           </div>
         </div>
