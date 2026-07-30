@@ -1,0 +1,180 @@
+// Circle — launch schema (social + messenger + premium)
+//
+// Local development uses SQLite. Production target is PostgreSQL / Supabase:
+// change `provider` to "postgresql" and point DATABASE_URL at your instance.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  username     String   @unique
+  passwordHash String
+  name         String
+  role         String   @default("USER") // USER | ADMIN
+  avatarUrl    String?
+  bio          String?
+  location     String?
+  isPremium    Boolean  @default(false)
+  presence     String   @default("offline") // online | away | offline
+  lastSeen     DateTime @default(now())
+  createdAt    DateTime @default(now())
+
+  profile Profile?
+
+  posts      Post[]
+  comments   Comment[]
+  likes      Like[]
+  savedPosts SavedPost[]
+
+  following Follow[] @relation("follower")
+  followers Follow[] @relation("following")
+
+  roomMemberships ChatRoomMember[]
+  messages        Message[]
+  typing          TypingIndicator[]
+
+  subscription Subscription?
+  flagsRaised  FlaggedContent[] @relation("reporter")
+}
+
+model Profile {
+  id           String  @id @default(cuid())
+  userId       String  @unique
+  user         User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  diagnosis    String? // celiac | gluten-intolerance | supporter | unspecified
+  dietaryNotes String?
+}
+
+model Follow {
+  id          String   @id @default(cuid())
+  followerId  String
+  followingId String
+  follower    User     @relation("follower", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User     @relation("following", fields: [followingId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@unique([followerId, followingId])
+}
+
+model Post {
+  id        String   @id @default(cuid())
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  category  String
+  title     String
+  content   String
+  imageUrl  String?
+  createdAt DateTime @default(now())
+
+  comments Comment[]
+  likes    Like[]
+  savedBy  SavedPost[]
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  content   String
+  createdAt DateTime @default(now())
+}
+
+model Like {
+  id     String @id @default(cuid())
+  postId String
+  userId String
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+}
+
+model SavedPost {
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([postId, userId])
+}
+
+model ChatRoom {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  isCommunity Boolean  @default(true)
+  isPremium   Boolean  @default(false) // Premium Lounge rooms
+  createdAt   DateTime @default(now())
+
+  members  ChatRoomMember[]
+  messages Message[]
+  typing   TypingIndicator[]
+}
+
+model ChatRoomMember {
+  id       String   @id @default(cuid())
+  roomId   String
+  userId   String
+  room     ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  joinedAt DateTime @default(now())
+
+  @@unique([roomId, userId])
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  roomId    String
+  senderId  String
+  content   String
+  room      ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  sender    User     @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model TypingIndicator {
+  id        String   @id @default(cuid())
+  roomId    String
+  userId    String
+  room      ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  updatedAt DateTime @default(now())
+
+  @@unique([roomId, userId])
+}
+
+model Subscription {
+  id               String    @id @default(cuid())
+  userId           String    @unique
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan             String    @default("free") // free | premium
+  status           String    @default("inactive") // active | inactive | canceled
+  stripeCustomerId String?
+  stripeSubId      String?
+  currentPeriodEnd DateTime?
+  createdAt        DateTime  @default(now())
+}
+
+model FlaggedContent {
+  id         String   @id @default(cuid())
+  type       String
+  refId      String
+  reason     String
+  status     String   @default("open")
+  reporterId String
+  reporter   User     @relation("reporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+}
