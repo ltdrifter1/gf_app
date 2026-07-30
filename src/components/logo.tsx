@@ -12,19 +12,30 @@ export function Logo({
   return (
     <div className={cn("flex items-center gap-2.5", className)}>
       <div
-        className="relative grid place-items-center rounded-2xl bg-circle-gradient text-white shadow-glow"
-        style={{ width: size, height: size, boxShadow: "inset 0 1px 0 0 rgba(255,255,255,0.45), 0 8px 24px -8px rgba(51,123,255,0.6)" }}
+        className="relative grid place-items-center rounded-2xl bg-ccl-gradient text-white shadow-glow"
+        style={{
+          width: size,
+          height: size,
+          boxShadow:
+            "inset 0 1px 0 0 rgba(255,255,255,0.45), 0 8px 24px -8px rgba(51,123,255,0.6)",
+        }}
       >
-        {/* Overlapping circles — community coming together */}
-        <svg viewBox="0 0 24 24" width={size * 0.62} height={size * 0.62} fill="none">
-          <circle cx="9.5" cy="12" r="5" stroke="#fff" strokeWidth="1.7" opacity="0.95" />
-          <circle cx="14.5" cy="12" r="5" stroke="#fff" strokeWidth="1.7" opacity="0.7" />
-        </svg>
+        <span
+          className="font-display font-bold tracking-tight text-white"
+          style={{ fontSize: size * 0.32, letterSpacing: "-0.02em" }}
+        >
+          CCL
+        </span>
       </div>
       {showText && (
-        <span className="font-display text-lg font-bold tracking-tight text-sage-900 dark:text-white">
-          Circle
-        </span>
+        <div className="leading-tight">
+          <span className="block font-display text-lg font-bold tracking-tight text-sage-900 dark:text-white">
+            CCL
+          </span>
+          <span className="hidden text-[10px] font-medium uppercase tracking-[0.12em] text-sage-500 sm:block">
+            Celiac Community Link
+          </span>
+        </div>
       )}
     </div>
   );

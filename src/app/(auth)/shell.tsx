@@ -31,18 +31,23 @@ export function AuthShell({
         <ThemeToggle />
       </div>
 
-      {/* Left brand panel */}
       <div className="relative hidden flex-col justify-between overflow-hidden p-12 lg:flex">
-        <div className="absolute inset-0 bg-circle-gradient" />
-        <div className="absolute -left-20 top-20 h-72 w-72 rounded-full bg-white/10 blur-3xl animate-float" />
+        <div className="absolute inset-0 bg-ccl-gradient" />
+        <div className="absolute -left-20 top-20 h-72 w-72 animate-float rounded-full bg-white/10 blur-3xl" />
         <div className="absolute bottom-10 right-10 h-80 w-80 rounded-full bg-white/10 blur-3xl" />
         <Link href="/" className="relative z-10 brightness-0 invert">
           <Logo />
         </Link>
         <div className="relative z-10 max-w-md">
-          <h1 className="font-display text-4xl font-bold leading-tight text-white">
-            Find your Circle.
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-white/70">
+            Celiac Community Link
+          </p>
+          <h1 className="mt-3 font-display text-5xl font-bold leading-tight text-white">
+            CCL
           </h1>
+          <p className="mt-3 font-display text-2xl font-semibold text-white/95">
+            Connect. Share. Belong.
+          </p>
           <p className="mt-4 text-lg text-white/80">
             The gluten-free social network with an MSN-style messenger —
             community feed, live presence, and people who get it.
@@ -58,14 +63,15 @@ export function AuthShell({
         </p>
       </div>
 
-      {/* Right form panel */}
       <div className="flex min-h-screen items-center justify-center p-6">
         <div className="w-full max-w-md">
           <div className="mb-8 lg:hidden">
             <Logo />
           </div>
           <div className="card p-8">
-            <h2 className="font-display text-2xl font-bold text-sage-900 dark:text-white">{title}</h2>
+            <h2 className="font-display text-2xl font-bold text-sage-900 dark:text-white">
+              {title}
+            </h2>
             <p className="mt-1 text-sage-500 dark:text-sage-400">{subtitle}</p>
             <div className="mt-6">{children}</div>
           </div>

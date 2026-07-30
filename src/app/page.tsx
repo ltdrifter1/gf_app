@@ -46,9 +46,9 @@ export default async function LandingPage() {
     }));
 
   const messengerOnline = Math.max(onlineCount, hourMessages > 0 ? 1 : 0);
+
   return (
     <div className="relative overflow-hidden">
-      {/* Nav — brand only, no competing headline */}
       <header className="absolute inset-x-0 top-0 z-30 px-4 pt-4">
         <div className="mx-auto flex max-w-6xl items-center justify-between">
           <Logo />
@@ -72,26 +72,31 @@ export default async function LandingPage() {
         </div>
       </header>
 
-      {/* Full-bleed hero: brand + one job + CTA over messenger plane */}
       <section className="relative min-h-[100svh] lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
-        {/* Left: brand composition */}
         <div className="relative z-10 flex flex-col justify-center px-6 pb-10 pt-28 sm:px-10 lg:px-14 lg:pb-20 lg:pt-24">
-          <p className="flex items-center gap-2 text-sm font-medium text-sage-600 dark:text-sage-300 animate-fade-in">
-            <span className="h-2 w-2 animate-pulse-soft rounded-full bg-emerald-500 shadow-[0_0_8px_2px_rgba(16,185,129,0.55)]" />
-            {presenceLabel}
+          <p className="animate-fade-in text-sm font-semibold uppercase tracking-[0.18em] text-brand-600">
+            Celiac Community Link
           </p>
 
-          <h1 className="mt-5 font-display text-5xl font-bold leading-[1.02] tracking-tight text-sage-900 dark:text-white sm:text-6xl lg:text-7xl animate-fade-in [animation-delay:80ms]">
-            Find your{" "}
-            <span className="text-gradient">Circle.</span>
+          <h1 className="mt-4 font-display text-5xl font-bold leading-[1.02] tracking-tight text-sage-900 animate-fade-in dark:text-white sm:text-6xl lg:text-7xl [animation-delay:60ms]">
+            <span className="text-gradient">CCL</span>
           </h1>
 
-          <p className="mt-5 max-w-md text-lg text-sage-600 dark:text-sage-300 animate-fade-in [animation-delay:140ms]">
+          <p className="mt-4 font-display text-2xl font-semibold tracking-tight text-sage-800 animate-fade-in dark:text-sage-100 sm:text-3xl [animation-delay:100ms]">
+            Connect. Share. Belong.
+          </p>
+
+          <p className="mt-5 max-w-md text-lg text-sage-600 animate-fade-in dark:text-sage-300 [animation-delay:140ms]">
             The gluten-free social network with live MSN-style messenger — for
             people living with celiac and gluten intolerance.
           </p>
 
-          <div className="mt-8 flex flex-wrap gap-3 animate-fade-in [animation-delay:200ms]">
+          <p className="mt-5 flex items-center gap-2 text-sm font-medium text-sage-600 animate-fade-in dark:text-sage-300 [animation-delay:180ms]">
+            <span className="h-2 w-2 animate-pulse-soft rounded-full bg-emerald-500 shadow-[0_0_8px_2px_rgba(16,185,129,0.55)]" />
+            {presenceLabel}
+          </p>
+
+          <div className="mt-8 flex flex-wrap gap-3 animate-fade-in [animation-delay:220ms]">
             <Link href={primaryHref} className="btn-primary px-7 py-3.5 text-base">
               {user ? "Go to your feed" : "Join free"}
               <ArrowRight className="h-4 w-4" />
@@ -99,10 +104,9 @@ export default async function LandingPage() {
           </div>
         </div>
 
-        {/* Right / full-bleed messenger plane */}
         <div className="relative min-h-[52vh] lg:min-h-full">
           <div className="absolute inset-0 bg-gradient-to-br from-brand-600 via-brand-500 to-teal-500" />
-          <div className="absolute -left-20 top-1/4 h-72 w-72 rounded-full bg-white/10 blur-3xl animate-float" />
+          <div className="absolute -left-20 top-1/4 h-72 w-72 animate-float rounded-full bg-white/10 blur-3xl" />
           <div className="absolute bottom-10 right-0 h-80 w-80 rounded-full bg-cyan-300/20 blur-3xl" />
 
           <div className="relative flex h-full items-end px-4 pb-6 pt-4 sm:px-8 sm:pb-10 lg:items-center lg:px-10 lg:py-24">
@@ -126,14 +130,14 @@ export default async function LandingPage() {
                       },
                     ]
               }
-            />          </div>
+            />
+          </div>
         </div>
       </section>
 
-      {/* One proof section: safe dining */}
       <section id="dining" className="mx-auto max-w-5xl px-6 py-20 sm:px-10">
         <p className="text-sm font-semibold uppercase tracking-wide text-brand-600">
-          Also in Circle
+          Also in CCL
         </p>
         <h2 className="mt-2 font-display text-3xl font-bold text-sage-900 dark:text-white sm:text-4xl">
           Find places that actually get it
@@ -182,16 +186,15 @@ export default async function LandingPage() {
         )}
       </section>
 
-      {/* Closing CTA */}
       <section className="px-6 pb-24 sm:px-10">
-        <div className="relative mx-auto max-w-5xl overflow-hidden rounded-4xl bg-circle-gradient px-8 py-14 text-center shadow-glow sm:px-16 sm:py-16">
+        <div className="relative mx-auto max-w-5xl overflow-hidden rounded-4xl bg-ccl-gradient px-8 py-14 text-center shadow-glow sm:px-16 sm:py-16">
           <div className="absolute -right-10 -top-10 h-60 w-60 rounded-full bg-white/10 blur-2xl" />
           <div className="absolute -bottom-16 -left-10 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
           <h2 className="relative font-display text-3xl font-bold text-white sm:text-4xl">
-            You don&apos;t have to figure this out alone.
+            Connect. Share. Belong.
           </h2>
           <p className="relative mx-auto mt-4 max-w-md text-white/85">
-            {presenceLabel} — join the conversation.
+            {presenceLabel} — join the conversation on CCL.
           </p>
           <Link
             href={primaryHref}
@@ -207,7 +210,7 @@ export default async function LandingPage() {
       <footer className="border-t border-white/40 py-10 dark:border-white/10">
         <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-4 px-6 text-sm text-sage-500 dark:text-sage-400 sm:flex-row sm:px-10">
           <Logo size={28} />
-          <p>© {new Date().getFullYear()} Circle. Find your Circle.</p>
+          <p>© {new Date().getFullYear()} CCL · Celiac Community Link</p>
         </div>
       </footer>
     </div>

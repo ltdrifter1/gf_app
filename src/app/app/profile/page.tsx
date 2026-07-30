@@ -45,7 +45,7 @@ export default async function ProfilePage() {
   return (
     <div className="mx-auto max-w-3xl space-y-4">
       <div className="card overflow-hidden">
-        <div className="h-28 bg-circle-gradient" />
+        <div className="h-28 bg-ccl-gradient" />
         <div className="px-6 pb-6">
           <div className="-mt-10 flex items-end gap-4">
             <div className="rounded-full ring-4 ring-white dark:ring-[#141d19]">

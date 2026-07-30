@@ -42,7 +42,7 @@ const config: Config = {
         400: "#f0a868",
         500: "#e8924a",
       },
-      // Circle accent — violet, used in the signature blue→violet gradient
+      // CCL accent — violet, used in the signature blue→violet gradient
       accent: {
         300: "#c4b5fd",
         400: "#a78bfa",
@@ -66,7 +66,7 @@ const config: Config = {
         glow: "0 10px 40px -8px rgba(51,123,255,0.45)",
       },
       backgroundImage: {
-        "circle-gradient": "linear-gradient(135deg, #337bff 0%, #6d5cf6 55%, #22b8cf 120%)",
+        "ccl-gradient": "linear-gradient(135deg, #337bff 0%, #6d5cf6 55%, #22b8cf 120%)",
       },
       backdropBlur: {
         xs: "2px",

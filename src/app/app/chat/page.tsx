@@ -84,7 +84,7 @@ export default async function ChatHome() {
       </div>
 
       <div className="card hidden flex-col items-center justify-center p-10 text-center lg:flex">
-        <div className="grid h-20 w-20 place-items-center rounded-3xl bg-circle-gradient text-white shadow-glow">
+        <div className="grid h-20 w-20 place-items-center rounded-3xl bg-ccl-gradient text-white shadow-glow">
           <MessageCircle className="h-9 w-9" />
         </div>
         <h2 className="mt-5 font-display text-2xl font-bold text-sage-900 dark:text-white">

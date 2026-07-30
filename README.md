@@ -1,7 +1,9 @@
-# Circle
+# CCL — Celiac Community Link
 
-**Find your Circle.** A gluten-free social network with an MSN Messenger–style
-lounge — community, safe dining, recipes, and health support.
+**Connect. Share. Belong.**
+
+A gluten-free social network with an MSN Messenger–style lounge — community,
+safe dining, recipes, and health support.
 
 Built with Next.js 15, React, TypeScript, Tailwind CSS, and Prisma.
 
@@ -15,11 +17,11 @@ npx prisma db seed
 npm run dev            # http://localhost:3000
 ```
 
-Local demo login (dev only): `maya@circle.app` / `password123`
+Local demo login (dev only): `maya@ccl.app` / `password123`
 
 ## Ship to production
 
-See **[DEPLOY.md](./DEPLOY.md)** — Postgres + Vercel + `AUTH_SECRET` in ~10 minutes.
+See **[DEPLOY.md](./DEPLOY.md)** — Postgres + Vercel + `AUTH_SECRET`.
 
 ## Features
 
