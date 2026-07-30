@@ -128,7 +128,7 @@ export default async function SearchPage({
           {people.map((u) => (
             <Link
               key={u.id}
-              href="/app/profile"
+              href={`/app/u/${u.username}`}
               className="flex items-center gap-3 rounded-2xl bg-white/60 p-3 hover:bg-white/90 dark:bg-white/5 dark:hover:bg-white/10"
             >
               <Avatar name={u.name} src={u.avatarUrl} size={36} presence={u.presence} />

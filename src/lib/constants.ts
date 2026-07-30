@@ -54,5 +54,3 @@ export const JOURNAL_PROMPTS = [
   "Name three foods you're grateful you can still enjoy.",
   "What would you tell someone newly diagnosed today?",
 ];
-
-export const PREMIUM_PRICE_USD = 9;
