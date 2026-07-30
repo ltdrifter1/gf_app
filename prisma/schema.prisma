@@ -1,10 +1,7 @@
-// Circle — data model
+// Circle — launch schema (social + messenger + premium)
 //
-// NOTE ON DATABASE:
-// Local development uses SQLite for a zero-config, fully-runnable setup.
-// The production target is PostgreSQL / Supabase. To deploy on Postgres,
-// change `provider` below to "postgresql" and point DATABASE_URL at your
-// Supabase/Postgres instance (the schema is otherwise portable).
+// Local development uses SQLite. Production target is PostgreSQL / Supabase:
+// change `provider` to "postgresql" and point DATABASE_URL at your instance.
 
 generator client {
   provider = "prisma-client-js"
@@ -15,116 +12,71 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ----------------------------- Users & Social graph -----------------------------
-
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
   username     String   @unique
   passwordHash String
   name         String
-  role         String   @default("USER") // USER | PROFESSIONAL | ADMIN
+  role         String   @default("USER") // USER | ADMIN
   avatarUrl    String?
   bio          String?
   location     String?
-  lat          Float?
-  lng          Float?
   isPremium    Boolean  @default(false)
   presence     String   @default("offline") // online | away | offline
   lastSeen     DateTime @default(now())
   createdAt    DateTime @default(now())
 
-  profile      Profile?
+  profile Profile?
 
-  posts        Post[]
-  comments     Comment[]
-  likes        Like[]
-  savedPosts   SavedPost[]
+  posts      Post[]
+  comments   Comment[]
+  likes      Like[]
+  savedPosts SavedPost[]
 
-  following    Follow[] @relation("follower")
-  followers    Follow[] @relation("following")
-
-  sentRequests     FriendRequest[] @relation("requester")
-  receivedRequests FriendRequest[] @relation("addressee")
+  following Follow[] @relation("follower")
+  followers Follow[] @relation("following")
 
   roomMemberships ChatRoomMember[]
   messages        Message[]
   typing          TypingIndicator[]
 
-  restaurantReviews RestaurantReview[]
-  recipes           Recipe[]
-  recipeRatings     RecipeRating[]
-  recipeCollections RecipeCollection[]
-  savedRecipes      SavedRecipe[]
-
-  productReviews   ProductReview[]
-  ingredientReports IngredientChangeReport[]
-
-  hostedEvents Event[]            @relation("eventHost")
-  eventRsvps   EventAttendee[]
-
-  professional HealthcareProfessional?
-  articles     Article[]
-  videos       Video[]
-
-  moodEntries    MoodEntry[]
-  journalEntries JournalEntry[]
-
   subscription Subscription?
   flagsRaised  FlaggedContent[] @relation("reporter")
-  aiMessages   AiMessage[]
 }
 
 model Profile {
-  id           String   @id @default(cuid())
-  userId       String   @unique
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  diagnosis    String?  // celiac | gluten-intolerance | supporter | unspecified
-  diagnosedAt  DateTime?
+  id           String  @id @default(cuid())
+  userId       String  @unique
+  user         User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  diagnosis    String? // celiac | gluten-intolerance | supporter | unspecified
   dietaryNotes String?
-  showOnMap    Boolean  @default(true)
-  shareLocation Boolean @default(false)
-  acceptsMeetups Boolean @default(true)
 }
 
 model Follow {
-  id          String @id @default(cuid())
+  id          String   @id @default(cuid())
   followerId  String
   followingId String
-  follower    User   @relation("follower", fields: [followerId], references: [id], onDelete: Cascade)
-  following   User   @relation("following", fields: [followingId], references: [id], onDelete: Cascade)
+  follower    User     @relation("follower", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User     @relation("following", fields: [followingId], references: [id], onDelete: Cascade)
   createdAt   DateTime @default(now())
 
   @@unique([followerId, followingId])
 }
 
-model FriendRequest {
-  id          String   @id @default(cuid())
-  requesterId String
-  addresseeId String
-  status      String   @default("PENDING") // PENDING | ACCEPTED | DECLINED
-  requester   User     @relation("requester", fields: [requesterId], references: [id], onDelete: Cascade)
-  addressee   User     @relation("addressee", fields: [addresseeId], references: [id], onDelete: Cascade)
-  createdAt   DateTime @default(now())
-
-  @@unique([requesterId, addresseeId])
-}
-
-// ----------------------------- Community Hub -----------------------------
-
 model Post {
   id        String   @id @default(cuid())
   authorId  String
   author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  category  String   // see CATEGORIES in app
+  category  String
   title     String
   content   String
   imageUrl  String?
   createdAt DateTime @default(now())
 
-  comments   Comment[]
-  likes      Like[]
-  savedBy    SavedPost[]
+  comments Comment[]
+  likes    Like[]
+  savedBy  SavedPost[]
 }
 
 model Comment {
@@ -148,24 +100,23 @@ model Like {
 }
 
 model SavedPost {
-  id     String @id @default(cuid())
-  postId String
-  userId String
-  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String   @id @default(cuid())
+  postId    String
+  userId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
 
   @@unique([postId, userId])
 }
-
-// ----------------------------- Chat -----------------------------
 
 model ChatRoom {
   id          String   @id @default(cuid())
   name        String
   slug        String   @unique
   description String?
-  isCommunity Boolean  @default(true) // community room vs DM/group
+  isCommunity Boolean  @default(true)
+  isPremium   Boolean  @default(false) // Premium Lounge rooms
   createdAt   DateTime @default(now())
 
   members  ChatRoomMember[]
@@ -174,11 +125,11 @@ model ChatRoom {
 }
 
 model ChatRoomMember {
-  id     String @id @default(cuid())
-  roomId String
-  userId String
-  room   ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
-  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id       String   @id @default(cuid())
+  roomId   String
+  userId   String
+  room     ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   joinedAt DateTime @default(now())
 
   @@unique([roomId, userId])
@@ -205,280 +156,24 @@ model TypingIndicator {
   @@unique([roomId, userId])
 }
 
-// ----------------------------- Restaurants -----------------------------
-
-model Restaurant {
-  id                   String   @id @default(cuid())
-  name                 String
-  description          String?
-  address              String
-  city                 String
-  lat                  Float
-  lng                  Float
-  imageUrl             String?
-  cuisine              String?
-  priceLevel           Int      @default(2) // 1-4
-  dedicatedFryer       Boolean  @default(false)
-  separatePrepArea     Boolean  @default(false)
-  dedicatedKitchen     Boolean  @default(false)
-  certified            Boolean  @default(false)
-  glutenFreeMenu       Boolean  @default(false)
-  celiacSafe           Boolean  @default(false)
-  delivery             Boolean  @default(false)
-  staffTrainingLevel   String   @default("basic") // none | basic | trained | expert
-  crossContaminationRisk Int    @default(50) // 0 (low) - 100 (high)
-  communityConfidence  Int      @default(50) // 0 - 100
-  createdAt            DateTime @default(now())
-
-  reviews RestaurantReview[]
-}
-
-model RestaurantReview {
-  id           String   @id @default(cuid())
-  restaurantId String
-  userId       String
-  rating       Int      // 1-5
-  safetyRating Int      // 1-5
-  content      String
-  imageUrl     String?
-  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
-  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt    DateTime @default(now())
-}
-
-// ----------------------------- Recipes -----------------------------
-
-model Recipe {
-  id          String   @id @default(cuid())
-  authorId    String
-  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  title       String
-  description String
-  category    String
-  imageUrl    String?
-  prepTime    Int      // minutes
-  cookTime    Int      // minutes
-  servings    Int      @default(2)
-  ingredients Json     // string[]
-  steps       Json     // string[]
-  calories    Int      @default(0)
-  protein     Int      @default(0)
-  carbs       Int      @default(0)
-  fat         Int      @default(0)
-  createdAt   DateTime @default(now())
-
-  ratings     RecipeRating[]
-  savedBy     SavedRecipe[]
-  collections RecipeCollectionItem[]
-}
-
-model RecipeRating {
-  id       String @id @default(cuid())
-  recipeId String
-  userId   String
-  rating   Int    // 1-5
-  review   String?
-  recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
-  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-
-  @@unique([recipeId, userId])
-}
-
-model SavedRecipe {
-  id       String @id @default(cuid())
-  recipeId String
-  userId   String
-  recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
-  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([recipeId, userId])
-}
-
-model RecipeCollection {
-  id     String @id @default(cuid())
-  userId String
-  name   String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  items  RecipeCollectionItem[]
-}
-
-model RecipeCollectionItem {
-  id           String @id @default(cuid())
-  collectionId String
-  recipeId     String
-  collection   RecipeCollection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
-  recipe       Recipe           @relation(fields: [recipeId], references: [id], onDelete: Cascade)
-
-  @@unique([collectionId, recipeId])
-}
-
-// ----------------------------- Products -----------------------------
-
-model Product {
-  id          String   @id @default(cuid())
-  name        String
-  brand       String
-  barcode     String?  @unique
-  category    String
-  imageUrl    String?
-  ingredients String
-  safetyRating Int     @default(50) // 0-100
-  certified   Boolean  @default(false)
-  createdAt   DateTime @default(now())
-
-  reviews ProductReview[]
-  reports IngredientChangeReport[]
-}
-
-model ProductReview {
-  id        String @id @default(cuid())
-  productId String
-  userId    String
-  rating    Int
-  content   String
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-}
-
-model IngredientChangeReport {
-  id        String @id @default(cuid())
-  productId String
-  userId    String
-  description String
-  status    String @default("open") // open | reviewed
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-}
-
-// ----------------------------- Events / Local community -----------------------------
-
-model Event {
-  id          String   @id @default(cuid())
-  title       String
-  description String
-  location    String
-  city        String
-  lat         Float
-  lng         Float
-  startsAt    DateTime
-  type        String   @default("meetup") // meetup | dinner | support-circle
-  hostId      String
-  host        User     @relation("eventHost", fields: [hostId], references: [id], onDelete: Cascade)
-  createdAt   DateTime @default(now())
-
-  attendees EventAttendee[]
-}
-
-model EventAttendee {
-  id      String @id @default(cuid())
-  eventId String
-  userId  String
-  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([eventId, userId])
-}
-
-// ----------------------------- Experts / Knowledge -----------------------------
-
-model HealthcareProfessional {
-  id          String  @id @default(cuid())
-  userId      String  @unique
-  user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  credentials String
-  specialty   String
-  verified    Boolean @default(false)
-  badge       String  @default("pending") // pending | verified
-  bio         String?
-  createdAt   DateTime @default(now())
-}
-
-model Article {
-  id          String   @id @default(cuid())
-  authorId    String
-  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  title       String
-  content     String
-  category    String
-  imageUrl    String?
-  type        String   @default("article") // article | webinar
-  publishedAt DateTime @default(now())
-}
-
-model Video {
-  id          String   @id @default(cuid())
-  authorId    String
-  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  title       String
-  description String?
-  url         String
-  createdAt   DateTime @default(now())
-}
-
-// ----------------------------- Mental health -----------------------------
-
-model MentalHealthResource {
-  id       String @id @default(cuid())
-  title    String
-  category String // anxiety | depression | isolation | eating-out | newly-diagnosed
-  content  String
-  type     String @default("article") // article | exercise | directory
-}
-
-model MoodEntry {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  mood      Int      // 1-5
-  note      String?
-  createdAt DateTime @default(now())
-}
-
-model JournalEntry {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  prompt    String?
-  content   String
-  createdAt DateTime @default(now())
-}
-
-// ----------------------------- AI assistant -----------------------------
-
-model AiMessage {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role      String   // user | assistant
-  content   String
-  createdAt DateTime @default(now())
-}
-
-// ----------------------------- Premium / Subscriptions -----------------------------
-
 model Subscription {
-  id               String   @id @default(cuid())
-  userId           String   @unique
-  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  plan             String   @default("free") // free | premium
-  status           String   @default("inactive") // active | inactive | canceled
+  id               String    @id @default(cuid())
+  userId           String    @unique
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan             String    @default("free") // free | premium
+  status           String    @default("inactive") // active | inactive | canceled
   stripeCustomerId String?
   stripeSubId      String?
   currentPeriodEnd DateTime?
-  createdAt        DateTime @default(now())
+  createdAt        DateTime  @default(now())
 }
-
-// ----------------------------- Admin moderation -----------------------------
 
 model FlaggedContent {
   id         String   @id @default(cuid())
-  type       String   // post | comment | review | message
+  type       String
   refId      String
   reason     String
-  status     String   @default("open") // open | resolved | removed
+  status     String   @default("open")
   reporterId String
   reporter   User     @relation("reporter", fields: [reporterId], references: [id], onDelete: Cascade)
   createdAt  DateTime @default(now())

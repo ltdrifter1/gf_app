@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { prisma } from "@/lib/prisma";
@@ -7,26 +7,35 @@ import { getRoomsWithStats, ROOM_EMOJI } from "@/lib/chat";
 import { RoomsList } from "@/components/rooms-list";
 import { ChatWindow } from "@/components/chat-window";
 
-export default async function ChatRoomPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function ChatRoomPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const { slug } = await params;
   const user = await requireUser();
 
   const room = await prisma.chatRoom.findUnique({ where: { slug } });
   if (!room) notFound();
 
-  // ensure membership
+  if (room.isPremium && !user.isPremium) {
+    redirect("/app/premium");
+  }
+
   await prisma.chatRoomMember.upsert({
     where: { roomId_userId: { roomId: room.id, userId: user.id } },
     create: { roomId: room.id, userId: user.id },
     update: {},
   });
 
-  const rooms = await getRoomsWithStats();
+  const rooms = await getRoomsWithStats({ includePremium: user.isPremium });
 
   return (
     <div className="mx-auto grid max-w-6xl gap-4 lg:grid-cols-[340px_1fr]">
       <div className="card hidden p-4 lg:block">
-        <h1 className="px-1 pb-3 font-display text-xl font-bold text-sage-900 dark:text-white">Messenger</h1>
+        <h1 className="px-1 pb-3 font-display text-xl font-bold text-sage-900 dark:text-white">
+          Messenger
+        </h1>
         <RoomsList rooms={rooms} activeSlug={slug} />
       </div>
       <div>

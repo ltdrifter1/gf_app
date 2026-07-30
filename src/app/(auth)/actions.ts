@@ -45,19 +45,20 @@ export async function registerAction(_prev: unknown, formData: FormData) {
       profile: {
         create: {
           diagnosis: diagnosis || "unspecified",
-          diagnosedAt: diagnosis ? new Date() : null,
         },
       },
       subscription: { create: { plan: "free", status: "inactive" } },
     },
   });
 
-  // Auto-join the General Support community room if it exists
-  const general = await prisma.chatRoom.findUnique({ where: { slug: "general-support" } });
-  if (general) {
-    await prisma.chatRoomMember.create({
-      data: { roomId: general.id, userId: user.id },
-    }).catch(() => {});
+  // Auto-join free community rooms
+  const freeRooms = await prisma.chatRoom.findMany({
+    where: { isCommunity: true, isPremium: false },
+  });
+  for (const room of freeRooms) {
+    await prisma.chatRoomMember
+      .create({ data: { roomId: room.id, userId: user.id } })
+      .catch(() => {});
   }
 
   await prisma.user.update({

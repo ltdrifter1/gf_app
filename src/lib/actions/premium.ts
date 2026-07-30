@@ -31,7 +31,19 @@ export async function upgradeToPremium() {
       stripeSubId: "sub_simulated",
     },
   });
+
+  // Auto-join Premium Lounge
+  const lounge = await prisma.chatRoom.findUnique({ where: { slug: "premium-lounge" } });
+  if (lounge) {
+    await prisma.chatRoomMember.upsert({
+      where: { roomId_userId: { roomId: lounge.id, userId: user.id } },
+      create: { roomId: lounge.id, userId: user.id },
+      update: {},
+    });
+  }
+
   revalidatePath("/app/premium");
+  revalidatePath("/app/chat");
   revalidatePath("/app");
   return { ok: true, simulated: !usingStripe };
 }

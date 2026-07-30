@@ -44,17 +44,17 @@ export function AuthShell({
             Find your Circle.
           </h1>
           <p className="mt-4 text-lg text-white/80">
-            A community-first home for gluten-free living — safe restaurants,
-            trusted recipes, and real support, anywhere in the world.
+            The gluten-free social network with an MSN-style messenger —
+            community feed, live presence, and people who get it.
           </p>
           <div className="mt-8 flex items-center gap-6 text-white/90">
-            <Stat n="12k+" l="Members" />
-            <Stat n="40+" l="Countries" />
-            <Stat n="3.4k" l="Safe spots" />
+            <Stat n="Feed" l="Share & connect" />
+            <Stat n="Chat" l="Live presence" />
+            <Stat n="Pro" l="Premium Lounge" />
           </div>
         </div>
         <p className="relative z-10 text-sm text-white/60">
-          Community-first · modern · global 🔵
+          Community · Messenger · Premium
         </p>
       </div>
 

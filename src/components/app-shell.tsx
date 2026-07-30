@@ -6,20 +6,13 @@ import { useState } from "react";
 import {
   Home,
   MessageCircle,
-  MapPin,
-  ChefHat,
-  ShoppingBasket,
-  HeartPulse,
-  Sparkles,
-  Plane,
-  GraduationCap,
   Crown,
   Shield,
   Menu,
   X,
   Search,
   LogOut,
-  Users,
+  Bookmark,
 } from "lucide-react";
 import { Logo } from "./logo";
 import { Avatar } from "./ui/avatar";
@@ -37,16 +30,9 @@ type NavUser = {
 };
 
 const NAV = [
-  { href: "/app", label: "Community Hub", icon: Home, exact: true },
+  { href: "/app", label: "Community", icon: Home, exact: true },
   { href: "/app/chat", label: "Messenger", icon: MessageCircle },
-  { href: "/app/restaurants", label: "Safe Dining", icon: MapPin },
-  { href: "/app/community-map", label: "Local Community", icon: Users },
-  { href: "/app/recipes", label: "Recipes", icon: ChefHat },
-  { href: "/app/products", label: "Products", icon: ShoppingBasket },
-  { href: "/app/mental-health", label: "Mental Health", icon: HeartPulse },
-  { href: "/app/assistant", label: "AI Assistant", icon: Sparkles },
-  { href: "/app/travel", label: "Travel Mode", icon: Plane },
-  { href: "/app/experts", label: "Experts", icon: GraduationCap },
+  { href: "/app/saved", label: "Saved", icon: Bookmark },
   { href: "/app/premium", label: "Premium", icon: Crown },
 ];
 
@@ -72,7 +58,6 @@ export function AppShell({
 
   return (
     <div className="min-h-screen lg:flex">
-      {/* Sidebar */}
       <aside
         className={cn(
           "fixed inset-y-0 left-0 z-40 w-72 transform transition-transform duration-300 lg:static lg:translate-x-0",
@@ -133,9 +118,7 @@ export function AppShell({
         />
       )}
 
-      {/* Main */}
       <div className="flex min-w-0 flex-1 flex-col">
-        {/* Topbar */}
         <header className="sticky top-0 z-20 px-3 pt-3">
           <div className="glass flex items-center gap-3 rounded-3xl px-3 py-2.5">
             <button className="lg:hidden btn-ghost p-2" onClick={() => setOpen(true)}>
@@ -145,7 +128,7 @@ export function AppShell({
               <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-sage-400" />
               <input
                 name="q"
-                placeholder="Search community, restaurants, recipes…"
+                placeholder="Search posts, people, rooms…"
                 className="input pl-10"
               />
             </form>

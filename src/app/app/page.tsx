@@ -4,7 +4,7 @@ import { requireUser } from "@/lib/auth";
 import { POST_CATEGORIES, categoryBySlug } from "@/lib/constants";
 import { PostComposer } from "@/components/post-composer";
 import { PostCard, type PostCardData } from "@/components/post-card";
-import { TrendingUp, Sparkles } from "lucide-react";
+import { MessageCircle, TrendingUp } from "lucide-react";
 
 export default async function FeedPage({
   searchParams,
@@ -52,14 +52,13 @@ export default async function FeedPage({
       <div className="space-y-4">
         <div>
           <h1 className="font-display text-2xl font-bold text-sage-900 dark:text-white">
-            {activeCat ? `${activeCat.emoji} ${activeCat.label}` : "Community Hub"}
+            {activeCat ? `${activeCat.emoji} ${activeCat.label}` : "Community"}
           </h1>
           <p className="text-sage-500 dark:text-sage-400">
-            {activeCat ? "Posts in this category" : "Your feed — fresh from your Circle"}
+            {activeCat ? "Posts in this topic" : "Your feed — fresh from your Circle"}
           </p>
         </div>
 
-        {/* Category scroller */}
         <div className="flex gap-2 overflow-x-auto pb-1">
           <Link
             href="/app"
@@ -97,11 +96,23 @@ export default async function FeedPage({
         )}
       </div>
 
-      {/* Right rail */}
       <aside className="hidden space-y-4 lg:block">
+        <Link
+          href="/app/chat"
+          className="card block overflow-hidden transition hover:shadow-glass-lg"
+        >
+          <div className="bg-circle-gradient p-5 text-white">
+            <MessageCircle className="h-6 w-6" />
+            <h3 className="mt-2 font-display text-lg font-semibold">Open Messenger</h3>
+            <p className="mt-1 text-sm text-white/80">
+              Jump into a room — presence on, people waiting.
+            </p>
+          </div>
+        </Link>
+
         <div className="card p-5">
           <h3 className="flex items-center gap-2 font-display font-semibold text-sage-900 dark:text-white">
-            <TrendingUp className="h-4 w-4 text-brand-600" /> Browse topics
+            <TrendingUp className="h-4 w-4 text-brand-600" /> Topics
           </h3>
           <div className="mt-3 space-y-1">
             {POST_CATEGORIES.map((c) => (
@@ -116,22 +127,13 @@ export default async function FeedPage({
           </div>
         </div>
 
-        <div className="card overflow-hidden">
-          <div className="bg-gradient-to-br from-brand-500 to-sage-600 p-5 text-white">
-            <Sparkles className="h-6 w-6" />
-            <h3 className="mt-2 font-display text-lg font-semibold">Ask the AI Assistant</h3>
-            <p className="mt-1 text-sm text-white/80">
-              "Is this ingredient safe?" Get instant, sourced answers.
-            </p>
-            <Link href="/app/assistant" className="btn mt-4 bg-white px-4 py-2 text-sm font-semibold text-brand-700">
-              Open assistant
-            </Link>
-          </div>
-        </div>
-
-        <Link href="/app/saved" className="card block p-5 hover:shadow-glass-lg transition">
-          <h3 className="font-display font-semibold text-sage-900 dark:text-white">Saved posts</h3>
-          <p className="text-sm text-sage-500 dark:text-sage-400">Your bookmarked threads, in one place.</p>
+        <Link href="/app/saved" className="card block p-5 transition hover:shadow-glass-lg">
+          <h3 className="font-display font-semibold text-sage-900 dark:text-white">
+            Saved posts
+          </h3>
+          <p className="text-sm text-sage-500 dark:text-sage-400">
+            Your bookmarked threads, in one place.
+          </p>
         </Link>
       </aside>
     </div>
