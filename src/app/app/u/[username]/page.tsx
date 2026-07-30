@@ -6,6 +6,7 @@ import { PostCard, type PostCardData } from "@/components/post-card";
 import { FollowButton } from "@/components/follow-button";
 import { MessageButton } from "@/components/message-button";
 import { MapPin, Calendar } from "lucide-react";
+import { effectivePresence } from "@/lib/presence";
 
 export default async function PublicProfilePage({
   params,
@@ -76,7 +77,7 @@ export default async function PublicProfilePage({
                 name={profileUser.name}
                 src={profileUser.avatarUrl}
                 size={88}
-                presence={profileUser.presence}
+                presence={effectivePresence(profileUser.presence, profileUser.lastSeen)}
               />
             </div>
             <div className="mb-2 flex-1">

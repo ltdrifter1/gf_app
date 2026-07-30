@@ -9,6 +9,7 @@ import { RoomsList } from "@/components/rooms-list";
 import { ChatWindow } from "@/components/chat-window";
 import { Avatar } from "@/components/ui/avatar";
 import { timeAgo } from "@/lib/utils";
+import { effectivePresence } from "@/lib/presence";
 
 export default async function ChatRoomPage({
   params,
@@ -30,6 +31,7 @@ export default async function ChatRoomPage({
               username: true,
               avatarUrl: true,
               presence: true,
+              lastSeen: true,
             },
           },
         },
@@ -125,7 +127,9 @@ export default async function ChatRoomPage({
           description={isDm && peer ? `@${peer.username}` : room.description}
           isDm={isDm}
           peerAvatar={isDm && peer ? peer.avatarUrl : null}
-          peerPresence={isDm && peer ? peer.presence : null}
+          peerPresence={
+            isDm && peer ? effectivePresence(peer.presence, peer.lastSeen) : null
+          }
         />
       </div>
     </div>
