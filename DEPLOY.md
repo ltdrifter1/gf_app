@@ -1,6 +1,6 @@
-# Deploy CCL (ship today)
+# Deploy YCN (ship today)
 
-CCL (Celiac Community Link) runs on **Next.js 15**. Local uses SQLite; production needs **PostgreSQL**.
+YCN (Your Celiac Network) runs on **Next.js 15**. Local uses SQLite; production needs **PostgreSQL**.
 
 ## 1. Create a Postgres database
 
@@ -36,7 +36,7 @@ datasource db {
 DATABASE_URL="…" AUTH_SECRET="…" npx tsx prisma/seed.ts
 ```
 
-**Do not seed demo accounts on a public production site** (`maya@ccl.app` / `password123` is for local only).
+**Do not seed demo accounts on a public production site** (`maya@ycn.app` / `password123` is for local only).
 
 ## 4. Local production-like check
 
@@ -59,6 +59,6 @@ npm run build && npm start
 
 ## Security notes
 
-- Session cookie is httpOnly + Secure in production (`ccl_session`)
+- Session cookie is httpOnly + Secure in production (`ycn_session`)
 - DMs are membership-gated (no auto-join via URL)
 - Security headers set in `next.config.mjs`

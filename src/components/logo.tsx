@@ -12,7 +12,7 @@ export function Logo({
   return (
     <div className={cn("flex items-center gap-2.5", className)}>
       <div
-        className="relative grid place-items-center rounded-2xl bg-ccl-gradient text-white shadow-glow"
+        className="relative grid place-items-center rounded-2xl bg-ycn-gradient text-white shadow-glow"
         style={{
           width: size,
           height: size,
@@ -24,16 +24,16 @@ export function Logo({
           className="font-display font-bold tracking-tight text-white"
           style={{ fontSize: size * 0.32, letterSpacing: "-0.02em" }}
         >
-          CCL
+          YCN
         </span>
       </div>
       {showText && (
         <div className="leading-tight">
           <span className="block font-display text-lg font-bold tracking-tight text-sage-900 dark:text-white">
-            CCL
+            YCN
           </span>
           <span className="hidden text-[10px] font-medium uppercase tracking-[0.12em] text-sage-500 sm:block">
-            Celiac Community Link
+            Your Celiac Network
           </span>
         </div>
       )}

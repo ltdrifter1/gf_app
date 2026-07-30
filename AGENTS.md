@@ -1,11 +1,11 @@
-# CCL — Celiac Community Link
+# YCN — Your Celiac Network
 
 **Connect. Share. Belong.**
 
-CCL is a **gluten-free social network** with an MSN Messenger–style chat lounge.
+YCN is a **gluten-free social network** with an MSN Messenger–style chat lounge.
 Full-stack **Next.js 15** + **TypeScript** + **Tailwind** + **Prisma**.
 
-Design: glassmorphism with MSN gloss. Brand gradient: `bg-ccl-gradient`.
+Design: glassmorphism with MSN gloss. Brand gradient: `bg-ycn-gradient`.
 
 ## Surface
 
@@ -27,8 +27,8 @@ Design: glassmorphism with MSN gloss. Brand gradient: `bg-ccl-gradient`.
 - Dev: `npm run dev` → http://localhost:3000
 - Local DB = SQLite. Production = Postgres — see `DEPLOY.md`
 - Reset: delete `prisma/dev.db` then `npx prisma db push && npx prisma db seed`
-- Demo (local only): `maya@ccl.app` / `password123`
+- Demo (local only): `maya@ycn.app` / `password123`
 - `AUTH_SECRET` is required in production (fails closed)
 - DMs are membership-gated; community rooms auto-join
 - Chat/presence: HTTP polling (~2.5s); online = lastSeen < 60s
-- Auth cookie: `ccl_session`
+- Auth cookie: `ycn_session`

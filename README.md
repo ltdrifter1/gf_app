@@ -1,4 +1,4 @@
-# CCL — Celiac Community Link
+# YCN — Your Celiac Network
 
 **Connect. Share. Belong.**
 
@@ -17,7 +17,7 @@ npx prisma db seed
 npm run dev            # http://localhost:3000
 ```
 
-Local demo login (dev only): `maya@ccl.app` / `password123`
+Local demo login (dev only): `maya@ycn.app` / `password123`
 
 ## Ship to production
 

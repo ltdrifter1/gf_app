@@ -16,9 +16,9 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "CCL — Celiac Community Link",
+  title: "YCN — Your Celiac Network",
   description:
-    "CCL (Celiac Community Link) — Connect. Share. Belong. A gluten-free social network with MSN-style messenger for people living with celiac disease and gluten intolerance.",
+    "YCN (Your Celiac Network) — Connect. Share. Belong. A gluten-free social network with MSN-style messenger for people living with celiac disease and gluten intolerance.",
 };
 
 const themeScript = `

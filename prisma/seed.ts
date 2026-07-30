@@ -7,16 +7,16 @@ const img = (seed: string, w = 800, h = 600) =>
   `https://picsum.photos/seed/${seed}/${w}/${h}`;
 
 async function main() {
-  console.log("🔵 Seeding CCL…");
+  console.log("🔵 Seeding YCN…");
   const passwordHash = await bcrypt.hash("password123", 10);
 
   const usersData = [
-    { email: "maya@ccl.app", username: "maya", name: "Maya Patel", role: "USER", bio: "Diagnosed 2021. Sharing my safe-eating wins 🔵", location: "Austin, TX", diagnosis: "celiac" },
-    { email: "leo@ccl.app", username: "leo", name: "Leo Martins", role: "USER", bio: "Dad of a celiac kiddo. Here for the community.", location: "Portland, OR", diagnosis: "supporter" },
-    { email: "sara@ccl.app", username: "sara", name: "Sara Kim", role: "USER", bio: "Gluten intolerance + lots of opinions on bread.", location: "Brooklyn, NY", diagnosis: "gluten-intolerance" },
-    { email: "admin@ccl.app", username: "admin", name: "CCL Admin", role: "ADMIN", bio: "Keeping the community safe & kind.", location: "Remote", diagnosis: "supporter" },
-    { email: "theo@ccl.app", username: "theo", name: "Theo Nguyen", role: "USER", bio: "Travel + gluten-free = my whole personality ✈️", location: "Austin, TX", diagnosis: "celiac" },
-    { email: "priya@ccl.app", username: "priya", name: "Priya Shah", role: "USER", bio: "Newly diagnosed and figuring it out.", location: "Brooklyn, NY", diagnosis: "celiac" },
+    { email: "maya@ycn.app", username: "maya", name: "Maya Patel", role: "USER", bio: "Diagnosed 2021. Sharing my safe-eating wins 🔵", location: "Austin, TX", diagnosis: "celiac" },
+    { email: "leo@ycn.app", username: "leo", name: "Leo Martins", role: "USER", bio: "Dad of a celiac kiddo. Here for the community.", location: "Portland, OR", diagnosis: "supporter" },
+    { email: "sara@ycn.app", username: "sara", name: "Sara Kim", role: "USER", bio: "Gluten intolerance + lots of opinions on bread.", location: "Brooklyn, NY", diagnosis: "gluten-intolerance" },
+    { email: "admin@ycn.app", username: "admin", name: "YCN Admin", role: "ADMIN", bio: "Keeping the community safe & kind.", location: "Remote", diagnosis: "supporter" },
+    { email: "theo@ycn.app", username: "theo", name: "Theo Nguyen", role: "USER", bio: "Travel + gluten-free = my whole personality ✈️", location: "Austin, TX", diagnosis: "celiac" },
+    { email: "priya@ycn.app", username: "priya", name: "Priya Shah", role: "USER", bio: "Newly diagnosed and figuring it out.", location: "Brooklyn, NY", diagnosis: "celiac" },
   ];
 
   const users: Record<string, { id: string }> = {};
@@ -275,7 +275,7 @@ async function main() {
   }
 
   console.log("✅ Seed complete.");
-  console.log("   Demo login → maya@ccl.app / password123");
+  console.log("   Demo login → maya@ycn.app / password123");
 }
 
 main()

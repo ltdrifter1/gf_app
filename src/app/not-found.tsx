@@ -9,7 +9,7 @@ export default function NotFound() {
         Page not found
       </h1>
       <p className="mt-2 max-w-sm text-sage-500 dark:text-sage-400">
-        That link doesn&apos;t lead anywhere in CCL.
+        That link doesn&apos;t lead anywhere in YCN.
       </p>
       <Link href="/app" className="btn-primary mt-6">
         Back to Community
