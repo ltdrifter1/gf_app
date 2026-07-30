@@ -1,6 +1,6 @@
-# Deploy Circle (ship today)
+# Deploy YCN (ship today)
 
-Circle runs on **Next.js 15**. Local uses SQLite; production needs **PostgreSQL**.
+YCN (Your Celiac Network) runs on **Next.js 15**. Local uses SQLite; production needs **PostgreSQL**.
 
 ## 1. Create a Postgres database
 
@@ -29,14 +29,14 @@ datasource db {
 | `AUTH_SECRET` | `openssl rand -base64 48` output (**required**) |
 
 4. Build command: `prisma generate && prisma db push && next build`  
-   (or set in Vercel: Framework = Next.js; install includes `postinstall` → `prisma generate`)
+   (or Framework = Next.js; install includes `postinstall` → `prisma generate`)
 5. After first deploy, seed once (optional — skip on public launch if you don't want demo users):
 
 ```bash
 DATABASE_URL="…" AUTH_SECRET="…" npx tsx prisma/seed.ts
 ```
 
-**Do not seed demo accounts on a public production site** (`maya@circle.app` / `password123` is for local only).
+**Do not seed demo accounts on a public production site** (`maya@ycn.app` / `password123` is for local only).
 
 ## 4. Local production-like check
 
@@ -52,13 +52,13 @@ npm run build && npm start
 
 - [ ] `provider = "postgresql"` in schema
 - [ ] Strong unique `AUTH_SECRET` (not the example string)
-- [ ] No demo credentials on the login page (already removed)
+- [ ] No demo credentials on the login page
 - [ ] HTTPS via Vercel
 - [ ] First admin: register, then set `role = "ADMIN"` in the DB for your user
 - [ ] Smoke test: register → post → messenger DM → restaurant map → recipe → health
 
 ## Security notes
 
-- Session cookie is httpOnly + Secure in production
+- Session cookie is httpOnly + Secure in production (`ycn_session`)
 - DMs are membership-gated (no auto-join via URL)
 - Security headers set in `next.config.mjs`

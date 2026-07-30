@@ -16,9 +16,9 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "Circle — Find your Circle.",
+  title: "YCN — Your Celiac Network",
   description:
-    "Circle is a gluten-free social network — community feed and MSN-style messenger for people living with celiac disease and gluten intolerance.",
+    "YCN (Your Celiac Network) — Connect. Share. Belong. A gluten-free social network with MSN-style messenger for people living with celiac disease and gluten intolerance.",
 };
 
 const themeScript = `

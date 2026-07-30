@@ -1,4 +1,5 @@
-// Circle — social + messenger + dining/recipes + health
+// YCN — Your Celiac Network
+// Connect. Share. Belong.
 //
 // Local development uses SQLite. Production target is PostgreSQL / Supabase:
 // change `provider` to "postgresql" and point DATABASE_URL at your instance.

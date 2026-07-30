@@ -43,7 +43,7 @@ export function PostCard({ post }: { post: PostCardData }) {
     const url = `${window.location.origin}/app/post/${post.id}`;
     try {
       if (navigator.share) {
-        await navigator.share({ title: post.title || "Circle post", url });
+        await navigator.share({ title: post.title || "YCN post", url });
       } else {
         await navigator.clipboard.writeText(url);
         setCopied(true);
