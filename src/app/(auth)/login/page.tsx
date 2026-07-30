@@ -1,12 +1,14 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import Link from "next/link";
+import { Eye, EyeOff } from "lucide-react";
 import { loginAction } from "../actions";
 import { AuthShell, SubmitButton } from "../shell";
 
 export default function LoginPage() {
   const [state, formAction] = useActionState(loginAction, { error: "" } as { error?: string });
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <AuthShell
@@ -36,14 +38,24 @@ export default function LoginPage() {
           <label className="mb-1.5 block text-sm font-medium text-sage-700 dark:text-sage-200">
             Password
           </label>
-          <input
-            name="password"
-            type="password"
-            required
-            autoComplete="current-password"
-            className="input"
-            placeholder="••••••••"
-          />
+          <div className="relative">
+            <input
+              name="password"
+              type={showPassword ? "text" : "password"}
+              required
+              autoComplete="current-password"
+              className="input pr-11"
+              placeholder="••••••••"
+            />
+            <button
+              type="button"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-sage-400 hover:text-sage-600"
+              onClick={() => setShowPassword((v) => !v)}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </button>
+          </div>
         </div>
         <SubmitButton>Sign in</SubmitButton>
       </form>

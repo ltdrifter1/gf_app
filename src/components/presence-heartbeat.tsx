@@ -2,15 +2,22 @@
 
 import { useEffect } from "react";
 
-// Periodically pings the server to keep the user's presence "online".
+/** Keeps lastSeen fresh; respects Away/Offline from profile and tab visibility. */
 export function PresenceHeartbeat() {
   useEffect(() => {
-    const ping = () =>
-      fetch("/api/presence", { method: "POST" }).catch(() => {});
-    ping();
-    const id = setInterval(ping, 25000);
+    const ping = (hidden?: boolean) =>
+      fetch("/api/presence", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          hidden: hidden ?? document.visibilityState === "hidden",
+        }),
+      }).catch(() => {});
+
+    ping(false);
+    const id = setInterval(() => ping(), 25000);
     const onVisibility = () => {
-      if (document.visibilityState === "visible") ping();
+      ping(document.visibilityState === "hidden");
     };
     document.addEventListener("visibilitychange", onVisibility);
     return () => {

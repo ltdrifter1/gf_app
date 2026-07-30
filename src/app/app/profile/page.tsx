@@ -4,6 +4,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { PostCard, type PostCardData } from "@/components/post-card";
 import { ProfileEditForm } from "@/components/profile-edit-form";
 import { MapPin, Calendar } from "lucide-react";
+import { effectivePresence } from "@/lib/presence";
 
 export default async function ProfilePage() {
   const user = await requireUser();
@@ -49,7 +50,12 @@ export default async function ProfilePage() {
         <div className="px-6 pb-6">
           <div className="-mt-10 flex items-end gap-4">
             <div className="rounded-full ring-4 ring-white dark:ring-[#141d19]">
-              <Avatar name={user.name} src={user.avatarUrl} size={88} presence={user.presence} />
+              <Avatar
+                name={user.name}
+                src={user.avatarUrl}
+                size={88}
+                presence={effectivePresence(user.presence, user.lastSeen)}
+              />
             </div>
             <div className="mb-2 flex-1">
               <h1 className="font-display text-2xl font-bold text-sage-900 dark:text-white">
@@ -101,6 +107,7 @@ export default async function ProfilePage() {
           </div>
 
           <ProfileEditForm
+            username={user.username}
             initial={{
               name: user.name,
               bio: user.bio || "",

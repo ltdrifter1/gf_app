@@ -28,18 +28,26 @@ export async function registerAction(_prev: unknown, formData: FormData) {
   if (!parsed.success) {
     return { error: parsed.error.issues[0].message };
   }
-  const { name, email, password, diagnosis } = parsed.data;
+  const { name, password, diagnosis } = parsed.data;
+  const email = parsed.data.email.toLowerCase().trim();
 
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) {
     return { error: "An account with that email already exists. Try signing in." };
   }
 
+  let username = makeUsername(name, email);
+  for (let i = 0; i < 5; i++) {
+    const taken = await prisma.user.findUnique({ where: { username } });
+    if (!taken) break;
+    username = makeUsername(name, email);
+  }
+
   const user = await prisma.user.create({
     data: {
       name,
       email,
-      username: makeUsername(name, email),
+      username,
       passwordHash: await hashPassword(password),
       bio: "New to YCN 🔵",
       profile: {

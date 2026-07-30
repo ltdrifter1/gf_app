@@ -1,9 +1,9 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
+import { effectivePresence } from "@/lib/presence";
 
 /** Stable DM slug for two users (order-independent). */
 function dmSlug(a: string, b: string) {
@@ -93,24 +93,20 @@ export async function getDirectMessageRooms(userId: string) {
         },
       },
     },
-    orderBy: { joinedAt: "desc" },
   });
 
-  const since = new Date(Date.now() - 60_000);
   return memberships
     .map((m) => {
       const peer = m.room.members[0]?.user;
       if (!peer) return null;
       const last = m.room.messages[0];
-      const online =
-        peer.presence === "online" && peer.lastSeen >= since;
       return {
         id: m.room.id,
         slug: m.room.slug,
         name: peer.name,
         username: peer.username,
         avatarUrl: peer.avatarUrl,
-        presence: online ? "online" : peer.presence,
+        presence: effectivePresence(peer.presence, peer.lastSeen),
         lastMessage: last
           ? {
               text: last.content,
@@ -120,7 +116,15 @@ export async function getDirectMessageRooms(userId: string) {
           : null,
       };
     })
-    .filter(Boolean) as {
+    .filter(Boolean)
+    .sort((a, b) => {
+      const at = a!.lastMessage?.at ?? "";
+      const bt = b!.lastMessage?.at ?? "";
+      if (!at && !bt) return 0;
+      if (!at) return 1;
+      if (!bt) return -1;
+      return bt.localeCompare(at);
+    }) as {
     id: string;
     slug: string;
     name: string;

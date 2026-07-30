@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { assertRoomAccess } from "@/lib/chat-access";
+import { effectivePresence } from "@/lib/presence";
+
+const MAX_CONTENT = 2000;
 
 export async function GET(
   _req: NextRequest,
@@ -16,16 +19,25 @@ export async function GET(
     return NextResponse.json({ error: access.error }, { status: access.status });
   }
 
-  const messages = await prisma.message.findMany({
+  // Latest 100 chronologically (newest first, then reverse for UI)
+  const recent = await prisma.message.findMany({
     where: { roomId },
-    orderBy: { createdAt: "asc" },
+    orderBy: { createdAt: "desc" },
     take: 100,
     include: {
       sender: {
-        select: { id: true, name: true, username: true, avatarUrl: true, presence: true },
+        select: {
+          id: true,
+          name: true,
+          username: true,
+          avatarUrl: true,
+          presence: true,
+          lastSeen: true,
+        },
       },
     },
   });
+  const messages = recent.reverse();
 
   const since = new Date(Date.now() - 6000);
   const typing = await prisma.typingIndicator.findMany({
@@ -50,20 +62,44 @@ export async function GET(
     },
   });
   const online = members.filter(
-    (m) => m.user.presence === "online" && m.user.lastSeen >= onlineSince
+    (m) => effectivePresence(m.user.presence, m.user.lastSeen) === "online"
   ).length;
+
+  const room = await prisma.chatRoom.findUnique({
+    where: { id: roomId },
+    select: { isCommunity: true },
+  });
+
+  let peerPresence: string | null = null;
+  let peerLastSeen: string | null = null;
+  if (room && !room.isCommunity) {
+    const peer = members.find((m) => m.user.id !== user.id)?.user;
+    if (peer) {
+      peerPresence = effectivePresence(peer.presence, peer.lastSeen);
+      peerLastSeen = peer.lastSeen.toISOString();
+    }
+  }
 
   return NextResponse.json({
     messages: messages.map((m) => ({
       id: m.id,
       content: m.content,
       createdAt: m.createdAt.toISOString(),
-      sender: m.sender,
+      sender: {
+        id: m.sender.id,
+        name: m.sender.name,
+        username: m.sender.username,
+        avatarUrl: m.sender.avatarUrl,
+        presence: effectivePresence(m.sender.presence, m.sender.lastSeen),
+      },
       mine: m.senderId === user.id,
     })),
     typing: typing.map((t) => t.user.name),
     online,
     memberCount: members.length,
+    peerPresence,
+    peerLastSeen,
+    serverNow: onlineSince.toISOString(),
   });
 }
 
@@ -77,6 +113,9 @@ export async function POST(
   const body = await req.json().catch(() => ({}));
   const content = String(body.content || "").trim();
   if (!content) return NextResponse.json({ error: "empty" }, { status: 400 });
+  if (content.length > MAX_CONTENT) {
+    return NextResponse.json({ error: "Message too long" }, { status: 400 });
+  }
 
   const access = await assertRoomAccess(roomId, user.id);
   if (!access.ok) {
