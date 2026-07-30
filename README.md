@@ -11,9 +11,9 @@ Built with Next.js 15, React, TypeScript, Tailwind CSS, and Prisma.
 
 ```bash
 npm install
-cp .env.example .env
+cp .env.example .env   # set DATABASE_URL to Postgres + AUTH_SECRET
 npx prisma db push
-npx prisma db seed
+npx prisma db seed     # local demo users only
 npm run dev            # http://localhost:3000
 ```
 
@@ -21,7 +21,8 @@ Local demo login (dev only): `maya@ycn.app` / `password123`
 
 ## Ship to production
 
-See **[DEPLOY.md](./DEPLOY.md)** — Postgres + Vercel + `AUTH_SECRET`.
+See **[DEPLOY.md](./DEPLOY.md)** — Postgres + Vercel + `AUTH_SECRET`.  
+Catalog boots safely without demo accounts (`npm run db:seed:prod` or auto on first request).
 
 ## Features
 

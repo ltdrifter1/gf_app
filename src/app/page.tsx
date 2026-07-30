@@ -5,10 +5,13 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { HeroMessenger } from "@/components/hero-messenger";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { ensureLaunchCatalog } from "@/lib/bootstrap";
 
 export default async function LandingPage() {
   const user = await getCurrentUser();
   const primaryHref = user ? "/app" : "/register";
+
+  await ensureLaunchCatalog();
 
   const since = new Date(Date.now() - 60_000);
   const hourAgo = new Date(Date.now() - 3600_000);

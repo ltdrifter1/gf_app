@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { ensureLaunchCatalog } from "@/lib/bootstrap";
 
 export const ROOM_EMOJI: Record<string, string> = {
   "general-support": "💬",
@@ -9,6 +10,7 @@ export const ROOM_EMOJI: Record<string, string> = {
 };
 
 export async function getRoomsWithStats() {
+  await ensureLaunchCatalog();
   const rooms = await prisma.chatRoom.findMany({
     where: { isCommunity: true },
     orderBy: { createdAt: "asc" },

@@ -1,0 +1,5 @@
+{
+  "buildCommand": "npm run ship:build",
+  "framework": "nextjs",
+  "installCommand": "npm install"
+}

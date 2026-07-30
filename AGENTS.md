@@ -3,7 +3,7 @@
 **Connect. Share. Belong.**
 
 YCN is a **gluten-free social network** with an MSN Messenger–style chat lounge.
-Full-stack **Next.js 15** + **TypeScript** + **Tailwind** + **Prisma**.
+Full-stack **Next.js 15** + **TypeScript** + **Tailwind** + **Prisma** + **PostgreSQL**.
 
 Design: glassmorphism with MSN gloss. Brand gradient: `bg-ycn-gradient`.
 
@@ -24,11 +24,13 @@ Design: glassmorphism with MSN gloss. Brand gradient: `bg-ycn-gradient`.
 
 ## Cursor Cloud notes
 
-- Dev: `npm run dev` → http://localhost:3000
-- Local DB = SQLite. Production = Postgres — see `DEPLOY.md`
-- Reset: delete `prisma/dev.db` then `npx prisma db push && npx prisma db seed`
+- Dev: Postgres required — see `.env.example`, then `npm run dev` → http://localhost:3000
+- Reset: `npx prisma db push --force-reset && npx prisma db seed`
 - Demo (local only): `maya@ycn.app` / `password123`
+- Prod catalog (no demos): `npm run db:seed:prod` — also auto-runs via `ensureLaunchCatalog`
 - `AUTH_SECRET` is required in production (fails closed)
+- Vercel build: `ship:build` (see `vercel.json`)
 - DMs are membership-gated; community rooms auto-join
 - Chat/presence: HTTP polling (~2.5s); online = lastSeen < 60s
 - Auth cookie: `ycn_session`
+- Rate limits on register / login / chat send

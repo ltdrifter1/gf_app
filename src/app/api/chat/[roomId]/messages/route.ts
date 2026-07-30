@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { assertRoomAccess } from "@/lib/chat-access";
 import { effectivePresence } from "@/lib/presence";
+import { rateLimit } from "@/lib/rate-limit";
 
 const MAX_CONTENT = 2000;
 
@@ -109,6 +110,15 @@ export async function POST(
 ) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+
+  const limited = rateLimit(`chat:${user.id}`, 30, 60_000);
+  if (!limited.ok) {
+    return NextResponse.json(
+      { error: `Slow down — try again in ${limited.retryAfterSec}s` },
+      { status: 429, headers: { "Retry-After": String(limited.retryAfterSec) } }
+    );
+  }
+
   const { roomId } = await params;
   const body = await req.json().catch(() => ({}));
   const content = String(body.content || "").trim();
