@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { createSession, hashPassword, verifyPassword } from "@/lib/auth";
+import { ensureLaunchCatalog } from "@/lib/bootstrap";
+import { clientIpKey, rateLimit } from "@/lib/rate-limit";
 
 const registerSchema = z.object({
   name: z.string().min(2, "Please enter your name"),
@@ -19,6 +21,11 @@ function makeUsername(name: string, email: string) {
 }
 
 export async function registerAction(_prev: unknown, formData: FormData) {
+  const limited = rateLimit(await clientIpKey("register"), 5, 60 * 60 * 1000);
+  if (!limited.ok) {
+    return { error: `Too many signups from this network. Try again in ${limited.retryAfterSec}s.` };
+  }
+
   const parsed = registerSchema.safeParse({
     name: formData.get("name"),
     email: formData.get("email"),
@@ -35,6 +42,8 @@ export async function registerAction(_prev: unknown, formData: FormData) {
   if (existing) {
     return { error: "An account with that email already exists. Try signing in." };
   }
+
+  await ensureLaunchCatalog();
 
   let username = makeUsername(name, email);
   for (let i = 0; i < 5; i++) {
@@ -57,7 +66,7 @@ export async function registerAction(_prev: unknown, formData: FormData) {
       },
     },
   });
-  // Auto-join community rooms
+
   const rooms = await prisma.chatRoom.findMany({ where: { isCommunity: true } });
   for (const room of rooms) {
     await prisma.chatRoomMember
@@ -71,10 +80,15 @@ export async function registerAction(_prev: unknown, formData: FormData) {
   });
 
   await createSession({ userId: user.id, email: user.email, role: user.role });
-  redirect("/app");
+  redirect("/app/chat/general-support");
 }
 
 export async function loginAction(_prev: unknown, formData: FormData) {
+  const limited = rateLimit(await clientIpKey("login"), 10, 15 * 60 * 1000);
+  if (!limited.ok) {
+    return { error: `Too many sign-in attempts. Try again in ${limited.retryAfterSec}s.` };
+  }
+
   const email = String(formData.get("email") || "").toLowerCase().trim();
   const password = String(formData.get("password") || "");
 
