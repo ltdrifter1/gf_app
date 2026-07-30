@@ -5,7 +5,7 @@ lounge — community, safe dining, recipes, and health support.
 
 Built with Next.js 15, React, TypeScript, Tailwind CSS, and Prisma.
 
-## Quick start
+## Quick start (local)
 
 ```bash
 npm install
@@ -15,13 +15,17 @@ npx prisma db seed
 npm run dev            # http://localhost:3000
 ```
 
-Demo login: `maya@circle.app` / `password123` (admin: `admin@circle.app`).
+Local demo login (dev only): `maya@circle.app` / `password123`
+
+## Ship to production
+
+See **[DEPLOY.md](./DEPLOY.md)** — Postgres + Vercel + `AUTH_SECRET` in ~10 minutes.
 
 ## Features
 
-- **Community feed** — posts, comments, likes, saves, follow people
+- **Community feed** — All / Following, topics, posts, comments, likes
 - **Messenger** — online buddy list, DMs, community rooms, presence
-- **Restaurants** — community-scored safe dining + map
-- **Recipes** — GF recipe database with ratings
-- **Health** — mental check-ins + physical healing tips
-- **Profiles** — public profiles, follow, edit your own
+- **Restaurants** — city filters, list/map tabs, safety scores
+- **Recipes** — search, sort, ratings, author profiles
+- **Health** — mental check-ins + physical tips
+- **Profiles** — public pages, follow, edit

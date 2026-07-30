@@ -1,13 +1,28 @@
 import "server-only";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { SignJWT, jwtVerify } from "jose";
 import bcrypt from "bcryptjs";
 import { prisma } from "./prisma";
 
 const COOKIE_NAME = "gfc_session";
-const secret = new TextEncoder().encode(
-  process.env.AUTH_SECRET || "dev-secret-change-me-in-production-please-32chars"
-);
+
+function authSecretBytes() {
+  const secret = process.env.AUTH_SECRET;
+  if (!secret) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("AUTH_SECRET environment variable is required in production");
+    }
+    return new TextEncoder().encode("dev-secret-change-me-in-production-please-32chars");
+  }
+  if (
+    process.env.NODE_ENV === "production" &&
+    secret.includes("dev-secret-change-me")
+  ) {
+    throw new Error("AUTH_SECRET must be changed from the default before going live");
+  }
+  return new TextEncoder().encode(secret);
+}
 
 export type SessionPayload = {
   userId: string;
@@ -28,7 +43,7 @@ export async function createSession(payload: SessionPayload) {
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime("30d")
-    .sign(secret);
+    .sign(authSecretBytes());
 
   const cookieStore = await cookies();
   cookieStore.set(COOKIE_NAME, token, {
@@ -50,7 +65,7 @@ export async function getSessionPayload(): Promise<SessionPayload | null> {
   const token = cookieStore.get(COOKIE_NAME)?.value;
   if (!token) return null;
   try {
-    const { payload } = await jwtVerify(token, secret);
+    const { payload } = await jwtVerify(token, authSecretBytes());
     return payload as unknown as SessionPayload;
   } catch {
     return null;
@@ -60,15 +75,14 @@ export async function getSessionPayload(): Promise<SessionPayload | null> {
 export async function getCurrentUser() {
   const session = await getSessionPayload();
   if (!session) return null;
-  const user = await prisma.user.findUnique({
+  return prisma.user.findUnique({
     where: { id: session.userId },
     include: { profile: true },
   });
-  return user;
 }
 
 export async function requireUser() {
   const user = await getCurrentUser();
-  if (!user) throw new Error("UNAUTHORIZED");
+  if (!user) redirect("/login");
   return user;
 }

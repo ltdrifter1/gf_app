@@ -3,7 +3,7 @@ import { requireUser } from "@/lib/auth";
 import { RestaurantDirectory, type RestaurantItem } from "@/components/restaurant-directory";
 
 export default async function RestaurantsPage() {
-  await requireUser();
+  const user = await requireUser();
   const restaurants = await prisma.restaurant.findMany({
     include: { reviews: { select: { rating: true } } },
     orderBy: { communityConfidence: "desc" },
@@ -27,19 +27,26 @@ export default async function RestaurantsPage() {
     certified: r.certified,
     communityConfidence: r.communityConfidence,
     crossContaminationRisk: r.crossContaminationRisk,
-    avgRating: r.reviews.length ? r.reviews.reduce((s, x) => s + x.rating, 0) / r.reviews.length : 0,
+    avgRating: r.reviews.length
+      ? r.reviews.reduce((s, x) => s + x.rating, 0) / r.reviews.length
+      : 0,
     reviewCount: r.reviews.length,
   }));
+
+  // Prefer city from profile location e.g. "Austin, TX"
+  const defaultCity = user.location?.split(",")[0]?.trim() || null;
 
   return (
     <div className="mx-auto max-w-6xl space-y-4">
       <div>
-        <h1 className="font-display text-2xl font-bold text-sage-900 dark:text-white">Safe Dining</h1>
+        <h1 className="font-display text-2xl font-bold text-sage-900 dark:text-white">
+          Safe Dining
+        </h1>
         <p className="text-sage-500 dark:text-sage-400">
           Celiac-safe restaurants, scored by the community — explore on the map.
         </p>
       </div>
-      <RestaurantDirectory restaurants={data} />
+      <RestaurantDirectory restaurants={data} defaultCity={defaultCity} />
     </div>
   );
 }

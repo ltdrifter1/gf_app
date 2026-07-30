@@ -9,13 +9,28 @@ import { MessageCircle, TrendingUp } from "lucide-react";
 export default async function FeedPage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string }>;
+  searchParams: Promise<{ category?: string; scope?: string }>;
 }) {
-  const { category } = await searchParams;
+  const { category, scope } = await searchParams;
   const user = await requireUser();
+  const followingOnly = scope === "following";
+
+  let authorFilter: { authorId?: string | { in: string[] } } = {};
+  if (followingOnly) {
+    const follows = await prisma.follow.findMany({
+      where: { followerId: user.id },
+      select: { followingId: true },
+    });
+    const ids = follows.map((f) => f.followingId);
+    // Include own posts in Following feed
+    authorFilter = { authorId: { in: [...ids, user.id] } };
+  }
 
   const posts = await prisma.post.findMany({
-    where: category ? { category } : undefined,
+    where: {
+      ...(category ? { category } : {}),
+      ...authorFilter,
+    },
     orderBy: { createdAt: "desc" },
     take: 40,
     include: {
@@ -47,33 +62,75 @@ export default async function FeedPage({
 
   const activeCat = category ? categoryBySlug(category) : null;
 
+  function feedHref(overrides: { category?: string | null; scope?: string | null }) {
+    const params = new URLSearchParams();
+    const nextCat = overrides.category === null ? undefined : overrides.category ?? category;
+    const nextScope =
+      overrides.scope === null ? undefined : overrides.scope ?? (followingOnly ? "following" : undefined);
+    if (nextCat) params.set("category", nextCat);
+    if (nextScope) params.set("scope", nextScope);
+    const s = params.toString();
+    return s ? `/app?${s}` : "/app";
+  }
+
   return (
     <div className="mx-auto grid max-w-6xl gap-5 lg:grid-cols-[1fr_300px]">
       <div className="space-y-4">
         <div>
           <h1 className="font-display text-2xl font-bold text-sage-900 dark:text-white">
-            {activeCat ? `${activeCat.emoji} ${activeCat.label}` : "Community"}
+            {activeCat
+              ? `${activeCat.emoji} ${activeCat.label}`
+              : followingOnly
+                ? "Following"
+                : "Community"}
           </h1>
           <p className="text-sage-500 dark:text-sage-400">
-            {activeCat ? "Posts in this topic" : "Your feed — fresh from your Circle"}
+            {activeCat
+              ? "Posts in this topic"
+              : followingOnly
+                ? "Posts from people you follow"
+                : "Your feed — fresh from your Circle"}
           </p>
+        </div>
+
+        <div className="flex gap-2">
+          <Link
+            href={feedHref({ scope: null })}
+            className={`chip border ${
+              !followingOnly
+                ? "border-brand-300 bg-brand-50 text-brand-700 dark:bg-brand-500/15 dark:text-brand-200"
+                : "border-transparent bg-white/60 text-sage-600 dark:bg-white/5 dark:text-sage-300"
+            }`}
+          >
+            All
+          </Link>
+          <Link
+            href={feedHref({ scope: "following" })}
+            className={`chip border ${
+              followingOnly
+                ? "border-brand-300 bg-brand-50 text-brand-700 dark:bg-brand-500/15 dark:text-brand-200"
+                : "border-transparent bg-white/60 text-sage-600 dark:bg-white/5 dark:text-sage-300"
+            }`}
+          >
+            Following
+          </Link>
         </div>
 
         <div className="flex gap-2 overflow-x-auto pb-1">
           <Link
-            href="/app"
+            href={feedHref({ category: null })}
             className={`chip shrink-0 border ${
               !category
                 ? "border-brand-300 bg-brand-50 text-brand-700 dark:bg-brand-500/15 dark:text-brand-200"
                 : "border-transparent bg-white/60 text-sage-600 dark:bg-white/5 dark:text-sage-300"
             }`}
           >
-            ✨ All
+            ✨ All topics
           </Link>
           {POST_CATEGORIES.map((c) => (
             <Link
               key={c.slug}
-              href={`/app?category=${c.slug}`}
+              href={feedHref({ category: c.slug })}
               className={`chip shrink-0 border ${
                 category === c.slug
                   ? "border-brand-300 bg-brand-50 text-brand-700 dark:bg-brand-500/15 dark:text-brand-200"
@@ -88,8 +145,17 @@ export default async function FeedPage({
         <PostComposer user={{ name: user.name, avatarUrl: user.avatarUrl }} />
 
         {data.length === 0 ? (
-          <div className="card p-10 text-center text-sage-500 dark:text-sage-400">
-            No posts yet here. Be the first to share something 🌱
+          <div className="card space-y-3 p-10 text-center text-sage-500 dark:text-sage-400">
+            <p>
+              {followingOnly
+                ? "No posts from people you follow yet. Find someone in Messenger or search."
+                : "No posts yet here. Be the first to share something 🌱"}
+            </p>
+            {followingOnly && (
+              <Link href="/app/chat" className="btn-secondary inline-flex">
+                Find people online
+              </Link>
+            )}
           </div>
         ) : (
           data.map((p) => <PostCard key={p.id} post={p} />)
@@ -111,13 +177,22 @@ export default async function FeedPage({
         </Link>
 
         <div className="card space-y-2 p-4">
-          <Link href="/app/restaurants" className="block rounded-xl px-2 py-2 text-sm font-medium text-sage-700 hover:bg-sage-100/60 dark:text-sage-200 dark:hover:bg-white/5">
+          <Link
+            href="/app/restaurants"
+            className="block rounded-xl px-2 py-2 text-sm font-medium text-sage-700 hover:bg-sage-100/60 dark:text-sage-200 dark:hover:bg-white/5"
+          >
             🍽️ Safe restaurants
           </Link>
-          <Link href="/app/recipes" className="block rounded-xl px-2 py-2 text-sm font-medium text-sage-700 hover:bg-sage-100/60 dark:text-sage-200 dark:hover:bg-white/5">
+          <Link
+            href="/app/recipes"
+            className="block rounded-xl px-2 py-2 text-sm font-medium text-sage-700 hover:bg-sage-100/60 dark:text-sage-200 dark:hover:bg-white/5"
+          >
             👩‍🍳 Recipes
           </Link>
-          <Link href="/app/health" className="block rounded-xl px-2 py-2 text-sm font-medium text-sage-700 hover:bg-sage-100/60 dark:text-sage-200 dark:hover:bg-white/5">
+          <Link
+            href="/app/health"
+            className="block rounded-xl px-2 py-2 text-sm font-medium text-sage-700 hover:bg-sage-100/60 dark:text-sage-200 dark:hover:bg-white/5"
+          >
             💙 Health hub
           </Link>
         </div>
@@ -130,7 +205,7 @@ export default async function FeedPage({
             {POST_CATEGORIES.map((c) => (
               <Link
                 key={c.slug}
-                href={`/app?category=${c.slug}`}
+                href={feedHref({ category: c.slug })}
                 className="flex items-center gap-2 rounded-xl px-2 py-1.5 text-sm text-sage-600 hover:bg-sage-100/60 dark:text-sage-300 dark:hover:bg-white/5"
               >
                 <span>{c.emoji}</span> {c.label}
