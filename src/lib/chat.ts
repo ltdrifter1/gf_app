@@ -3,18 +3,14 @@ import { prisma } from "@/lib/prisma";
 export const ROOM_EMOJI: Record<string, string> = {
   "general-support": "💬",
   "newly-diagnosed": "🌱",
+  "mental-health": "💙",
   parents: "👨‍👩‍👧",
   teens: "🎧",
-  "premium-lounge": "👑",
 };
 
-export async function getRoomsWithStats(opts?: { includePremium?: boolean }) {
-  const includePremium = opts?.includePremium ?? false;
+export async function getRoomsWithStats() {
   const rooms = await prisma.chatRoom.findMany({
-    where: {
-      isCommunity: true,
-      ...(includePremium ? {} : { isPremium: false }),
-    },
+    where: { isCommunity: true },
     orderBy: { createdAt: "asc" },
     include: {
       _count: { select: { members: true, messages: true } },
@@ -27,7 +23,7 @@ export async function getRoomsWithStats(opts?: { includePremium?: boolean }) {
   });
 
   const onlineSince = new Date(Date.now() - 60000);
-  const result = await Promise.all(
+  return Promise.all(
     rooms.map(async (r) => {
       const online = await prisma.chatRoomMember.count({
         where: {
@@ -42,7 +38,6 @@ export async function getRoomsWithStats(opts?: { includePremium?: boolean }) {
         slug: r.slug,
         description: r.description,
         emoji: ROOM_EMOJI[r.slug] ?? "💬",
-        isPremium: r.isPremium,
         members: r._count.members,
         messageCount: r._count.messages,
         online,
@@ -56,5 +51,4 @@ export async function getRoomsWithStats(opts?: { includePremium?: boolean }) {
       };
     })
   );
-  return result;
 }

@@ -51,11 +51,9 @@ export async function registerAction(_prev: unknown, formData: FormData) {
     },
   });
 
-  // Auto-join free community rooms
-  const freeRooms = await prisma.chatRoom.findMany({
-    where: { isCommunity: true, isPremium: false },
-  });
-  for (const room of freeRooms) {
+  // Auto-join community rooms
+  const rooms = await prisma.chatRoom.findMany({ where: { isCommunity: true } });
+  for (const room of rooms) {
     await prisma.chatRoomMember
       .create({ data: { roomId: room.id, userId: user.id } })
       .catch(() => {});

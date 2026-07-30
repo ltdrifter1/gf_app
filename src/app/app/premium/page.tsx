@@ -1,29 +1,28 @@
 import { requireUser } from "@/lib/auth";
 import { PremiumButton } from "@/components/premium-button";
 import { PREMIUM_PRICE_USD } from "@/lib/constants";
-import { Crown, Check, MessageCircle, BadgeCheck, Sparkles, Heart } from "lucide-react";
-import Link from "next/link";
+import { Crown, Check, BadgeCheck, Heart, Sparkles, Shield } from "lucide-react";
 
 const BENEFITS = [
   {
-    icon: MessageCircle,
-    title: "Premium Lounge",
-    desc: "A quieter members-only chat room for deeper gluten-free support.",
-  },
-  {
     icon: BadgeCheck,
     title: "Premium badge",
-    desc: "Show your support with a crown badge on your profile and in chat.",
+    desc: "A subtle crown on your profile — show you support the Circle.",
   },
   {
     icon: Sparkles,
     title: "Early access",
-    desc: "Be first into new community rooms as Circle grows.",
+    desc: "Be first to try new rooms and features as they ship.",
+  },
+  {
+    icon: Shield,
+    title: "Ad-free forever",
+    desc: "Help keep Circle calm, focused, and free of noise.",
   },
   {
     icon: Heart,
     title: "Support the network",
-    desc: "Help keep Circle ad-free and focused on real community.",
+    desc: "Fund hosting and community moderation so everyone can stay.",
   },
 ];
 
@@ -38,7 +37,7 @@ export default async function PremiumPage() {
           <Crown className="h-9 w-9" />
           <h1 className="mt-3 font-display text-3xl font-bold">Circle Premium</h1>
           <p className="mt-1 max-w-lg text-white/90">
-            Unlock the Premium Lounge and wear your badge — for the price of one safe lunch.
+            Optional support membership — same community for everyone, a badge for those who fund it.
           </p>
           <p className="mt-4 font-display text-4xl font-bold">
             ${PREMIUM_PRICE_USD}
@@ -67,7 +66,7 @@ export default async function PremiumPage() {
 
         <div className="card h-fit p-6">
           <h3 className="font-display text-lg font-semibold text-sage-900 dark:text-white">
-            Everything in Free, plus:
+            Support Circle
           </h3>
           <ul className="mt-3 space-y-2">
             {BENEFITS.map((b) => (
@@ -82,13 +81,8 @@ export default async function PremiumPage() {
           <div className="mt-5">
             <PremiumButton isPremium={user.isPremium} />
           </div>
-          {user.isPremium && (
-            <Link href="/app/chat/premium-lounge" className="btn-secondary mt-3 w-full">
-              Open Premium Lounge
-            </Link>
-          )}
           <p className="mt-3 text-center text-xs text-sage-400">
-            Cancel anytime. No hidden fees.
+            Cancel anytime. Core features stay free for everyone.
           </p>
         </div>
       </div>

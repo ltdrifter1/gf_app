@@ -6,6 +6,9 @@ import { useState } from "react";
 import {
   Home,
   MessageCircle,
+  MapPin,
+  ChefHat,
+  HeartPulse,
   Crown,
   Shield,
   Menu,
@@ -32,6 +35,9 @@ type NavUser = {
 const NAV = [
   { href: "/app", label: "Community", icon: Home, exact: true },
   { href: "/app/chat", label: "Messenger", icon: MessageCircle },
+  { href: "/app/restaurants", label: "Restaurants", icon: MapPin },
+  { href: "/app/recipes", label: "Recipes", icon: ChefHat },
+  { href: "/app/health", label: "Health", icon: HeartPulse },
   { href: "/app/saved", label: "Saved", icon: Bookmark },
   { href: "/app/premium", label: "Premium", icon: Crown },
 ];
@@ -97,7 +103,7 @@ export function AppShell({
           <Link
             href="/app/profile"
             onClick={() => setOpen(false)}
-            className="mt-3 flex items-center gap-3 rounded-2xl border border-white/50 dark:border-white/10 bg-white/50 dark:bg-white/5 p-2.5 hover:bg-white/80 dark:hover:bg-white/10 transition"
+            className="mt-3 flex items-center gap-3 rounded-2xl border border-white/50 bg-white/50 p-2.5 transition hover:bg-white/80 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10"
           >
             <Avatar name={user.name} src={user.avatarUrl} size={40} presence={user.presence} />
             <div className="min-w-0 flex-1">
@@ -105,7 +111,9 @@ export function AppShell({
                 {user.name}
                 {user.isPremium && <Crown className="ml-1 inline h-3.5 w-3.5 text-warm-500" />}
               </p>
-              <p className="truncate text-xs text-sage-500 dark:text-sage-400">@{user.username}</p>
+              <p className="truncate text-xs text-sage-500 dark:text-sage-400">
+                @{user.username}
+              </p>
             </div>
           </Link>
         </div>
@@ -128,7 +136,7 @@ export function AppShell({
               <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-sage-400" />
               <input
                 name="q"
-                placeholder="Search posts, people, rooms…"
+                placeholder="Search posts, restaurants, recipes…"
                 className="input pl-10"
               />
             </form>

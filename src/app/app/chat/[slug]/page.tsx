@@ -1,4 +1,4 @@
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { prisma } from "@/lib/prisma";
@@ -18,17 +18,13 @@ export default async function ChatRoomPage({
   const room = await prisma.chatRoom.findUnique({ where: { slug } });
   if (!room) notFound();
 
-  if (room.isPremium && !user.isPremium) {
-    redirect("/app/premium");
-  }
-
   await prisma.chatRoomMember.upsert({
     where: { roomId_userId: { roomId: room.id, userId: user.id } },
     create: { roomId: room.id, userId: user.id },
     update: {},
   });
 
-  const rooms = await getRoomsWithStats({ includePremium: user.isPremium });
+  const rooms = await getRoomsWithStats();
 
   return (
     <div className="mx-auto grid max-w-6xl gap-4 lg:grid-cols-[340px_1fr]">

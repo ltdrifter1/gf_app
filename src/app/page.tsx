@@ -2,7 +2,9 @@ import Link from "next/link";
 import {
   Users,
   MessageCircle,
-  Crown,
+  MapPin,
+  ChefHat,
+  HeartPulse,
   ArrowRight,
   Check,
   Circle,
@@ -10,23 +12,32 @@ import {
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { getCurrentUser } from "@/lib/auth";
-import { PREMIUM_PRICE_USD } from "@/lib/constants";
 
 const FEATURES = [
   {
     icon: Users,
     title: "Community feed",
-    desc: "Share wins, ask questions, and find people who actually get gluten-free life.",
+    desc: "Share wins, ask questions, and find people who get gluten-free life.",
   },
   {
     icon: MessageCircle,
     title: "MSN-style Messenger",
-    desc: "Buddy-list rooms with live presence and typing — chat like it's 2003, support like it's now.",
+    desc: "Buddy-list rooms with live presence and typing — chat like it's 2003.",
   },
   {
-    icon: Crown,
-    title: "Premium Lounge",
-    desc: "A quieter members-only circle, premium badge, and early access to new rooms.",
+    icon: MapPin,
+    title: "Safe restaurants",
+    desc: "Community-scored dining with cross-contamination context and a map.",
+  },
+  {
+    icon: ChefHat,
+    title: "Recipe database",
+    desc: "Trusted gluten-free recipes with ratings from people who cook them.",
+  },
+  {
+    icon: HeartPulse,
+    title: "Health hub",
+    desc: "Mental check-ins and physical healing tips — gentle, educational support.",
   },
 ];
 
@@ -46,8 +57,8 @@ export default async function LandingPage() {
             <a href="#messenger" className="hover:text-brand-600">
               Messenger
             </a>
-            <a href="#pricing" className="hover:text-brand-600">
-              Premium
+            <a href="#dining" className="hover:text-brand-600">
+              Dining & recipes
             </a>
           </nav>
           <div className="flex items-center gap-2">
@@ -74,16 +85,15 @@ export default async function LandingPage() {
         <div className="absolute left-1/2 top-0 -z-10 h-[480px] w-[720px] -translate-x-1/2 rounded-full bg-brand-300/20 blur-3xl animate-pulse-soft" />
         <div className="mx-auto max-w-3xl text-center">
           <span className="chip mx-auto glass !py-1.5 text-sage-600 dark:text-sage-200">
-            <span className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_2px_rgba(16,185,129,0.6)] animate-pulse-soft" />
+            <span className="h-2 w-2 animate-pulse-soft rounded-full bg-emerald-500 shadow-[0_0_8px_2px_rgba(16,185,129,0.6)]" />
             Presence on · rooms open
           </span>
           <h1 className="mt-6 font-display text-6xl font-bold leading-[1.02] tracking-tight text-sage-900 dark:text-white sm:text-7xl md:text-8xl">
             Find your <span className="text-gradient">Circle.</span>
           </h1>
           <p className="mx-auto mt-6 max-w-xl text-lg text-sage-600 dark:text-sage-300">
-            The premium gluten-free social network — community feed plus an
-            MSN Messenger–style lounge for people living with celiac and gluten
-            intolerance.
+            A polished gluten-free social network — community, MSN-style messenger,
+            safe dining, recipes, and health support for celiac and gluten intolerance.
           </p>
           <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link href={primaryHref} className="btn-primary px-7 py-3.5 text-base">
@@ -107,10 +117,7 @@ export default async function LandingPage() {
           </div>
         </div>
 
-        <div
-          id="messenger"
-          className="relative mx-auto mt-16 max-w-2xl animate-fade-in"
-        >
+        <div id="messenger" className="relative mx-auto mt-16 max-w-2xl animate-fade-in">
           <div className="card overflow-hidden shadow-glass-lg">
             <div className="flex items-center gap-3 border-b border-white/40 bg-gradient-to-r from-brand-500/15 to-accent-500/10 px-5 py-3 dark:border-white/10">
               <div className="grid h-10 w-10 place-items-center rounded-2xl bg-circle-gradient text-lg text-white">
@@ -138,17 +145,20 @@ export default async function LandingPage() {
       <section id="features" className="mx-auto max-w-5xl px-4 py-16">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="font-display text-3xl font-bold text-sage-900 dark:text-white sm:text-4xl">
-            Three things. Done well.
+            Everything that matters
           </h2>
           <p className="mt-4 text-sage-600 dark:text-sage-300">
-            No bloated platform — just community, chat, and a premium circle.
+            Social, chat, dining, recipes, and health — kept focused.
           </p>
         </div>
-        <div className="mt-12 grid gap-5 sm:grid-cols-3">
+        <div id="dining" className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {FEATURES.map((f) => {
             const Icon = f.icon;
             return (
-              <div key={f.title} className="card p-6 transition hover:-translate-y-1 hover:shadow-glass-lg">
+              <div
+                key={f.title}
+                className="card p-6 transition hover:-translate-y-1 hover:shadow-glass-lg"
+              >
                 <div className="grid h-12 w-12 place-items-center rounded-2xl bg-circle-gradient text-white shadow-soft">
                   <Icon className="h-6 w-6" />
                 </div>
@@ -162,42 +172,6 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      <section id="pricing" className="mx-auto max-w-4xl px-4 py-16">
-        <div className="card grid items-center gap-8 overflow-hidden p-8 sm:p-12 md:grid-cols-2">
-          <div>
-            <span className="chip bg-warm-400/20 text-warm-500">Premium</span>
-            <h2 className="mt-4 font-display text-3xl font-bold text-sage-900 dark:text-white">
-              ${PREMIUM_PRICE_USD}/mo for the Lounge
-            </h2>
-            <p className="mt-3 text-sage-600 dark:text-sage-300">
-              Free forever for the feed and community rooms. Premium unlocks the
-              private Lounge, your badge, and early access to new spaces.
-            </p>
-            <Link href={primaryHref} className="btn-primary mt-6 px-6 py-3">
-              Start free, upgrade anytime
-            </Link>
-          </div>
-          <ul className="space-y-3">
-            {[
-              "Premium Lounge chat room",
-              "Premium badge on your profile",
-              "Early access to new rooms",
-              "Support building Circle",
-            ].map((p) => (
-              <li
-                key={p}
-                className="flex items-center gap-3 rounded-2xl bg-white/50 px-4 py-3 dark:bg-white/5"
-              >
-                <span className="grid h-6 w-6 place-items-center rounded-full bg-emerald-500/15 text-emerald-600">
-                  <Check className="h-3.5 w-3.5" />
-                </span>
-                <span className="text-sage-700 dark:text-sage-200">{p}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
       <section className="mx-auto max-w-5xl px-4 pb-24">
         <div className="relative overflow-hidden rounded-4xl bg-circle-gradient p-10 text-center shadow-glow sm:p-16">
           <div className="absolute -right-10 -top-10 h-60 w-60 rounded-full bg-white/10 blur-2xl" />
@@ -206,7 +180,7 @@ export default async function LandingPage() {
             You don&apos;t have to figure this out alone.
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-white/80">
-            Join Circle today — open the feed, hop in Messenger, find your people.
+            Join Circle — open the feed, hop in Messenger, find safe food and support.
           </p>
           <Link
             href={primaryHref}

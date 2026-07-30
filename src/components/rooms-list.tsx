@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Crown } from "lucide-react";
 import { timeAgo } from "@/lib/utils";
 
 type Room = {
@@ -8,7 +7,6 @@ type Room = {
   slug: string;
   description: string | null;
   emoji: string;
-  isPremium?: boolean;
   members: number;
   online: number;
   lastMessage: { text: string; sender: string; at: string } | null;
@@ -36,10 +34,7 @@ export function RoomsList({ rooms, activeSlug }: { rooms: Room[]; activeSlug?: s
             )}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="flex items-center gap-1.5 truncate font-medium text-sage-900 dark:text-white">
-              {r.name}
-              {r.isPremium && <Crown className="h-3.5 w-3.5 shrink-0 text-warm-500" />}
-            </p>
+            <p className="truncate font-medium text-sage-900 dark:text-white">{r.name}</p>
             <p className="truncate text-xs text-sage-500 dark:text-sage-400">
               {r.lastMessage
                 ? `${r.lastMessage.sender}: ${r.lastMessage.text}`

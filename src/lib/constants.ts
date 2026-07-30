@@ -13,4 +13,46 @@ export function categoryBySlug(slug: string) {
   return POST_CATEGORIES.find((c) => c.slug === slug);
 }
 
+export const RECIPE_CATEGORIES = [
+  "Quick Meals",
+  "Baking",
+  "Family",
+  "Budget",
+  "Vegan",
+  "High Protein",
+  "Kids",
+] as const;
+
+export const MENTAL_HEALTH_CATEGORIES = [
+  { slug: "anxiety", label: "Anxiety Support", emoji: "🌊" },
+  { slug: "depression", label: "Low Mood", emoji: "🌤️" },
+  { slug: "isolation", label: "Social Isolation", emoji: "🤝" },
+  { slug: "eating-out", label: "Eating Out Anxiety", emoji: "🍴" },
+  { slug: "newly-diagnosed", label: "Newly Diagnosed", emoji: "🌱" },
+] as const;
+
+export const PHYSICAL_HEALTH_CATEGORIES = [
+  { slug: "gut", label: "Gut & Digestion", emoji: "🦠" },
+  { slug: "nutrition", label: "Nutrition & Deficits", emoji: "🥗" },
+  { slug: "recovery", label: "Healing After Glutening", emoji: "💚" },
+  { slug: "energy", label: "Energy & Fatigue", emoji: "⚡" },
+  { slug: "labs", label: "Labs & Follow-up", emoji: "🔬" },
+] as const;
+
+export const MOOD_OPTIONS = [
+  { value: 1, label: "Struggling", emoji: "😞" },
+  { value: 2, label: "Low", emoji: "😕" },
+  { value: 3, label: "Okay", emoji: "😐" },
+  { value: 4, label: "Good", emoji: "🙂" },
+  { value: 5, label: "Great", emoji: "😄" },
+] as const;
+
+export const JOURNAL_PROMPTS = [
+  "What is one thing that went well with your gluten-free journey today?",
+  "Describe a moment you felt supported recently.",
+  "What is a worry you'd like to let go of?",
+  "Name three foods you're grateful you can still enjoy.",
+  "What would you tell someone newly diagnosed today?",
+];
+
 export const PREMIUM_PRICE_USD = 9;
