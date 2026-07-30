@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Fraunces, Sora } from "next/font/google";
 import "./globals.css";
+import "maplibre-gl/dist/maplibre-gl.css";
 
 const sora = Sora({
   subsets: ["latin"],

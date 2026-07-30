@@ -4,10 +4,6 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
 
-// Premium upgrade.
-// When STRIPE_SECRET_KEY is configured this is where you'd create a Stripe
-// Checkout Session and redirect. Without it, we simulate a successful upgrade
-// so the premium experience is fully demonstrable in development.
 export async function upgradeToPremium() {
   const user = await requireUser();
   const usingStripe = !!process.env.STRIPE_SECRET_KEY;
@@ -31,19 +27,7 @@ export async function upgradeToPremium() {
       stripeSubId: "sub_simulated",
     },
   });
-
-  // Auto-join Premium Lounge
-  const lounge = await prisma.chatRoom.findUnique({ where: { slug: "premium-lounge" } });
-  if (lounge) {
-    await prisma.chatRoomMember.upsert({
-      where: { roomId_userId: { roomId: lounge.id, userId: user.id } },
-      create: { roomId: lounge.id, userId: user.id },
-      update: {},
-    });
-  }
-
   revalidatePath("/app/premium");
-  revalidatePath("/app/chat");
   revalidatePath("/app");
   return { ok: true, simulated: !usingStripe };
 }

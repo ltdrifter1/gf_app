@@ -1,4 +1,4 @@
-// Circle — launch schema (social + messenger + premium)
+// Circle — social + messenger + dining/recipes + health
 //
 // Local development uses SQLite. Production target is PostgreSQL / Supabase:
 // change `provider` to "postgresql" and point DATABASE_URL at your instance.
@@ -40,6 +40,14 @@ model User {
   roomMemberships ChatRoomMember[]
   messages        Message[]
   typing          TypingIndicator[]
+
+  restaurantReviews RestaurantReview[]
+  recipes           Recipe[]
+  recipeRatings     RecipeRating[]
+  savedRecipes      SavedRecipe[]
+
+  moodEntries    MoodEntry[]
+  journalEntries JournalEntry[]
 
   subscription Subscription?
   flagsRaised  FlaggedContent[] @relation("reporter")
@@ -116,7 +124,6 @@ model ChatRoom {
   slug        String   @unique
   description String?
   isCommunity Boolean  @default(true)
-  isPremium   Boolean  @default(false) // Premium Lounge rooms
   createdAt   DateTime @default(now())
 
   members  ChatRoomMember[]
@@ -156,12 +163,124 @@ model TypingIndicator {
   @@unique([roomId, userId])
 }
 
+model Restaurant {
+  id                     String   @id @default(cuid())
+  name                   String
+  description            String?
+  address                String
+  city                   String
+  lat                    Float
+  lng                    Float
+  imageUrl               String?
+  cuisine                String?
+  priceLevel             Int      @default(2)
+  dedicatedFryer         Boolean  @default(false)
+  separatePrepArea       Boolean  @default(false)
+  dedicatedKitchen       Boolean  @default(false)
+  certified              Boolean  @default(false)
+  glutenFreeMenu         Boolean  @default(false)
+  celiacSafe             Boolean  @default(false)
+  delivery               Boolean  @default(false)
+  staffTrainingLevel     String   @default("basic")
+  crossContaminationRisk Int      @default(50)
+  communityConfidence    Int      @default(50)
+  createdAt              DateTime @default(now())
+
+  reviews RestaurantReview[]
+}
+
+model RestaurantReview {
+  id           String     @id @default(cuid())
+  restaurantId String
+  userId       String
+  rating       Int
+  safetyRating Int
+  content      String
+  imageUrl     String?
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+}
+
+model Recipe {
+  id          String   @id @default(cuid())
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  title       String
+  description String
+  category    String
+  imageUrl    String?
+  prepTime    Int
+  cookTime    Int
+  servings    Int      @default(2)
+  ingredients Json
+  steps       Json
+  calories    Int      @default(0)
+  protein     Int      @default(0)
+  carbs       Int      @default(0)
+  fat         Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  ratings RecipeRating[]
+  savedBy SavedRecipe[]
+}
+
+model RecipeRating {
+  id        String   @id @default(cuid())
+  recipeId  String
+  userId    String
+  rating    Int
+  review    String?
+  recipe    Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([recipeId, userId])
+}
+
+model SavedRecipe {
+  id       String @id @default(cuid())
+  recipeId String
+  userId   String
+  recipe   Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([recipeId, userId])
+}
+
+model HealthResource {
+  id       String @id @default(cuid())
+  title    String
+  pillar   String // mental | physical
+  category String
+  content  String
+  type     String @default("article") // article | exercise | tip
+}
+
+model MoodEntry {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mood      Int
+  note      String?
+  createdAt DateTime @default(now())
+}
+
+model JournalEntry {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  prompt    String?
+  content   String
+  createdAt DateTime @default(now())
+}
+
 model Subscription {
   id               String    @id @default(cuid())
   userId           String    @unique
   user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  plan             String    @default("free") // free | premium
-  status           String    @default("inactive") // active | inactive | canceled
+  plan             String    @default("free")
+  status           String    @default("inactive")
   stripeCustomerId String?
   stripeSubId      String?
   currentPeriodEnd DateTime?

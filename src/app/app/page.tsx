@@ -110,6 +110,18 @@ export default async function FeedPage({
           </div>
         </Link>
 
+        <div className="card space-y-2 p-4">
+          <Link href="/app/restaurants" className="block rounded-xl px-2 py-2 text-sm font-medium text-sage-700 hover:bg-sage-100/60 dark:text-sage-200 dark:hover:bg-white/5">
+            🍽️ Safe restaurants
+          </Link>
+          <Link href="/app/recipes" className="block rounded-xl px-2 py-2 text-sm font-medium text-sage-700 hover:bg-sage-100/60 dark:text-sage-200 dark:hover:bg-white/5">
+            👩‍🍳 Recipes
+          </Link>
+          <Link href="/app/health" className="block rounded-xl px-2 py-2 text-sm font-medium text-sage-700 hover:bg-sage-100/60 dark:text-sage-200 dark:hover:bg-white/5">
+            💙 Health hub
+          </Link>
+        </div>
+
         <div className="card p-5">
           <h3 className="flex items-center gap-2 font-display font-semibold text-sage-900 dark:text-white">
             <TrendingUp className="h-4 w-4 text-brand-600" /> Topics

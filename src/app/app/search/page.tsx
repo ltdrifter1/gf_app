@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
-import { Search, FileText, Users, MessageCircle } from "lucide-react";
+import { Search, FileText, MapPin, ChefHat, Users, MessageCircle } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 
 export default async function SearchPage({
@@ -13,36 +13,52 @@ export default async function SearchPage({
   await requireUser();
   const query = (q || "").trim();
 
-  const [posts, people, rooms] = query
+  const [posts, restaurants, recipes, people, rooms] = query
     ? await Promise.all([
         prisma.post.findMany({
           where: {
             OR: [{ title: { contains: query } }, { content: { contains: query } }],
           },
-          take: 8,
+          take: 6,
           include: { author: true },
+        }),
+        prisma.restaurant.findMany({
+          where: {
+            OR: [
+              { name: { contains: query } },
+              { city: { contains: query } },
+              { cuisine: { contains: query } },
+            ],
+          },
+          take: 6,
+        }),
+        prisma.recipe.findMany({
+          where: {
+            OR: [{ title: { contains: query } }, { description: { contains: query } }],
+          },
+          take: 6,
         }),
         prisma.user.findMany({
           where: {
             OR: [
               { name: { contains: query } },
               { username: { contains: query } },
-              { bio: { contains: query } },
             ],
           },
-          take: 8,
+          take: 6,
         }),
         prisma.chatRoom.findMany({
           where: {
             isCommunity: true,
             OR: [{ name: { contains: query } }, { description: { contains: query } }],
           },
-          take: 6,
+          take: 4,
         }),
       ])
-    : [[], [], []];
+    : [[], [], [], [], []];
 
-  const total = posts.length + people.length + rooms.length;
+  const total =
+    posts.length + restaurants.length + recipes.length + people.length + rooms.length;
 
   return (
     <div className="mx-auto max-w-3xl space-y-4">
@@ -51,7 +67,7 @@ export default async function SearchPage({
         <input
           name="q"
           defaultValue={query}
-          placeholder="Search posts, people, rooms…"
+          placeholder="Search posts, restaurants, recipes…"
           className="input pl-11"
           autoFocus
         />
@@ -77,7 +93,36 @@ export default async function SearchPage({
           ))}
         </Section>
       )}
-
+      {restaurants.length > 0 && (
+        <Section title="Restaurants" icon={MapPin}>
+          {restaurants.map((r) => (
+            <Link
+              key={r.id}
+              href={`/app/restaurants/${r.id}`}
+              className="block rounded-2xl bg-white/60 p-3 hover:bg-white/90 dark:bg-white/5 dark:hover:bg-white/10"
+            >
+              <p className="font-medium text-sage-900 dark:text-white">{r.name}</p>
+              <p className="text-xs text-sage-500">
+                {r.city} · {r.communityConfidence}% confidence
+              </p>
+            </Link>
+          ))}
+        </Section>
+      )}
+      {recipes.length > 0 && (
+        <Section title="Recipes" icon={ChefHat}>
+          {recipes.map((r) => (
+            <Link
+              key={r.id}
+              href={`/app/recipes/${r.id}`}
+              className="block rounded-2xl bg-white/60 p-3 hover:bg-white/90 dark:bg-white/5 dark:hover:bg-white/10"
+            >
+              <p className="font-medium text-sage-900 dark:text-white">{r.title}</p>
+              <p className="text-xs text-sage-500">{r.category}</p>
+            </Link>
+          ))}
+        </Section>
+      )}
       {people.length > 0 && (
         <Section title="People" icon={Users}>
           {people.map((u) => (
@@ -95,7 +140,6 @@ export default async function SearchPage({
           ))}
         </Section>
       )}
-
       {rooms.length > 0 && (
         <Section title="Rooms" icon={MessageCircle}>
           {rooms.map((r) => (
@@ -118,7 +162,7 @@ export default async function SearchPage({
       )}
       {!query && (
         <div className="card p-8 text-center text-sage-500">
-          Search posts, people, and chat rooms.
+          Search posts, restaurants, recipes, people, and rooms.
         </div>
       )}
     </div>
