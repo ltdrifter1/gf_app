@@ -7,22 +7,37 @@ import type { PostCardData } from "@/components/post-card";
 
 export default async function ProfilePage() {
   const user = await requireUser();
-  const [posts, followers, following, fullUser, topFriends] = await Promise.all([
-    prisma.post.findMany({
-      where: { authorId: user.id },
-      orderBy: { createdAt: "desc" },
-      include: {
-        author: true,
-        _count: { select: { likes: true, comments: true } },
-        likes: { where: { userId: user.id } },
-        savedBy: { where: { userId: user.id } },
-      },
-    }),
-    prisma.follow.count({ where: { followingId: user.id } }),
-    prisma.follow.count({ where: { followerId: user.id } }),
-    prisma.user.findUnique({ where: { id: user.id }, include: { profile: true } }),
-    getTopFriends(user.id),
-  ]);
+  const [posts, followers, following, fullUser, topFriends, recipes, diningReviews] =
+    await Promise.all([
+      prisma.post.findMany({
+        where: { authorId: user.id },
+        orderBy: { createdAt: "desc" },
+        include: {
+          author: true,
+          _count: { select: { likes: true, comments: true } },
+          likes: { where: { userId: user.id } },
+          savedBy: { where: { userId: user.id } },
+        },
+      }),
+      prisma.follow.count({ where: { followingId: user.id } }),
+      prisma.follow.count({ where: { followerId: user.id } }),
+      prisma.user.findUnique({ where: { id: user.id }, include: { profile: true } }),
+      getTopFriends(user.id),
+      prisma.recipe.findMany({
+        where: { authorId: user.id },
+        orderBy: { createdAt: "desc" },
+        take: 6,
+        select: { id: true, title: true, category: true, imageUrl: true },
+      }),
+      prisma.restaurantReview.findMany({
+        where: { userId: user.id },
+        orderBy: { createdAt: "desc" },
+        take: 5,
+        include: {
+          restaurant: { select: { id: true, name: true, city: true, imageUrl: true } },
+        },
+      }),
+    ]);
 
   const data: PostCardData[] = posts.map((p) => ({
     id: p.id,
@@ -65,6 +80,14 @@ export default async function ProfilePage() {
         isOwn: true,
         topFriends,
         posts: data,
+        recipes,
+        diningReviews: diningReviews.map((r) => ({
+          id: r.id,
+          rating: r.rating,
+          safetyRating: r.safetyRating,
+          content: r.content,
+          restaurant: r.restaurant,
+        })),
         editSlot: (
           <ProfileEditForm
             username={user.username}

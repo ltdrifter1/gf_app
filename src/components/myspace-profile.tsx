@@ -16,6 +16,21 @@ export type TopFriend = {
   lastSeen: Date | string;
 };
 
+export type ProfileRecipe = {
+  id: string;
+  title: string;
+  category: string;
+  imageUrl: string | null;
+};
+
+export type ProfileDiningReview = {
+  id: string;
+  rating: number;
+  safetyRating: number;
+  content: string;
+  restaurant: { id: string; name: string; city: string; imageUrl: string | null };
+};
+
 export type MyspaceProfileData = {
   id: string;
   name: string;
@@ -38,6 +53,8 @@ export type MyspaceProfileData = {
   isFollowing?: boolean;
   topFriends: TopFriend[];
   posts: PostCardData[];
+  recipes?: ProfileRecipe[];
+  diningReviews?: ProfileDiningReview[];
   editSlot?: ReactNode;
 };
 
@@ -243,6 +260,99 @@ export function MyspaceProfile({ data }: { data: MyspaceProfileData }) {
                     <span className="mt-1.5 line-clamp-2 text-xs font-semibold text-brand-700 group-hover:underline dark:text-brand-300">
                       {f.name}
                     </span>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </Section>
+
+          <Section title={`${data.name}'s Recipes`} accent="sage">
+            {(data.recipes?.length ?? 0) === 0 ? (
+              <p className="py-4 text-center text-sage-400">
+                {data.isOwn ? (
+                  <>
+                    No recipes shared yet.{" "}
+                    <Link href="/app/recipes" className="font-medium text-brand-600 hover:underline">
+                      Browse the kitchen
+                    </Link>
+                  </>
+                ) : (
+                  "No recipes shared yet."
+                )}
+              </p>
+            ) : (
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                {data.recipes!.map((r) => (
+                  <Link
+                    key={r.id}
+                    href={`/app/recipes/${r.id}`}
+                    className="group overflow-hidden rounded-xl border border-white/40 bg-white/50 transition hover:-translate-y-0.5 dark:border-white/10 dark:bg-white/[0.03]"
+                  >
+                    <div className="aspect-[4/3] bg-sage-100 dark:bg-sage-800">
+                      {r.imageUrl && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={r.imageUrl}
+                          alt=""
+                          className="h-full w-full object-cover transition group-hover:scale-105"
+                        />
+                      )}
+                    </div>
+                    <div className="p-2">
+                      <p className="line-clamp-2 text-xs font-semibold text-sage-900 group-hover:text-brand-700 dark:text-white">
+                        {r.title}
+                      </p>
+                      <p className="mt-0.5 text-[10px] text-sage-400">{r.category}</p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </Section>
+
+          <Section title={`${data.name}'s Dining`} accent="teal">
+            {(data.diningReviews?.length ?? 0) === 0 ? (
+              <p className="py-4 text-center text-sage-400">
+                {data.isOwn ? (
+                  <>
+                    No dining reviews yet.{" "}
+                    <Link href="/app/restaurants" className="font-medium text-brand-600 hover:underline">
+                      Find a safe spot
+                    </Link>
+                  </>
+                ) : (
+                  "No dining reviews yet."
+                )}
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {data.diningReviews!.map((rev) => (
+                  <Link
+                    key={rev.id}
+                    href={`/app/restaurants/${rev.restaurant.id}`}
+                    className="flex gap-3 rounded-xl border border-white/40 bg-white/50 p-2 transition hover:bg-brand-50/70 dark:border-white/10 dark:bg-white/[0.03] dark:hover:bg-brand-500/10"
+                  >
+                    <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-sage-100 dark:bg-sage-800">
+                      {rev.restaurant.imageUrl && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={rev.restaurant.imageUrl}
+                          alt=""
+                          className="h-full w-full object-cover"
+                        />
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-semibold text-sage-900 dark:text-white">
+                        {rev.restaurant.name}
+                      </p>
+                      <p className="text-xs text-sage-400">
+                        {rev.restaurant.city} · ★{rev.rating} · safety {rev.safetyRating}/5
+                      </p>
+                      <p className="mt-0.5 line-clamp-2 text-xs text-sage-600 dark:text-sage-300">
+                        {rev.content}
+                      </p>
+                    </div>
                   </Link>
                 ))}
               </div>

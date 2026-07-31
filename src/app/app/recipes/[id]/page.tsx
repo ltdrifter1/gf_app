@@ -6,6 +6,7 @@ import { requireUser } from "@/lib/auth";
 import { Stars } from "@/components/star-rating";
 import { RecipeRatingForm } from "@/components/recipe-rating-form";
 import { Avatar } from "@/components/ui/avatar";
+import { MessageButton } from "@/components/message-button";
 import { timeAgo } from "@/lib/utils";
 
 export default async function RecipeDetail({ params }: { params: Promise<{ id: string }> }) {
@@ -119,13 +120,18 @@ export default async function RecipeDetail({ params }: { params: Promise<{ id: s
             </div>
           </div>
           <div className="card p-5">
-            <Link href={`/app/u/${r.author.username}`} className="mb-3 flex items-center gap-2 hover:opacity-90">
-              <Avatar name={r.author.name} src={r.author.avatarUrl} size={36} />
-              <div>
-                <p className="text-sm font-semibold text-sage-900 dark:text-white">{r.author.name}</p>
-                <p className="text-xs text-sage-400">@{r.author.username}</p>
-              </div>
-            </Link>
+            <div className="mb-3 flex items-center gap-2">
+              <Link href={`/app/u/${r.author.username}`} className="flex min-w-0 flex-1 items-center gap-2 hover:opacity-90">
+                <Avatar name={r.author.name} src={r.author.avatarUrl} size={36} />
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold text-sage-900 dark:text-white">{r.author.name}</p>
+                  <p className="text-xs text-sage-400">@{r.author.username}</p>
+                </div>
+              </Link>
+              {r.author.id !== user.id && (
+                <MessageButton targetUserId={r.author.id} compact />
+              )}
+            </div>
             <RecipeRatingForm recipeId={r.id} saved={r.savedBy.length > 0} />
           </div>
         </div>

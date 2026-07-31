@@ -7,11 +7,12 @@ import { RestaurantMap } from "@/components/restaurant-map";
 import { RestaurantReviewForm } from "@/components/restaurant-review-form";
 import { Stars } from "@/components/star-rating";
 import { Avatar } from "@/components/ui/avatar";
+import { MessageButton } from "@/components/message-button";
 import { safetyColor, safetyLabel, timeAgo, cn } from "@/lib/utils";
 
 export default async function RestaurantDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  await requireUser();
+  const me = await requireUser();
   const r = await prisma.restaurant.findUnique({
     where: { id },
     include: { reviews: { include: { user: true }, orderBy: { createdAt: "desc" } } },
@@ -119,12 +120,22 @@ export default async function RestaurantDetail({ params }: { params: Promise<{ i
             {r.reviews.map((rev) => (
               <div key={rev.id} className="card p-4">
                 <div className="flex items-center gap-3">
-                  <Avatar name={rev.user.name} src={rev.user.avatarUrl} size={36} />
-                  <div>
-                    <p className="text-sm font-semibold text-sage-900 dark:text-white">{rev.user.name}</p>
+                  <Link href={`/app/u/${rev.user.username}`}>
+                    <Avatar name={rev.user.name} src={rev.user.avatarUrl} size={36} />
+                  </Link>
+                  <div className="min-w-0 flex-1">
+                    <Link
+                      href={`/app/u/${rev.user.username}`}
+                      className="text-sm font-semibold text-sage-900 hover:underline dark:text-white"
+                    >
+                      {rev.user.name}
+                    </Link>
                     <p className="text-xs text-sage-400">{timeAgo(rev.createdAt)}</p>
                   </div>
-                  <div className="ml-auto flex items-center gap-2">
+                  {rev.userId !== me.id && (
+                    <MessageButton targetUserId={rev.userId} compact />
+                  )}
+                  <div className="flex items-center gap-2">
                     <Stars value={rev.rating} />
                     <span className="chip bg-brand-50 text-brand-700 dark:bg-brand-500/15 dark:text-brand-200">
                       Safety {rev.safetyRating}/5
