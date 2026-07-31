@@ -134,32 +134,43 @@ export default async function RecipesPage({
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {withAvg.map((r) => (
-          <Link
+          <div
             key={r.id}
-            href={`/app/recipes/${r.id}`}
             className="card group overflow-hidden transition hover:-translate-y-1 hover:shadow-glass-lg"
           >
-            <div className="h-44 overflow-hidden bg-sage-100">
-              {r.imageUrl && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={r.imageUrl}
-                  alt={r.title}
-                  className="h-full w-full object-cover transition group-hover:scale-105"
-                />
-              )}
-            </div>
+            <Link href={`/app/recipes/${r.id}`} className="block">
+              <div className="h-44 overflow-hidden bg-sage-100">
+                {r.imageUrl && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={r.imageUrl}
+                    alt={r.title}
+                    className="h-full w-full object-cover transition group-hover:scale-105"
+                  />
+                )}
+              </div>
+            </Link>
             <div className="p-4">
               <span className="chip bg-orange-100 text-orange-700 dark:bg-orange-500/15 dark:text-orange-300">
                 {r.category}
               </span>
-              <h3 className="mt-2 font-display font-semibold text-sage-900 dark:text-white">
-                {r.title}
-              </h3>
+              <Link href={`/app/recipes/${r.id}`}>
+                <h3 className="mt-2 font-display font-semibold text-sage-900 hover:text-brand-700 dark:text-white">
+                  {r.title}
+                </h3>
+              </Link>
               <p className="mt-1 line-clamp-2 text-sm text-sage-500 dark:text-sage-400">
                 {r.description}
               </p>
-              <p className="mt-2 text-xs text-sage-400">by {r.author.name}</p>
+              <p className="mt-2 text-xs text-sage-400">
+                by{" "}
+                <Link
+                  href={`/app/u/${r.author.username}`}
+                  className="font-medium text-brand-700 hover:underline dark:text-brand-300"
+                >
+                  {r.author.name}
+                </Link>
+              </p>
               <div className="mt-3 flex items-center gap-3 text-xs text-sage-500">
                 <span className="flex items-center gap-1">
                   <Clock className="h-3.5 w-3.5" /> {r.totalTime}m
@@ -172,7 +183,7 @@ export default async function RecipesPage({
                 </span>
               </div>
             </div>
-          </Link>
+          </div>
         ))}
       </div>
       {withAvg.length === 0 && (

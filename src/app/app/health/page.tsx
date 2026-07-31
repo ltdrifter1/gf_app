@@ -7,6 +7,7 @@ import {
   MOOD_OPTIONS,
 } from "@/lib/constants";
 import { MoodTracker, JournalWidget } from "@/components/wellness-widgets";
+import { Avatar } from "@/components/ui/avatar";
 import { HeartPulse, MessageCircle, Activity, Brain } from "lucide-react";
 import { timeAgo } from "@/lib/utils";
 
@@ -19,12 +20,18 @@ export default async function HealthPage({
   const active = tab === "physical" ? "physical" : "mental";
   const user = await requireUser();
 
-  const [resources, moods] = await Promise.all([
+  const [resources, moods, supportPosts] = await Promise.all([
     prisma.healthResource.findMany(),
     prisma.moodEntry.findMany({
       where: { userId: user.id },
       orderBy: { createdAt: "desc" },
       take: 7,
+    }),
+    prisma.post.findMany({
+      where: { category: "mental-health" },
+      orderBy: { createdAt: "desc" },
+      take: 3,
+      include: { author: { select: { name: true, username: true, avatarUrl: true } } },
     }),
   ]);
 
@@ -104,7 +111,9 @@ export default async function HealthPage({
               <h3 className="font-display font-semibold text-sage-900 dark:text-white">
                 How are you today?
               </h3>
-              <p className="mb-3 text-sm text-sage-500">Daily mood check-in</p>
+              <p className="mb-3 text-sm text-sage-500">
+                Check in — updates your MySpace mood for friends to see
+              </p>
               <MoodTracker />
             </div>
 
@@ -159,6 +168,48 @@ export default async function HealthPage({
               </div>
               <MessageCircle className="ml-auto h-5 w-5 text-sage-400" />
             </Link>
+
+            {supportPosts.length > 0 && (
+              <div className="card p-5">
+                <div className="mb-3 flex items-center justify-between">
+                  <h3 className="font-display font-semibold text-sage-900 dark:text-white">
+                    From the community
+                  </h3>
+                  <Link
+                    href="/app?category=mental-health"
+                    className="text-xs font-medium text-brand-600 hover:underline"
+                  >
+                    See all
+                  </Link>
+                </div>
+                <div className="space-y-3">
+                  {supportPosts.map((p) => (
+                    <Link
+                      key={p.id}
+                      href={`/app/post/${p.id}`}
+                      className="block rounded-xl bg-white/60 p-3 transition hover:bg-brand-50/70 dark:bg-white/5 dark:hover:bg-brand-500/10"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Avatar
+                          name={p.author.name}
+                          src={p.author.avatarUrl}
+                          size={28}
+                        />
+                        <span className="text-xs font-semibold text-sage-700 dark:text-sage-200">
+                          {p.author.name}
+                        </span>
+                        <span className="ml-auto text-[10px] text-sage-400">
+                          {timeAgo(p.createdAt)}
+                        </span>
+                      </div>
+                      <p className="mt-1.5 line-clamp-2 text-sm text-sage-800 dark:text-sage-100">
+                        {p.title || p.content}
+                      </p>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       ) : (

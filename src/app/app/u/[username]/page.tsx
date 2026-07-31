@@ -22,31 +22,46 @@ export default async function PublicProfilePage({
 
   const isOwn = profileUser.id === me.id;
 
-  const [posts, followers, following, isFollowing, topFriends] = await Promise.all([
-    prisma.post.findMany({
-      where: { authorId: profileUser.id },
-      orderBy: { createdAt: "desc" },
-      include: {
-        author: true,
-        _count: { select: { likes: true, comments: true } },
-        likes: { where: { userId: me.id } },
-        savedBy: { where: { userId: me.id } },
-      },
-    }),
-    prisma.follow.count({ where: { followingId: profileUser.id } }),
-    prisma.follow.count({ where: { followerId: profileUser.id } }),
-    isOwn
-      ? Promise.resolve(null)
-      : prisma.follow.findUnique({
-          where: {
-            followerId_followingId: {
-              followerId: me.id,
-              followingId: profileUser.id,
+  const [posts, followers, following, isFollowing, topFriends, recipes, diningReviews] =
+    await Promise.all([
+      prisma.post.findMany({
+        where: { authorId: profileUser.id },
+        orderBy: { createdAt: "desc" },
+        include: {
+          author: true,
+          _count: { select: { likes: true, comments: true } },
+          likes: { where: { userId: me.id } },
+          savedBy: { where: { userId: me.id } },
+        },
+      }),
+      prisma.follow.count({ where: { followingId: profileUser.id } }),
+      prisma.follow.count({ where: { followerId: profileUser.id } }),
+      isOwn
+        ? Promise.resolve(null)
+        : prisma.follow.findUnique({
+            where: {
+              followerId_followingId: {
+                followerId: me.id,
+                followingId: profileUser.id,
+              },
             },
-          },
-        }),
-    getTopFriends(profileUser.id),
-  ]);
+          }),
+      getTopFriends(profileUser.id),
+      prisma.recipe.findMany({
+        where: { authorId: profileUser.id },
+        orderBy: { createdAt: "desc" },
+        take: 6,
+        select: { id: true, title: true, category: true, imageUrl: true },
+      }),
+      prisma.restaurantReview.findMany({
+        where: { userId: profileUser.id },
+        orderBy: { createdAt: "desc" },
+        take: 5,
+        include: {
+          restaurant: { select: { id: true, name: true, city: true, imageUrl: true } },
+        },
+      }),
+    ]);
 
   const data: PostCardData[] = posts.map((p) => ({
     id: p.id,
@@ -91,6 +106,14 @@ export default async function PublicProfilePage({
         isFollowing: !!isFollowing,
         topFriends,
         posts: data,
+        recipes,
+        diningReviews: diningReviews.map((r) => ({
+          id: r.id,
+          rating: r.rating,
+          safetyRating: r.safetyRating,
+          content: r.content,
+          restaurant: r.restaurant,
+        })),
         editSlot: isOwn ? (
           <Link href="/app/profile" className="btn-secondary w-full">
             Edit your page
