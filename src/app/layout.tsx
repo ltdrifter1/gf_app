@@ -16,9 +16,9 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "Nosh — gluten-free social",
+  title: "Plate — gluten-free social",
   description:
-    "Nosh — Pull up a chair. Messenger buddies, MySpace-style pages, safe dining, and recipes for people living with celiac and gluten intolerance.",
+    "Plate — Find your people at the table. Messenger buddies, MySpace-style pages, safe dining, and recipes for people living with celiac and gluten intolerance.",
 };
 
 const themeScript = `

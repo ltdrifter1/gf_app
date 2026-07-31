@@ -12,7 +12,7 @@ export function Logo({
   return (
     <div className={cn("flex items-center gap-2.5", className)}>
       <div
-        className="relative grid place-items-center rounded-2xl bg-nosh-gradient text-white shadow-glow"
+        className="relative grid place-items-center rounded-2xl bg-plate-gradient text-white shadow-glow"
         style={{
           width: size,
           height: size,
@@ -22,15 +22,15 @@ export function Logo({
       >
         <span
           className="font-display font-bold tracking-tight text-white"
-          style={{ fontSize: size * 0.42, letterSpacing: "-0.04em" }}
+          style={{ fontSize: size * 0.38, letterSpacing: "-0.03em" }}
         >
-          n
+          P
         </span>
       </div>
       {showText && (
         <div className="leading-tight">
           <span className="block font-display text-xl font-bold tracking-tight text-sage-900 dark:text-white">
-            Nosh
+            Plate
           </span>
           <span className="hidden text-[10px] font-medium uppercase tracking-[0.14em] text-sage-500 sm:block">
             Gluten-free social

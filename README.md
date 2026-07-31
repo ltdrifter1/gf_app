@@ -1,6 +1,6 @@
-# Nosh — Gluten-free social
+# Plate — gluten-free social
 
-**Pull up a chair.**
+**Find your people at the table.**
 
 A gluten-free social network with an MSN Messenger–style lounge — community,
 safe dining, recipes, and health support.
@@ -17,7 +17,7 @@ npx prisma db seed     # local demo users only
 npm run dev            # http://localhost:3000
 ```
 
-Local demo login (dev only): `maya@nosh.app` / `password123`
+Local demo login (dev only): `maya@plate.app` / `password123`
 
 ## Ship to production
 

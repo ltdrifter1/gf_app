@@ -1,5 +1,5 @@
-// Nosh — Gluten-free social
-// Pull up a chair.
+// Plate — gluten-free social
+// Find your people at the table.
 //
 // Production database: PostgreSQL (Neon / Supabase / Railway / Vercel Postgres).
 // Local: set DATABASE_URL to a Postgres URL (see .env.example).

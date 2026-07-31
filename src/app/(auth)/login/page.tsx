@@ -63,7 +63,7 @@ export default function LoginPage() {
       <p className="mt-5 text-center text-sm text-sage-600 dark:text-sage-300">
         New here?{" "}
         <Link href="/register" className="font-semibold text-brand-600 hover:underline">
-          Join Nosh
+          Join Plate
         </Link>
       </p>
     </AuthShell>
