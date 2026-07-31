@@ -11,6 +11,9 @@ export async function updateProfile(formData: FormData) {
   const location = String(formData.get("location") || "").trim();
   const diagnosis = String(formData.get("diagnosis") || "unspecified").trim();
   const avatarUrl = String(formData.get("avatarUrl") || "").trim() || null;
+  const mood = String(formData.get("mood") || "").trim().slice(0, 80);
+  const likeToMeet = String(formData.get("likeToMeet") || "").trim().slice(0, 500);
+  const interests = String(formData.get("interests") || "").trim().slice(0, 500);
 
   if (name.length < 2) return { error: "Name must be at least 2 characters" };
 
@@ -23,8 +26,18 @@ export async function updateProfile(formData: FormData) {
       avatarUrl,
       profile: {
         upsert: {
-          create: { diagnosis },
-          update: { diagnosis },
+          create: {
+            diagnosis,
+            mood: mood || null,
+            likeToMeet: likeToMeet || null,
+            interests: interests || null,
+          },
+          update: {
+            diagnosis,
+            mood: mood || null,
+            likeToMeet: likeToMeet || null,
+            interests: interests || null,
+          },
         },
       },
     },
@@ -45,4 +58,26 @@ export async function setPresence(presence: "online" | "away" | "offline") {
   revalidatePath("/app/profile");
   revalidatePath("/app/chat");
   return { ok: true };
+}
+
+/** Top 8 friends = people you follow (newest first), classic MySpace Friend Space. */
+export async function getTopFriends(userId: string, take = 8) {
+  const follows = await prisma.follow.findMany({
+    where: { followerId: userId },
+    orderBy: { createdAt: "desc" },
+    take,
+    include: {
+      following: {
+        select: {
+          id: true,
+          name: true,
+          username: true,
+          avatarUrl: true,
+          presence: true,
+          lastSeen: true,
+        },
+      },
+    },
+  });
+  return follows.map((f) => f.following);
 }

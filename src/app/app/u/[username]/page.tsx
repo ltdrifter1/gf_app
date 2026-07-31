@@ -1,12 +1,10 @@
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
-import { Avatar } from "@/components/ui/avatar";
-import { PostCard, type PostCardData } from "@/components/post-card";
-import { FollowButton } from "@/components/follow-button";
-import { MessageButton } from "@/components/message-button";
-import { MapPin, Calendar } from "lucide-react";
-import { effectivePresence } from "@/lib/presence";
+import { MyspaceProfile } from "@/components/myspace-profile";
+import { getTopFriends } from "@/lib/actions/profile";
+import type { PostCardData } from "@/components/post-card";
 
 export default async function PublicProfilePage({
   params,
@@ -22,9 +20,9 @@ export default async function PublicProfilePage({
   });
   if (!profileUser) notFound();
 
-  if (profileUser.id === me.id) redirect("/app/profile");
+  const isOwn = profileUser.id === me.id;
 
-  const [posts, followers, following, isFollowing] = await Promise.all([
+  const [posts, followers, following, isFollowing, topFriends] = await Promise.all([
     prisma.post.findMany({
       where: { authorId: profileUser.id },
       orderBy: { createdAt: "desc" },
@@ -37,14 +35,17 @@ export default async function PublicProfilePage({
     }),
     prisma.follow.count({ where: { followingId: profileUser.id } }),
     prisma.follow.count({ where: { followerId: profileUser.id } }),
-    prisma.follow.findUnique({
-      where: {
-        followerId_followingId: {
-          followerId: me.id,
-          followingId: profileUser.id,
-        },
-      },
-    }),
+    isOwn
+      ? Promise.resolve(null)
+      : prisma.follow.findUnique({
+          where: {
+            followerId_followingId: {
+              followerId: me.id,
+              followingId: profileUser.id,
+            },
+          },
+        }),
+    getTopFriends(profileUser.id),
   ]);
 
   const data: PostCardData[] = posts.map((p) => ({
@@ -67,87 +68,35 @@ export default async function PublicProfilePage({
   }));
 
   return (
-    <div className="mx-auto max-w-3xl space-y-4">
-      <div className="card overflow-hidden">
-        <div className="h-28 bg-ycn-gradient" />
-        <div className="px-6 pb-6">
-          <div className="-mt-10 flex flex-wrap items-end gap-4">
-            <div className="rounded-full ring-4 ring-white dark:ring-[#141d19]">
-              <Avatar
-                name={profileUser.name}
-                src={profileUser.avatarUrl}
-                size={88}
-                presence={effectivePresence(profileUser.presence, profileUser.lastSeen)}
-              />
-            </div>
-            <div className="mb-2 flex-1">
-              <h1 className="font-display text-2xl font-bold text-sage-900 dark:text-white">
-                {profileUser.name}
-              </h1>
-              <p className="text-sage-500 dark:text-sage-400">@{profileUser.username}</p>
-            </div>
-            <div className="mb-2 flex gap-2">
-              <FollowButton
-                targetUserId={profileUser.id}
-                initiallyFollowing={!!isFollowing}
-              />
-              <MessageButton targetUserId={profileUser.id} />
-            </div>
-          </div>
-          {profileUser.bio && (
-            <p className="mt-4 text-sage-700 dark:text-sage-200">{profileUser.bio}</p>
-          )}
-          <div className="mt-3 flex flex-wrap gap-4 text-sm text-sage-500">
-            {profileUser.location && (
-              <span className="flex items-center gap-1">
-                <MapPin className="h-4 w-4" /> {profileUser.location}
-              </span>
-            )}
-            <span className="flex items-center gap-1">
-              <Calendar className="h-4 w-4" /> Joined{" "}
-              {profileUser.createdAt.toLocaleDateString(undefined, {
-                month: "long",
-                year: "numeric",
-              })}
-            </span>
-            {profileUser.profile?.diagnosis &&
-              profileUser.profile.diagnosis !== "unspecified" && (
-                <span className="chip bg-sage-100 capitalize text-sage-600 dark:bg-white/10 dark:text-sage-300">
-                  {profileUser.profile.diagnosis.replace("-", " ")}
-                </span>
-              )}
-          </div>
-          <div className="mt-4 flex gap-6">
-            <div>
-              <span className="font-display text-lg font-bold text-sage-900 dark:text-white">
-                {posts.length}
-              </span>{" "}
-              <span className="text-sm text-sage-500">posts</span>
-            </div>
-            <div>
-              <span className="font-display text-lg font-bold text-sage-900 dark:text-white">
-                {followers}
-              </span>{" "}
-              <span className="text-sm text-sage-500">followers</span>
-            </div>
-            <div>
-              <span className="font-display text-lg font-bold text-sage-900 dark:text-white">
-                {following}
-              </span>{" "}
-              <span className="text-sm text-sage-500">following</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <h2 className="px-1 font-display text-lg font-semibold text-sage-900 dark:text-white">
-        Posts
-      </h2>
-      {data.length === 0 ? (
-        <div className="card p-8 text-center text-sage-500">No posts yet.</div>
-      ) : (
-        data.map((p) => <PostCard key={p.id} post={p} />)
-      )}
-    </div>
+    <MyspaceProfile
+      data={{
+        id: profileUser.id,
+        name: profileUser.name,
+        username: profileUser.username,
+        bio: profileUser.bio,
+        location: profileUser.location,
+        avatarUrl: profileUser.avatarUrl,
+        presence: profileUser.presence,
+        lastSeen: profileUser.lastSeen,
+        createdAt: profileUser.createdAt,
+        diagnosis: profileUser.profile?.diagnosis,
+        mood: profileUser.profile?.mood,
+        likeToMeet: profileUser.profile?.likeToMeet,
+        interests: profileUser.profile?.interests,
+        postCount: posts.length,
+        followerCount: followers,
+        followingCount: following,
+        isOwn,
+        viewerId: me.id,
+        isFollowing: !!isFollowing,
+        topFriends,
+        posts: data,
+        editSlot: isOwn ? (
+          <Link href="/app/profile" className="btn-secondary w-full">
+            Edit your page
+          </Link>
+        ) : undefined,
+      }}
+    />
   );
 }

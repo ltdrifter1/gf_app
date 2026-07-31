@@ -58,6 +58,10 @@ model Profile {
   user         User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   diagnosis    String? // celiac | gluten-intolerance | supporter | unspecified
   dietaryNotes String?
+  // MySpace-style blurbs
+  mood         String?
+  likeToMeet   String?
+  interests    String?
 }
 
 model Follow {
