@@ -17,6 +17,9 @@ export function ProfileEditForm({
     diagnosis: string;
     avatarUrl: string;
     presence: string;
+    mood: string;
+    likeToMeet: string;
+    interests: string;
   };
   username: string;
 }) {
@@ -29,13 +32,13 @@ export function ProfileEditForm({
 
   if (!open) {
     return (
-      <div className="mt-5 flex flex-wrap gap-2">
-        <button type="button" className="btn-secondary" onClick={() => setOpen(true)}>
-          Edit profile
+      <div className="flex flex-wrap gap-2">
+        <button type="button" className="btn-secondary w-full sm:w-auto" onClick={() => setOpen(true)}>
+          Edit Profile
         </button>
-        <Link href={`/app/u/${username}`} className="btn-ghost">
+        <Link href={`/app/u/${username}`} className="btn-ghost w-full sm:w-auto">
           <ExternalLink className="h-4 w-4" />
-          View public profile
+          View as others see you
         </Link>
       </div>
     );
@@ -43,7 +46,7 @@ export function ProfileEditForm({
 
   return (
     <form
-      className="mt-5 space-y-3 rounded-2xl border border-white/50 bg-white/50 p-4 dark:border-white/10 dark:bg-white/5"
+      className="space-y-3 rounded-2xl border border-white/50 bg-white/50 p-3 dark:border-white/10 dark:bg-white/5"
       action={(fd) => {
         setError(null);
         setSaved(false);
@@ -63,6 +66,7 @@ export function ProfileEditForm({
           src={avatarPreview || null}
           size={56}
           presence={presence}
+          className="rounded-xl"
         />
         <div className="min-w-0 flex-1">
           <label className="text-xs font-medium text-sage-500">Avatar URL</label>
@@ -80,8 +84,38 @@ export function ProfileEditForm({
         <input name="name" defaultValue={initial.name} className="input mt-1" required />
       </div>
       <div>
-        <label className="text-xs font-medium text-sage-500">Bio</label>
+        <label className="text-xs font-medium text-sage-500">Mood</label>
+        <input
+          name="mood"
+          defaultValue={initial.mood}
+          maxLength={80}
+          placeholder="feeling safe after a dedicated kitchen win"
+          className="input mt-1"
+        />
+      </div>
+      <div>
+        <label className="text-xs font-medium text-sage-500">About me</label>
         <textarea name="bio" defaultValue={initial.bio} rows={3} className="input mt-1" />
+      </div>
+      <div>
+        <label className="text-xs font-medium text-sage-500">I&apos;d like to meet</label>
+        <textarea
+          name="likeToMeet"
+          defaultValue={initial.likeToMeet}
+          rows={2}
+          placeholder="Newly diagnosed folks, GF bakers, travel buddies…"
+          className="input mt-1"
+        />
+      </div>
+      <div>
+        <label className="text-xs font-medium text-sage-500">Interests</label>
+        <textarea
+          name="interests"
+          defaultValue={initial.interests}
+          rows={2}
+          placeholder="Safe dining, GF baking, messenger late-nights"
+          className="input mt-1"
+        />
       </div>
       <div>
         <label className="text-xs font-medium text-sage-500">Location</label>
@@ -120,9 +154,6 @@ export function ProfileEditForm({
             </button>
           ))}
         </div>
-        <p className="mt-1.5 text-xs text-sage-400">
-          Offline sticks until you set Online. Away auto-applies when you leave the tab.
-        </p>
       </div>
       {error && <p className="text-sm text-rose-500">{error}</p>}
       <div className="flex gap-2">
