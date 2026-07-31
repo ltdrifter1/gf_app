@@ -1,6 +1,6 @@
-# Deploy YCN (ship today)
+# Deploy Nosh (ship today)
 
-YCN (Your Celiac Network) runs on **Next.js 15** + **PostgreSQL**.
+Nosh runs on **Next.js 15** + **PostgreSQL**.
 
 ## 1. Create a Postgres database
 
@@ -26,7 +26,7 @@ Use [Neon](https://neon.tech), [Supabase](https://supabase.com), [Railway](https
 DATABASE_URL="…" npx tsx prisma/seed-prod.ts
 ```
 
-**Do not run `prisma/seed.ts` on a public production site** — that creates demo logins (`maya@ycn.app` / `password123`). Use `seed-prod.ts` only.
+**Do not run `prisma/seed.ts` on a public production site** — that creates demo logins (`maya@nosh.app` / `password123`). Use `seed-prod.ts` only.
 
 ## 3. Local development
 
@@ -54,7 +54,7 @@ npm run dev
 
 ## Security notes
 
-- Session cookie is httpOnly + Secure in production (`ycn_session`)
+- Session cookie is httpOnly + Secure in production (`nosh_session`)
 - DMs are membership-gated (no auto-join via URL)
 - Security headers set in `next.config.mjs`
 - Rate limits: register 5/hr/IP, login 10/15min/IP, chat send 30/min/user

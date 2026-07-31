@@ -12,28 +12,28 @@ export function Logo({
   return (
     <div className={cn("flex items-center gap-2.5", className)}>
       <div
-        className="relative grid place-items-center rounded-2xl bg-ycn-gradient text-white shadow-glow"
+        className="relative grid place-items-center rounded-2xl bg-nosh-gradient text-white shadow-glow"
         style={{
           width: size,
           height: size,
           boxShadow:
-            "inset 0 1px 0 0 rgba(255,255,255,0.45), 0 8px 24px -8px rgba(51,123,255,0.6)",
+            "inset 0 1px 0 0 rgba(255,255,255,0.45), 0 8px 24px -8px rgba(13,148,136,0.55)",
         }}
       >
         <span
           className="font-display font-bold tracking-tight text-white"
-          style={{ fontSize: size * 0.32, letterSpacing: "-0.02em" }}
+          style={{ fontSize: size * 0.42, letterSpacing: "-0.04em" }}
         >
-          YCN
+          n
         </span>
       </div>
       {showText && (
         <div className="leading-tight">
-          <span className="block font-display text-lg font-bold tracking-tight text-sage-900 dark:text-white">
-            YCN
+          <span className="block font-display text-xl font-bold tracking-tight text-sage-900 dark:text-white">
+            Nosh
           </span>
-          <span className="hidden text-[10px] font-medium uppercase tracking-[0.12em] text-sage-500 sm:block">
-            Your Celiac Network
+          <span className="hidden text-[10px] font-medium uppercase tracking-[0.14em] text-sage-500 sm:block">
+            Gluten-free social
           </span>
         </div>
       )}

@@ -27,27 +27,27 @@ const config: Config = {
           200: "#f3e8d3",
         },
         brand: {
-          50: "#eef6ff",
-          100: "#d9eaff",
-          200: "#bcd9ff",
-          300: "#8ec1ff",
-          400: "#599fff",
-          500: "#337bff",
-          600: "#1f5ef5",
-          700: "#1849e1",
-          800: "#1a3db6",
-          900: "#1b388f",
+          50: "#f0fdfa",
+          100: "#ccfbf1",
+          200: "#99f6e4",
+          300: "#5eead4",
+          400: "#2dd4bf",
+          500: "#14b8a6",
+          600: "#0d9488",
+          700: "#0f766e",
+          800: "#115e59",
+          900: "#134e4a",
         },
       warm: {
         400: "#f0a868",
         500: "#e8924a",
       },
-      // YCN accent — violet, used in the signature blue→violet gradient
+      // Nosh accent — sky, used in the teal→sky signature gradient
       accent: {
-        300: "#c4b5fd",
-        400: "#a78bfa",
-        500: "#8b5cf6",
-        600: "#7c3aed",
+        300: "#7dd3fc",
+        400: "#38bdf8",
+        500: "#0ea5e9",
+        600: "#0284c8",
       },
     },
       fontFamily: {
@@ -58,15 +58,15 @@ const config: Config = {
         "4xl": "2rem",
       },
       boxShadow: {
-        glass: "0 8px 32px 0 rgba(31, 38, 135, 0.10)",
-        "glass-lg": "0 20px 60px -10px rgba(31, 38, 135, 0.18)",
+        glass: "0 8px 32px 0 rgba(15, 118, 110, 0.10)",
+        "glass-lg": "0 20px 60px -10px rgba(15, 118, 110, 0.18)",
         soft: "0 4px 20px -4px rgba(0,0,0,0.08)",
         // MSN/XP-style glossy inset highlight + brand glow
         gloss: "inset 0 1px 0 0 rgba(255,255,255,0.5)",
-        glow: "0 10px 40px -8px rgba(51,123,255,0.45)",
+        glow: "0 10px 40px -8px rgba(13,148,136,0.45)",
       },
       backgroundImage: {
-        "ycn-gradient": "linear-gradient(135deg, #337bff 0%, #6d5cf6 55%, #22b8cf 120%)",
+        "nosh-gradient": "linear-gradient(135deg, #0d9488 0%, #0284c8 55%, #38bdf8 120%)",
       },
       backdropBlur: {
         xs: "2px",

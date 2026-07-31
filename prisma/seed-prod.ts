@@ -10,7 +10,7 @@ import { ensureLaunchCatalog } from "./catalog";
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log("🟢 Bootstrapping YCN launch catalog (no demo users)…");
+  console.log("🟢 Bootstrapping Nosh launch catalog (no demo users)…");
   await ensureLaunchCatalog(prisma);
   console.log("✅ Catalog ready: community rooms, restaurants, recipes, health.");
 }

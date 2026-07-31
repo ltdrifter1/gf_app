@@ -1,11 +1,11 @@
-# YCN — Your Celiac Network
+# Nosh — Gluten-free social
 
-**Connect. Share. Belong.**
+**Pull up a chair.**
 
-YCN is a **gluten-free social network** with an MSN Messenger–style chat lounge.
+Nosh is a **gluten-free social network** with an MSN Messenger–style chat lounge.
 Full-stack **Next.js 15** + **TypeScript** + **Tailwind** + **Prisma** + **PostgreSQL**.
 
-Design: glassmorphism with MSN gloss. Brand gradient: `bg-ycn-gradient`.
+Design: glassmorphism with MSN gloss. Brand gradient: `bg-nosh-gradient`.
 
 ## Surface
 
@@ -26,11 +26,11 @@ Design: glassmorphism with MSN gloss. Brand gradient: `bg-ycn-gradient`.
 
 - Dev: Postgres required — see `.env.example`, then `npm run dev` → http://localhost:3000
 - Reset: `npx prisma db push --force-reset && npx prisma db seed`
-- Demo (local only): `maya@ycn.app` / `password123`
+- Demo (local only): `maya@nosh.app` / `password123`
 - Prod catalog (no demos): `npm run db:seed:prod` — also auto-runs via `ensureLaunchCatalog`
 - `AUTH_SECRET` is required in production (fails closed)
 - Vercel build: `ship:build` (see `vercel.json`)
 - DMs are membership-gated; community rooms auto-join
 - Chat/presence: HTTP polling (~2.5s); online = lastSeen < 60s
-- Auth cookie: `ycn_session`
+- Auth cookie: `nosh_session`
 - Rate limits on register / login / chat send

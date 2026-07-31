@@ -7,16 +7,16 @@ const img = (seed: string, w = 800, h = 600) =>
   `https://picsum.photos/seed/${seed}/${w}/${h}`;
 
 async function main() {
-  console.log("🔵 Seeding YCN…");
+  console.log("🔵 Seeding Nosh…");
   const passwordHash = await bcrypt.hash("password123", 10);
 
   const usersData = [
-    { email: "maya@ycn.app", username: "maya", name: "Maya Patel", role: "USER", bio: "Diagnosed 2021. Sharing my safe-eating wins 🔵", location: "Austin, TX", diagnosis: "celiac", mood: "grateful for dedicated kitchens", likeToMeet: "Anyone who gets cross-contamination anxiety", interests: "Safe dining · GF baking · late-night Messenger" },
-    { email: "leo@ycn.app", username: "leo", name: "Leo Martins", role: "USER", bio: "Dad of a celiac kiddo. Here for the community.", location: "Portland, OR", diagnosis: "supporter", mood: "packing school lunches", likeToMeet: "Other GF parents & school advocates", interests: "Kid-friendly recipes · school IEPs · meal prep" },
-    { email: "sara@ycn.app", username: "sara", name: "Sara Kim", role: "USER", bio: "Gluten intolerance + lots of opinions on bread.", location: "Brooklyn, NY", diagnosis: "gluten-intolerance", mood: "hunting the perfect GF loaf", likeToMeet: "Bakers, New Yorkers, sauce detectives", interests: "Bread rankings · restaurants · hot takes" },
-    { email: "admin@ycn.app", username: "admin", name: "YCN Admin", role: "ADMIN", bio: "Keeping the community safe & kind.", location: "Remote", diagnosis: "supporter", mood: "online & watching the rooms", likeToMeet: "Kind community members", interests: "Moderation · community health" },
-    { email: "theo@ycn.app", username: "theo", name: "Theo Nguyen", role: "USER", bio: "Travel + gluten-free = my whole personality ✈️", location: "Austin, TX", diagnosis: "celiac", mood: "planning the next GF trip", likeToMeet: "Travelers who share phrase cards", interests: "Travel · AIC spots · street food" },
-    { email: "priya@ycn.app", username: "priya", name: "Priya Shah", role: "USER", bio: "Newly diagnosed and figuring it out.", location: "Brooklyn, NY", diagnosis: "celiac", mood: "two weeks in, still learning", likeToMeet: "Newly diagnosed friends who get it", interests: "Starter tips · mental health · labeling" },
+    { email: "maya@nosh.app", username: "maya", name: "Maya Patel", role: "USER", bio: "Diagnosed 2021. Sharing my safe-eating wins 🔵", location: "Austin, TX", diagnosis: "celiac", mood: "grateful for dedicated kitchens", likeToMeet: "Anyone who gets cross-contamination anxiety", interests: "Safe dining · GF baking · late-night Messenger" },
+    { email: "leo@nosh.app", username: "leo", name: "Leo Martins", role: "USER", bio: "Dad of a celiac kiddo. Here for the community.", location: "Portland, OR", diagnosis: "supporter", mood: "packing school lunches", likeToMeet: "Other GF parents & school advocates", interests: "Kid-friendly recipes · school IEPs · meal prep" },
+    { email: "sara@nosh.app", username: "sara", name: "Sara Kim", role: "USER", bio: "Gluten intolerance + lots of opinions on bread.", location: "Brooklyn, NY", diagnosis: "gluten-intolerance", mood: "hunting the perfect GF loaf", likeToMeet: "Bakers, New Yorkers, sauce detectives", interests: "Bread rankings · restaurants · hot takes" },
+    { email: "admin@nosh.app", username: "admin", name: "Nosh Admin", role: "ADMIN", bio: "Keeping the community safe & kind.", location: "Remote", diagnosis: "supporter", mood: "online & watching the rooms", likeToMeet: "Kind community members", interests: "Moderation · community health" },
+    { email: "theo@nosh.app", username: "theo", name: "Theo Nguyen", role: "USER", bio: "Travel + gluten-free = my whole personality ✈️", location: "Austin, TX", diagnosis: "celiac", mood: "planning the next GF trip", likeToMeet: "Travelers who share phrase cards", interests: "Travel · AIC spots · street food" },
+    { email: "priya@nosh.app", username: "priya", name: "Priya Shah", role: "USER", bio: "Newly diagnosed and figuring it out.", location: "Brooklyn, NY", diagnosis: "celiac", mood: "two weeks in, still learning", likeToMeet: "Newly diagnosed friends who get it", interests: "Starter tips · mental health · labeling" },
   ];
 
   const users: Record<string, { id: string }> = {};
@@ -298,7 +298,7 @@ async function main() {
   }
 
   console.log("✅ Seed complete.");
-  console.log("   Demo login → maya@ycn.app / password123");
+  console.log("   Demo login → maya@nosh.app / password123");
 }
 
 main()

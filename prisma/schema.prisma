@@ -1,5 +1,5 @@
-// YCN — Your Celiac Network
-// Connect. Share. Belong.
+// Nosh — Gluten-free social
+// Pull up a chair.
 //
 // Production database: PostgreSQL (Neon / Supabase / Railway / Vercel Postgres).
 // Local: set DATABASE_URL to a Postgres URL (see .env.example).
