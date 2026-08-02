@@ -5,7 +5,7 @@ import { SignJWT, jwtVerify } from "jose";
 import bcrypt from "bcryptjs";
 import { prisma } from "./prisma";
 
-const COOKIE_NAME = "plate_session";
+const COOKIE_NAME = "comc_session";
 
 function authSecretBytes() {
   const secret = process.env.AUTH_SECRET;

@@ -398,8 +398,8 @@ export const LAUNCH_HEALTH = [
   },
 ] as const;
 
-const CATALOG_EMAIL = "catalog@plate.internal";
-const CATALOG_USERNAME = "plate";
+const CATALOG_EMAIL = "catalog@comc.internal";
+const CATALOG_USERNAME = "comc";
 
 /** Non-loginable catalog author for seed recipes (random password, never printed). */
 async function ensureCatalogAuthor(prisma: PrismaClient) {
@@ -411,9 +411,9 @@ async function ensureCatalogAuthor(prisma: PrismaClient) {
     data: {
       email: CATALOG_EMAIL,
       username: CATALOG_USERNAME,
-      name: "Plate",
+      name: "Community C",
       role: "USER",
-      bio: "Official Plate recipe catalog",
+      bio: "Official Community C recipe catalog",
       passwordHash,
       presence: "offline",
       profile: { create: { diagnosis: "supporter" } },

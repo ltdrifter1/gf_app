@@ -78,15 +78,15 @@ export default async function LandingPage() {
       <section className="relative min-h-[100svh] lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
         <div className="relative z-10 flex flex-col justify-center px-6 pb-10 pt-28 sm:px-10 lg:px-14 lg:pb-20 lg:pt-24">
           <p className="animate-fade-in text-sm font-semibold uppercase tracking-[0.18em] text-brand-600">
-            Gluten-free social
+            Community C
           </p>
 
           <h1 className="mt-4 font-display text-5xl font-bold leading-[1.02] tracking-tight text-sage-900 animate-fade-in dark:text-white sm:text-6xl lg:text-7xl [animation-delay:60ms]">
-            <span className="text-gradient">Plate</span>
+            <span className="text-gradient">COM-C</span>
           </h1>
 
           <p className="mt-4 font-display text-2xl font-semibold tracking-tight text-sage-800 animate-fade-in dark:text-sage-100 sm:text-3xl [animation-delay:100ms]">
-            Find your people at the table.
+            You&apos;re not alone in this.
           </p>
 
           <p className="mt-5 max-w-md text-lg text-sage-600 animate-fade-in dark:text-sage-300 [animation-delay:140ms]">
@@ -140,7 +140,7 @@ export default async function LandingPage() {
 
       <section id="dining" className="mx-auto max-w-5xl px-6 py-20 sm:px-10">
         <p className="text-sm font-semibold uppercase tracking-wide text-brand-600">
-          Also in Plate
+          Also in COM-C
         </p>
         <h2 className="mt-2 font-display text-3xl font-bold text-sage-900 dark:text-white sm:text-4xl">
           Find places that actually get it
@@ -190,14 +190,14 @@ export default async function LandingPage() {
       </section>
 
       <section className="px-6 pb-24 sm:px-10">
-        <div className="relative mx-auto max-w-5xl overflow-hidden rounded-4xl bg-plate-gradient px-8 py-14 text-center shadow-glow sm:px-16 sm:py-16">
+        <div className="relative mx-auto max-w-5xl overflow-hidden rounded-4xl bg-comc-gradient px-8 py-14 text-center shadow-glow sm:px-16 sm:py-16">
           <div className="absolute -right-10 -top-10 h-60 w-60 rounded-full bg-white/10 blur-2xl" />
           <div className="absolute -bottom-16 -left-10 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
           <h2 className="relative font-display text-3xl font-bold text-white sm:text-4xl">
-            Find your people at the table.
+            You&apos;re not alone in this.
           </h2>
           <p className="relative mx-auto mt-4 max-w-md text-white/85">
-            {presenceLabel} — join the conversation on Plate.
+            {presenceLabel} — join the conversation on COM-C.
           </p>
           <Link
             href={primaryHref}
@@ -213,7 +213,7 @@ export default async function LandingPage() {
       <footer className="border-t border-white/40 py-10 dark:border-white/10">
         <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-4 px-6 text-sm text-sage-500 dark:text-sage-400 sm:flex-row sm:px-10">
           <Logo size={28} />
-          <p>© {new Date().getFullYear()} Plate · Gluten-free social</p>
+          <p>© {new Date().getFullYear()} COM-C · Community C</p>
         </div>
       </footer>
     </div>

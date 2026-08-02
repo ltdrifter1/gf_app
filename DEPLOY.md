@@ -1,6 +1,6 @@
-# Deploy Plate (ship today)
+# Deploy COM-C (ship today)
 
-Plate runs on **Next.js 15** + **PostgreSQL**.
+COM-C runs on **Next.js 15** + **PostgreSQL**.
 
 ## 1. Create a Postgres database
 
@@ -26,7 +26,7 @@ Use [Neon](https://neon.tech), [Supabase](https://supabase.com), [Railway](https
 DATABASE_URL="…" npx tsx prisma/seed-prod.ts
 ```
 
-**Do not run `prisma/seed.ts` on a public production site** — that creates demo logins (`maya@plate.app` / `password123`). Use `seed-prod.ts` only.
+**Do not run `prisma/seed.ts` on a public production site** — that creates demo logins (`maya@comc.app` / `password123`). Use `seed-prod.ts` only.
 
 ## 3. Local development
 
@@ -54,7 +54,7 @@ npm run dev
 
 ## Security notes
 
-- Session cookie is httpOnly + Secure in production (`plate_session`)
+- Session cookie is httpOnly + Secure in production (`comc_session`)
 - DMs are membership-gated (no auto-join via URL)
 - Security headers set in `next.config.mjs`
 - Rate limits: register 5/hr/IP, login 10/15min/IP, chat send 30/min/user

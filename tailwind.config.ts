@@ -42,7 +42,7 @@ const config: Config = {
         400: "#f0a868",
         500: "#e8924a",
       },
-      // Plate accent — sky, used in the teal→sky signature gradient
+      // COM-C accent — sky, used in the teal→sky signature gradient
       accent: {
         300: "#7dd3fc",
         400: "#38bdf8",
@@ -66,7 +66,7 @@ const config: Config = {
         glow: "0 10px 40px -8px rgba(13,148,136,0.45)",
       },
       backgroundImage: {
-        "plate-gradient": "linear-gradient(135deg, #0d9488 0%, #0284c8 55%, #38bdf8 120%)",
+        "comc-gradient": "linear-gradient(135deg, #0d9488 0%, #0284c8 55%, #38bdf8 120%)",
       },
       backdropBlur: {
         xs: "2px",
