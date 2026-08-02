@@ -43,7 +43,7 @@ export function HeroMessenger({
           }}
         >
           <span className="font-display text-sm font-semibold tracking-wide">
-            Plate Messenger
+            COM-C Messenger
           </span>
           <span className="ml-auto text-xs text-white/80">General Support</span>
         </div>

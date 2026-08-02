@@ -1,5 +1,5 @@
-// Plate — gluten-free social
-// Find your people at the table.
+// COM-C — Community C
+// You're not alone in this.
 //
 // Production database: PostgreSQL (Neon / Supabase / Railway / Vercel Postgres).
 // Local: set DATABASE_URL to a Postgres URL (see .env.example).

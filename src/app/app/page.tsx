@@ -167,7 +167,7 @@ export default async function FeedPage({
           href="/app/chat"
           className="card block overflow-hidden transition hover:shadow-glass-lg"
         >
-          <div className="bg-plate-gradient p-5 text-white">
+          <div className="bg-comc-gradient p-5 text-white">
             <MessageCircle className="h-6 w-6" />
             <h3 className="mt-2 font-display text-lg font-semibold">Open Messenger</h3>
             <p className="mt-1 text-sm text-white/80">

@@ -1,11 +1,11 @@
-# Plate — gluten-free social
+# COM-C — Community C
 
-**Find your people at the table.**
+**You're not alone in this.**
 
-Plate is a **gluten-free social network** with an MSN Messenger–style chat lounge.
+COM-C (Community C) is a **gluten-free social network** with an MSN Messenger–style chat lounge.
 Full-stack **Next.js 15** + **TypeScript** + **Tailwind** + **Prisma** + **PostgreSQL**.
 
-Design: glassmorphism with MSN gloss. Brand gradient: `bg-plate-gradient`.
+Design: glassmorphism with MSN gloss. Brand gradient: `bg-comc-gradient`.
 
 ## Surface
 
@@ -26,11 +26,11 @@ Design: glassmorphism with MSN gloss. Brand gradient: `bg-plate-gradient`.
 
 - Dev: Postgres required — see `.env.example`, then `npm run dev` → http://localhost:3000
 - Reset: `npx prisma db push --force-reset && npx prisma db seed`
-- Demo (local only): `maya@plate.app` / `password123`
+- Demo (local only): `maya@comc.app` / `password123`
 - Prod catalog (no demos): `npm run db:seed:prod` — also auto-runs via `ensureLaunchCatalog`
 - `AUTH_SECRET` is required in production (fails closed)
 - Vercel build: `ship:build` (see `vercel.json`)
 - DMs are membership-gated; community rooms auto-join
 - Chat/presence: HTTP polling (~2.5s); online = lastSeen < 60s
-- Auth cookie: `plate_session`
+- Auth cookie: `comc_session`
 - Rate limits on register / login / chat send
