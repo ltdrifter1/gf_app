@@ -1,16 +1,25 @@
+/** Primary feed topics — keep the Community feed to one clear job. */
 export const POST_CATEGORIES = [
-  { slug: "newly-diagnosed", label: "Newly Diagnosed", emoji: "🌱", color: "bg-sage-100 text-sage-700" },
-  { slug: "symptoms", label: "Symptoms", emoji: "🩺", color: "bg-rose-100 text-rose-700" },
-  { slug: "restaurants", label: "Dining Tips", emoji: "🍽️", color: "bg-amber-100 text-amber-700" },
-  { slug: "recipes", label: "Recipes", emoji: "👩‍🍳", color: "bg-orange-100 text-orange-700" },
+  { slug: "newly-diagnosed", label: "Newly diagnosed", emoji: "🌱", color: "bg-sage-100 text-sage-700" },
+  { slug: "restaurants", label: "Dining", emoji: "🍽️", color: "bg-amber-100 text-amber-700" },
   { slug: "mental-health", label: "Support", emoji: "💙", color: "bg-brand-100 text-brand-700" },
   { slug: "travel", label: "Travel", emoji: "✈️", color: "bg-sky-100 text-sky-700" },
-  { slug: "product-reviews", label: "Products", emoji: "🛒", color: "bg-violet-100 text-violet-700" },
-  { slug: "kids-with-celiac", label: "Kids", emoji: "🧒", color: "bg-pink-100 text-pink-700" },
 ] as const;
 
+/** Labels for older seeded/legacy post categories still in the DB. */
+const LEGACY_CATEGORIES: Record<string, { label: string; emoji: string; color: string }> = {
+  symptoms: { label: "Symptoms", emoji: "🩺", color: "bg-rose-100 text-rose-700" },
+  recipes: { label: "Recipes", emoji: "👩‍🍳", color: "bg-orange-100 text-orange-700" },
+  "product-reviews": { label: "Products", emoji: "🛒", color: "bg-violet-100 text-violet-700" },
+  "kids-with-celiac": { label: "Kids", emoji: "🧒", color: "bg-pink-100 text-pink-700" },
+};
+
 export function categoryBySlug(slug: string) {
-  return POST_CATEGORIES.find((c) => c.slug === slug);
+  const primary = POST_CATEGORIES.find((c) => c.slug === slug);
+  if (primary) return primary;
+  const legacy = LEGACY_CATEGORIES[slug];
+  if (legacy) return { slug, ...legacy };
+  return undefined;
 }
 
 export const RECIPE_CATEGORIES = [

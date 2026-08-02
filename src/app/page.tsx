@@ -9,7 +9,7 @@ import { ensureLaunchCatalog } from "@/lib/bootstrap";
 
 export default async function LandingPage() {
   const user = await getCurrentUser();
-  const primaryHref = user ? "/app" : "/register";
+  const primaryHref = user ? "/app/chat" : "/register";
 
   await ensureLaunchCatalog();
 
@@ -58,8 +58,8 @@ export default async function LandingPage() {
           <div className="flex items-center gap-2">
             <ThemeToggle />
             {user ? (
-              <Link href="/app" className="btn-primary">
-                Open app
+              <Link href="/app/chat" className="btn-primary">
+                Open Messenger
               </Link>
             ) : (
               <>
@@ -90,8 +90,8 @@ export default async function LandingPage() {
           </p>
 
           <p className="mt-5 max-w-md text-lg text-sage-600 animate-fade-in dark:text-sage-300 [animation-delay:140ms]">
-            Messenger buddies, MySpace-style pages, safe dining, recipes, and
-            health — for people living with celiac and gluten intolerance.
+            Live Messenger and MySpace-style pages for people with celiac and
+            gluten intolerance — so you always have someone who gets it.
           </p>
 
           <p className="mt-5 flex items-center gap-2 text-sm font-medium text-sage-600 animate-fade-in dark:text-sage-300 [animation-delay:180ms]">
@@ -101,7 +101,7 @@ export default async function LandingPage() {
 
           <div className="mt-8 flex flex-wrap gap-3 animate-fade-in [animation-delay:220ms]">
             <Link href={primaryHref} className="btn-primary px-7 py-3.5 text-base">
-              {user ? "Go to your feed" : "Join free"}
+              {user ? "Open Messenger" : "Join free"}
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
@@ -140,14 +140,14 @@ export default async function LandingPage() {
 
       <section id="dining" className="mx-auto max-w-5xl px-6 py-20 sm:px-10">
         <p className="text-sm font-semibold uppercase tracking-wide text-brand-600">
-          Also in COM-C
+          When you&apos;re ready to go out
         </p>
         <h2 className="mt-2 font-display text-3xl font-bold text-sage-900 dark:text-white sm:text-4xl">
-          Find places that actually get it
+          Safe dining, then talk it through
         </h2>
         <p className="mt-3 max-w-xl text-sage-600 dark:text-sage-300">
-          Community-scored restaurants with cross-contamination context — then
-          talk it through in Messenger.
+          Community-scored spots with cross-contamination context — Messenger is
+          where the real backup lives.
         </p>
 
         {topRestaurant && (
@@ -179,8 +179,11 @@ export default async function LandingPage() {
                 <p className="mt-3 text-sm text-sage-600 dark:text-sage-300">
                   {topRestaurant.description}
                 </p>
-                <Link href={primaryHref} className="btn-secondary mt-6 w-fit">
-                  Explore safe dining
+                <Link
+                  href={user ? "/app/restaurants" : "/register"}
+                  className="btn-secondary mt-6 w-fit"
+                >
+                  See safe dining
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
@@ -204,7 +207,7 @@ export default async function LandingPage() {
             className="btn relative mt-8 bg-white px-8 py-3.5 text-base font-semibold text-brand-700 hover:bg-white/90"
             style={{ boxShadow: "inset 0 1px 0 0 rgba(255,255,255,0.7)" }}
           >
-            {user ? "Open the app" : "Create your free account"}
+            {user ? "Open Messenger" : "Create your free account"}
             <ArrowRight className="h-4 w-4" />
           </Link>
         </div>

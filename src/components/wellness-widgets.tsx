@@ -14,7 +14,7 @@ export function MoodTracker() {
     <div>
       {done ? (
         <p className="rounded-2xl bg-emerald-50 p-3 text-sm text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">
-          Logged — your MySpace mood is updated too 💙
+          Logged — your profile mood is updated too.
         </p>
       ) : (
         <form

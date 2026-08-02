@@ -2,19 +2,20 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
-  Home,
   MessageCircle,
-  MapPin,
-  ChefHat,
-  HeartPulse,
-  Shield,
+  Users,
+  UtensilsCrossed,
+  UserRound,
   Menu,
   X,
   Search,
   LogOut,
+  BookOpen,
+  HeartPulse,
   Bookmark,
+  Shield,
 } from "lucide-react";
 import { Logo } from "./logo";
 import { Avatar } from "./ui/avatar";
@@ -30,14 +31,23 @@ type NavUser = {
   presence: string;
 };
 
-const NAV = [
-  { href: "/app", label: "Community", icon: Home, exact: true },
+const PRIMARY_NAV = [
   { href: "/app/chat", label: "Messenger", icon: MessageCircle },
-  { href: "/app/restaurants", label: "Restaurants", icon: MapPin },
-  { href: "/app/recipes", label: "Recipes", icon: ChefHat },
+  { href: "/app", label: "Community", icon: Users, exact: true },
+  { href: "/app/restaurants", label: "Dining", icon: UtensilsCrossed },
+  { href: "/app/profile", label: "You", icon: UserRound },
+] as const;
+
+const MORE_NAV = [
+  { href: "/app/recipes", label: "Recipes", icon: BookOpen },
   { href: "/app/health", label: "Health", icon: HeartPulse },
   { href: "/app/saved", label: "Saved", icon: Bookmark },
-];
+] as const;
+
+function navActive(pathname: string, href: string, exact?: boolean) {
+  if (exact) return pathname === href;
+  return pathname === href || pathname.startsWith(href + "/");
+}
 
 export function AppShell({
   user,
@@ -49,15 +59,9 @@ export function AppShell({
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
-  const nav = [...NAV];
-  if (user.role === "ADMIN") {
-    nav.push({ href: "/app/admin", label: "Admin", icon: Shield });
-  }
-
-  function isActive(item: (typeof NAV)[number]) {
-    if (item.exact) return pathname === item.href;
-    return pathname === item.href || pathname.startsWith(item.href + "/");
-  }
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
 
   return (
     <div className="min-h-screen lg:flex">
@@ -69,29 +73,63 @@ export function AppShell({
       >
         <div className="glass-strong m-3 flex h-[calc(100vh-1.5rem)] flex-col rounded-3xl p-4">
           <div className="flex items-center justify-between px-1">
-            <Link href="/app" onClick={() => setOpen(false)}>
+            <Link href="/app/chat" onClick={() => setOpen(false)}>
               <Logo />
             </Link>
-            <button className="lg:hidden btn-ghost p-2" onClick={() => setOpen(false)}>
+            <button className="btn-ghost p-2 lg:hidden" onClick={() => setOpen(false)}>
               <X className="h-5 w-5" />
             </button>
           </div>
 
           <nav className="mt-6 flex-1 space-y-1 overflow-y-auto pr-1">
-            {nav.map((item) => {
+            {PRIMARY_NAV.map((item) => {
               const Icon = item.icon;
+              const active = navActive(pathname, item.href, "exact" in item ? item.exact : false);
               return (
                 <Link
                   key={item.href}
                   href={item.href}
                   onClick={() => setOpen(false)}
-                  className={cn("nav-link", isActive(item) && "nav-link-active")}
+                  className={cn("nav-link", active && "nav-link-active")}
                 >
                   <Icon className="h-[18px] w-[18px]" />
                   {item.label}
                 </Link>
               );
             })}
+
+            <p className="mb-1 mt-5 px-3.5 text-[10px] font-semibold uppercase tracking-wider text-sage-400">
+              More
+            </p>
+            {MORE_NAV.map((item) => {
+              const Icon = item.icon;
+              const active = navActive(pathname, item.href);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setOpen(false)}
+                  className={cn("nav-link", active && "nav-link-active")}
+                >
+                  <Icon className="h-[18px] w-[18px]" />
+                  {item.label}
+                </Link>
+              );
+            })}
+
+            {user.role === "ADMIN" && (
+              <Link
+                href="/app/admin"
+                onClick={() => setOpen(false)}
+                className={cn(
+                  "nav-link mt-2",
+                  pathname.startsWith("/app/admin") && "nav-link-active"
+                )}
+              >
+                <Shield className="h-[18px] w-[18px]" />
+                Admin
+              </Link>
+            )}
           </nav>
 
           <Link
@@ -122,7 +160,7 @@ export function AppShell({
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-20 px-3 pt-3">
           <div className="glass flex items-center gap-3 rounded-3xl px-3 py-2.5">
-            <button className="lg:hidden btn-ghost p-2" onClick={() => setOpen(true)}>
+            <button className="btn-ghost p-2 lg:hidden" onClick={() => setOpen(true)}>
               <Menu className="h-5 w-5" />
             </button>
             <form action="/app/search" className="relative hidden flex-1 sm:block">
@@ -146,8 +184,75 @@ export function AppShell({
           </div>
         </header>
 
-        <main className="flex-1 p-3">{children}</main>
+        <main
+          className={cn(
+            "flex-1 p-3",
+            "pb-[calc(4.75rem+env(safe-area-inset-bottom))] lg:pb-3"
+          )}
+        >
+          {children}
+        </main>
       </div>
+
+      {/* Mobile bottom bar — Messenger as hero tab */}
+      <nav
+        className="fixed inset-x-0 bottom-0 z-40 flex items-end justify-around border-t border-white/50 bg-white/90 px-2 pb-[max(0.4rem,env(safe-area-inset-bottom))] pt-1.5 backdrop-blur-xl dark:border-white/10 dark:bg-[#0c1412]/95 lg:hidden"
+        aria-label="Primary"
+      >
+        {PRIMARY_NAV.map((item) => {
+          const active = navActive(pathname, item.href, "exact" in item ? item.exact : false);
+          const Icon = item.icon;
+          const isHero = item.href === "/app/chat";
+
+          if (isHero) {
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="relative -mt-5 flex flex-col items-center"
+                aria-label="Messenger"
+                aria-current={active ? "page" : undefined}
+              >
+                <span
+                  className={cn(
+                    "flex h-14 w-14 items-center justify-center rounded-full bg-comc-gradient text-white transition",
+                    active && "scale-105 ring-4 ring-brand-200/60 dark:ring-brand-500/30"
+                  )}
+                  style={{
+                    boxShadow:
+                      "inset 0 1px 0 0 rgba(255,255,255,0.4), 0 8px 24px -8px rgba(51, 123, 255, 0.55)",
+                  }}
+                >
+                  <Icon className="h-6 w-6" />
+                </span>
+                <span
+                  className={cn(
+                    "mt-1 text-[10px] font-semibold",
+                    active ? "text-brand-600 dark:text-brand-300" : "text-sage-500"
+                  )}
+                >
+                  Messenger
+                </span>
+              </Link>
+            );
+          }
+
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              aria-current={active ? "page" : undefined}
+              className={cn(
+                "flex min-w-[4.5rem] flex-col items-center gap-0.5 px-2 py-1",
+                active ? "text-brand-600 dark:text-brand-300" : "text-sage-500"
+              )}
+            >
+              <Icon className={cn("h-5 w-5", active && "stroke-[2.25]")} />
+              <span className="text-[10px] font-medium">{item.label}</span>
+            </Link>
+          );
+        })}
+      </nav>
     </div>
   );
 }

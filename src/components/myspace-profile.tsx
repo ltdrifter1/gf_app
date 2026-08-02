@@ -5,6 +5,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { FollowButton } from "@/components/follow-button";
 import { MessageButton } from "@/components/message-button";
 import { PostCard, type PostCardData } from "@/components/post-card";
+import { MoodTracker } from "@/components/wellness-widgets";
 import { effectivePresence } from "@/lib/presence";
 
 export type TopFriend = {
@@ -172,6 +173,12 @@ export function MyspaceProfile({ data }: { data: MyspaceProfileData }) {
             )}
           </Section>
 
+          {data.isOwn && (
+            <Section title="Mood check-in" accent="sage">
+              <MoodTracker />
+            </Section>
+          )}
+
           <Section title={`${data.name}'s Blurbs`}>
             <dl>
               <DetailRow label="About me" value={about || "Still writing this…"} />
@@ -266,21 +273,8 @@ export function MyspaceProfile({ data }: { data: MyspaceProfileData }) {
             )}
           </Section>
 
-          <Section title={`${data.name}'s Recipes`} accent="sage">
-            {(data.recipes?.length ?? 0) === 0 ? (
-              <p className="py-4 text-center text-sage-400">
-                {data.isOwn ? (
-                  <>
-                    No recipes shared yet.{" "}
-                    <Link href="/app/recipes" className="font-medium text-brand-600 hover:underline">
-                      Browse the kitchen
-                    </Link>
-                  </>
-                ) : (
-                  "No recipes shared yet."
-                )}
-              </p>
-            ) : (
+          {(data.recipes?.length ?? 0) > 0 && (
+            <Section title={`${data.name}'s Recipes`} accent="sage">
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                 {data.recipes!.map((r) => (
                   <Link
@@ -307,24 +301,11 @@ export function MyspaceProfile({ data }: { data: MyspaceProfileData }) {
                   </Link>
                 ))}
               </div>
-            )}
-          </Section>
+            </Section>
+          )}
 
-          <Section title={`${data.name}'s Dining`} accent="teal">
-            {(data.diningReviews?.length ?? 0) === 0 ? (
-              <p className="py-4 text-center text-sage-400">
-                {data.isOwn ? (
-                  <>
-                    No dining reviews yet.{" "}
-                    <Link href="/app/restaurants" className="font-medium text-brand-600 hover:underline">
-                      Find a safe spot
-                    </Link>
-                  </>
-                ) : (
-                  "No dining reviews yet."
-                )}
-              </p>
-            ) : (
+          {(data.diningReviews?.length ?? 0) > 0 && (
+            <Section title={`${data.name}'s Dining`} accent="teal">
               <div className="space-y-2">
                 {data.diningReviews!.map((rev) => (
                   <Link
@@ -356,8 +337,8 @@ export function MyspaceProfile({ data }: { data: MyspaceProfileData }) {
                   </Link>
                 ))}
               </div>
-            )}
-          </Section>
+            </Section>
+          )}
         </div>
       </div>
     </div>
