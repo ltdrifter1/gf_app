@@ -1,5 +1,4 @@
-// COM-C — Community C
-// You're not alone in this.
+// Amity — Your gluten-free companion. Find your people.
 //
 // Production database: PostgreSQL (Neon / Supabase / Railway / Vercel Postgres).
 // Local: set DATABASE_URL to a Postgres URL (see .env.example).

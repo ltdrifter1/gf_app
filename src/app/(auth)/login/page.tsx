@@ -13,7 +13,7 @@ export default function LoginPage() {
   return (
     <AuthShell
       title="Welcome back"
-      subtitle="Your community is right where you left it."
+      subtitle="Your gluten-free companion is right where you left it."
     >
       <form action={formAction} className="space-y-4">
         {state?.error && (
@@ -63,7 +63,7 @@ export default function LoginPage() {
       <p className="mt-5 text-center text-sm text-sage-600 dark:text-sage-300">
         New here?{" "}
         <Link href="/register" className="font-semibold text-brand-600 hover:underline">
-          Join COM-C
+          Join Amity
         </Link>
       </p>
     </AuthShell>

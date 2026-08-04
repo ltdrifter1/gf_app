@@ -18,7 +18,7 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
-    <AuthShell title="Join COM-C" subtitle="You're not alone in this — free to join.">
+    <AuthShell title="Join Amity" subtitle="Your gluten-free companion — free to join.">
       <form action={formAction} className="space-y-4">
         {state?.error && (
           <p className="rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-600 dark:bg-rose-500/10 dark:text-rose-300">
