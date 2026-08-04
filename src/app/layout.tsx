@@ -16,9 +16,9 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "COM-C — Community C",
+  title: "Amity — Your gluten-free companion",
   description:
-    "COM-C — You're not alone in this. Messenger buddies, MySpace-style pages, safe dining, and recipes for people living with celiac and gluten intolerance.",
+    "Amity — Your gluten-free companion. Find your people. Messenger, community pages, safe dining, and recipes for celiac and gluten intolerance.",
 };
 
 const themeScript = `

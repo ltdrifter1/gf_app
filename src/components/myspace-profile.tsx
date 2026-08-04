@@ -120,7 +120,7 @@ export function MyspaceProfile({ data }: { data: MyspaceProfileData }) {
         </div>
         <p className="rounded-xl bg-white/60 px-3 py-1.5 text-sm text-sage-700 dark:bg-white/5 dark:text-sage-200">
           <span className="font-semibold text-brand-700 dark:text-brand-300">Mood:</span>{" "}
-          {mood || (status === "online" ? "Online in COM-C" : status === "away" ? "Away" : "Offline")}
+          {mood || (status === "online" ? "Online on Amity" : status === "away" ? "Away" : "Offline")}
         </p>
       </div>
 

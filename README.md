@@ -1,6 +1,6 @@
-# COM-C — Community C
+# Amity
 
-**You're not alone in this.**
+**Your gluten-free companion. Find your people.**
 
 A gluten-free social network with an MSN Messenger–style lounge — community,
 safe dining, recipes, and health support.
@@ -17,7 +17,7 @@ npx prisma db seed     # local demo users only
 npm run dev            # http://localhost:3000
 ```
 
-Local demo login (dev only): `maya@comc.app` / `password123`
+Local demo login (dev only): `maya@amity.app` / `password123`
 
 ## Ship to production
 

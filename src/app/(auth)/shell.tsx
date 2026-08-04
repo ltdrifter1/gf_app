@@ -32,7 +32,7 @@ export function AuthShell({
       </div>
 
       <div className="relative hidden flex-col justify-between overflow-hidden p-12 lg:flex">
-        <div className="absolute inset-0 bg-comc-gradient" />
+        <div className="absolute inset-0 bg-amity-gradient" />
         <div className="absolute -left-20 top-20 h-72 w-72 animate-float rounded-full bg-white/10 blur-3xl" />
         <div className="absolute bottom-10 right-10 h-80 w-80 rounded-full bg-white/10 blur-3xl" />
         <Link href="/" className="relative z-10 brightness-0 invert">
@@ -40,17 +40,17 @@ export function AuthShell({
         </Link>
         <div className="relative z-10 max-w-md">
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-white/70">
-            Community C
+            Your gluten-free companion
           </p>
           <h1 className="mt-3 font-display text-5xl font-bold leading-tight text-white">
-            COM-C
+            Amity
           </h1>
           <p className="mt-3 font-display text-2xl font-semibold text-white/95">
-            You&apos;re not alone in this.
+            Find your people.
           </p>
           <p className="mt-4 text-lg text-white/80">
-            Messenger buddies, MySpace-style pages, safe dining, and recipes —
-            community for people who get gluten-free life.
+            Messenger, community pages, safe dining, and recipes — a companion
+            for gluten-free life.
           </p>
           <div className="mt-8 flex items-center gap-6 text-white/90">
             <Stat n="Feed" l="Share & connect" />

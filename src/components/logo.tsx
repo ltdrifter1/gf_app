@@ -12,7 +12,7 @@ export function Logo({
   return (
     <div className={cn("flex items-center gap-2.5", className)}>
       <div
-        className="relative grid place-items-center rounded-2xl bg-comc-gradient text-white shadow-glow"
+        className="relative grid place-items-center rounded-2xl bg-amity-gradient text-white shadow-glow"
         style={{
           width: size,
           height: size,
@@ -22,18 +22,18 @@ export function Logo({
       >
         <span
           className="font-display font-bold tracking-tight text-white"
-          style={{ fontSize: size * 0.28, letterSpacing: "-0.04em" }}
+          style={{ fontSize: size * 0.42, letterSpacing: "-0.04em" }}
         >
-          CC
+          A
         </span>
       </div>
       {showText && (
         <div className="leading-tight">
           <span className="block font-display text-lg font-bold tracking-tight text-sage-900 dark:text-white">
-            COM-C
+            Amity
           </span>
           <span className="hidden text-[10px] font-medium uppercase tracking-[0.12em] text-sage-500 sm:block">
-            Community C
+            Your GF companion
           </span>
         </div>
       )}

@@ -58,7 +58,7 @@ export async function registerAction(_prev: unknown, formData: FormData) {
       email,
       username,
       passwordHash: await hashPassword(password),
-      bio: "New to COM-C 🔵",
+      bio: "New to Amity",
       profile: {
         create: {
           diagnosis: diagnosis || "unspecified",
