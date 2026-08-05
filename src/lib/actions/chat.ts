@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
 import { effectivePresence } from "@/lib/presence";
+import { isNudgeMessage } from "@/lib/msn";
 
 /** Stable DM slug for two users (order-independent). */
 function dmSlug(a: string, b: string) {
@@ -58,10 +59,126 @@ export async function getOnlineBuddies(excludeUserId?: string) {
       avatarUrl: true,
       presence: true,
       bio: true,
+      profile: { select: { mood: true } },
     },
     orderBy: { name: "asc" },
     take: 40,
   });
+}
+
+/** Classic MSN contact list: Online + Offline (DM peers & follows). */
+export async function getContactList(userId: string) {
+  const since = new Date(Date.now() - 60_000);
+
+  const [onlineUsers, follows, dmMemberships] = await Promise.all([
+    prisma.user.findMany({
+      where: {
+        id: { not: userId },
+        presence: "online",
+        lastSeen: { gte: since },
+      },
+      select: {
+        id: true,
+        name: true,
+        username: true,
+        avatarUrl: true,
+        presence: true,
+        lastSeen: true,
+        profile: { select: { mood: true } },
+      },
+      orderBy: { name: "asc" },
+      take: 50,
+    }),
+    prisma.follow.findMany({
+      where: { followerId: userId },
+      select: {
+        following: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            avatarUrl: true,
+            presence: true,
+            lastSeen: true,
+            profile: { select: { mood: true } },
+          },
+        },
+      },
+      take: 60,
+    }),
+    prisma.chatRoomMember.findMany({
+      where: { userId, room: { isCommunity: false } },
+      include: {
+        room: {
+          include: {
+            members: {
+              where: { userId: { not: userId } },
+              include: {
+                user: {
+                  select: {
+                    id: true,
+                    name: true,
+                    username: true,
+                    avatarUrl: true,
+                    presence: true,
+                    lastSeen: true,
+                    profile: { select: { mood: true } },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }),
+  ]);
+
+  type Raw = {
+    id: string;
+    name: string;
+    username: string;
+    avatarUrl: string | null;
+    presence: string;
+    lastSeen: Date;
+    profile: { mood: string | null } | null;
+  };
+
+  const byId = new Map<string, Raw>();
+  for (const u of onlineUsers) byId.set(u.id, u);
+  for (const f of follows) byId.set(f.following.id, f.following);
+  for (const m of dmMemberships) {
+    const peer = m.room.members[0]?.user;
+    if (peer) byId.set(peer.id, peer);
+  }
+
+  const online: {
+    id: string;
+    name: string;
+    username: string;
+    avatarUrl: string | null;
+    presence: "online" | "away" | "offline";
+    statusMessage: string | null;
+  }[] = [];
+  const offline: typeof online = [];
+
+  for (const u of byId.values()) {
+    const presence = effectivePresence(u.presence, u.lastSeen);
+    const row = {
+      id: u.id,
+      name: u.name,
+      username: u.username,
+      avatarUrl: u.avatarUrl,
+      presence,
+      statusMessage: u.profile?.mood?.trim() || null,
+    };
+    if (presence === "online" || presence === "away") online.push(row);
+    else offline.push(row);
+  }
+
+  online.sort((a, b) => a.name.localeCompare(b.name));
+  offline.sort((a, b) => a.name.localeCompare(b.name));
+
+  return { online, offline, onlineCount: online.filter((c) => c.presence === "online").length + 1 };
 }
 
 export async function getDirectMessageRooms(userId: string) {
@@ -109,7 +226,7 @@ export async function getDirectMessageRooms(userId: string) {
         presence: effectivePresence(peer.presence, peer.lastSeen),
         lastMessage: last
           ? {
-              text: last.content,
+              text: isNudgeMessage(last.content) ? "sent a nudge!" : last.content,
               sender: last.sender.name,
               at: last.createdAt.toISOString(),
             }

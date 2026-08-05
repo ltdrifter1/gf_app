@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { timeAgo } from "@/lib/utils";
+import { timeAgo, cn } from "@/lib/utils";
 
 type Room = {
   id: string;
@@ -14,40 +14,37 @@ type Room = {
 
 export function RoomsList({ rooms, activeSlug }: { rooms: Room[]; activeSlug?: string }) {
   return (
-    <div className="space-y-1.5">
-      {rooms.map((r) => (
-        <Link
-          key={r.id}
-          href={`/app/chat/${r.slug}`}
-          className={`flex items-center gap-3 rounded-2xl p-2.5 transition ${
-            activeSlug === r.slug
-              ? "bg-brand-50 dark:bg-brand-500/15"
-              : "hover:bg-sage-100/60 dark:hover:bg-white/5"
-          }`}
-        >
-          <div className="relative grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-brand-400 to-sage-500 text-lg">
-            {r.emoji}
-            {r.online > 0 && (
-              <span className="absolute -bottom-0.5 -right-0.5 rounded-full bg-emerald-500 px-1.5 text-[10px] font-bold text-white ring-2 ring-white dark:ring-[#0e1512]">
-                {r.online}
-              </span>
-            )}
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="truncate font-medium text-sage-900 dark:text-white">{r.name}</p>
-            <p className="truncate text-xs text-sage-500 dark:text-sage-400">
-              {r.lastMessage
-                ? `${r.lastMessage.sender}: ${r.lastMessage.text}`
-                : r.description}
-            </p>
-          </div>
-          {r.lastMessage && (
-            <span className="shrink-0 text-[10px] text-sage-400">
-              {timeAgo(r.lastMessage.at)}
+    <div className="space-y-0.5">
+      {rooms.map((r) => {
+        const active = activeSlug === r.slug;
+        return (
+          <Link
+            key={r.id}
+            href={`/app/chat/${r.slug}`}
+            className={cn("msn-contact", active && "msn-contact-active")}
+          >
+            <span className="mt-0.5 grid h-4 w-4 shrink-0 place-items-center text-[12px]">
+              {r.emoji}
             </span>
-          )}
-        </Link>
-      ))}
+            <span className="min-w-0 flex-1">
+              <span className="block truncate font-semibold">
+                {r.name}
+                {r.online > 0 ? (
+                  <span className="ml-1 font-normal opacity-80">({r.online} online)</span>
+                ) : null}
+              </span>
+              <span className="block truncate text-[11px] opacity-80">
+                {r.lastMessage
+                  ? `${r.lastMessage.sender}: ${r.lastMessage.text}`
+                  : r.description}
+              </span>
+            </span>
+            {r.lastMessage && (
+              <span className="shrink-0 text-[10px] opacity-70">{timeAgo(r.lastMessage.at)}</span>
+            )}
+          </Link>
+        );
+      })}
     </div>
   );
 }

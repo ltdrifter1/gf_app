@@ -4,6 +4,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { assertRoomAccess } from "@/lib/chat-access";
 import { effectivePresence } from "@/lib/presence";
 import { rateLimit } from "@/lib/rate-limit";
+import { NUDGE_CONTENT, isNudgeMessage } from "@/lib/msn";
 
 const MAX_CONTENT = 2000;
 
@@ -86,6 +87,7 @@ export async function GET(
       id: m.id,
       content: m.content,
       createdAt: m.createdAt.toISOString(),
+      isNudge: isNudgeMessage(m.content),
       sender: {
         id: m.sender.id,
         name: m.sender.name,
@@ -121,7 +123,19 @@ export async function POST(
 
   const { roomId } = await params;
   const body = await req.json().catch(() => ({}));
-  const content = String(body.content || "").trim();
+  const isNudge = body?.type === "nudge" || isNudgeMessage(String(body.content || ""));
+
+  if (isNudge) {
+    const nudgeLimit = rateLimit(`nudge:${user.id}`, 8, 60_000);
+    if (!nudgeLimit.ok) {
+      return NextResponse.json(
+        { error: `Easy on the nudges — try again in ${nudgeLimit.retryAfterSec}s` },
+        { status: 429, headers: { "Retry-After": String(nudgeLimit.retryAfterSec) } }
+      );
+    }
+  }
+
+  const content = isNudge ? NUDGE_CONTENT : String(body.content || "").trim();
   if (!content) return NextResponse.json({ error: "empty" }, { status: 400 });
   if (content.length > MAX_CONTENT) {
     return NextResponse.json({ error: "Message too long" }, { status: 400 });
@@ -150,6 +164,7 @@ export async function POST(
       id: message.id,
       content: message.content,
       createdAt: message.createdAt.toISOString(),
+      isNudge: isNudgeMessage(message.content),
       sender: message.sender,
       mine: true,
     },

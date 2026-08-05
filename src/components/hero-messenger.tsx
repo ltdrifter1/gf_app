@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Circle } from "lucide-react";
+import { MsnPresenceIcon } from "@/components/msn-presence-icon";
 import { cn } from "@/lib/utils";
 
 type Msg = { name: string; text: string };
@@ -33,88 +33,85 @@ export function HeroMessenger({
 
   return (
     <div className="w-full max-w-lg animate-fade-in [animation-delay:120ms] lg:ml-auto">
-      {/* MSN window chrome — full-bleed plane, not a floating marketing card */}
-      <div className="overflow-hidden rounded-t-2xl border border-white/25 bg-white/95 shadow-[0_24px_80px_-20px_rgba(0,0,0,0.45)] backdrop-blur-xl dark:bg-[#121a28]/95">
-        <div
-          className="flex items-center gap-2 px-4 py-2.5 text-white"
-          style={{
-            background: "linear-gradient(180deg, #4a90e2 0%, #2b6cb0 100%)",
-            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.35)",
-          }}
-        >
-          <span className="font-display text-sm font-semibold tracking-wide">
-            Amity Messenger
+      <div className="msn-window shadow-[0_24px_80px_-20px_rgba(0,0,0,0.45)]">
+        <div className="msn-titlebar">
+          <MsnPresenceIcon status="online" size={14} />
+          <span className="min-w-0 flex-1 truncate text-[12px] font-semibold tracking-wide">
+            Amity Messenger — Instant Message
           </span>
-          <span className="ml-auto text-xs text-white/80">General Support</span>
+          <span className="text-[10px] text-white/80">General Support</span>
+          <span className="msn-titlebar-btn" aria-hidden>
+            _
+          </span>
+          <span className="msn-titlebar-btn" aria-hidden>
+            ×
+          </span>
         </div>
 
-        <div className="flex items-center gap-3 border-b border-sage-200/60 px-4 py-3 dark:border-white/10">
-          <div className="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-brand-400 to-teal-500 text-lg text-white">
+        <div className="msn-menubar">
+          <button type="button">File</button>
+          <button type="button">Edit</button>
+          <button type="button">Actions</button>
+          <button type="button">Tools</button>
+          <button type="button">Help</button>
+        </div>
+
+        <div className="flex items-center gap-3 border-b border-[#a0a0a0] bg-[#f5f4ec] px-3 py-2 dark:border-white/15 dark:bg-[#1e2a3c]">
+          <div className="grid h-12 w-12 place-items-center rounded-sm border border-[#7f9db9] bg-gradient-to-br from-[#5eb1ef] to-[#0d5aa8] text-xl text-white">
             💬
           </div>
           <div className="min-w-0 flex-1">
-            <p className="font-display font-semibold text-sage-900 dark:text-white">
+            <p className="font-display text-[15px] font-bold text-[#0a246a] dark:text-white">
               General Support
             </p>
-            <p className="flex items-center gap-1.5 text-xs text-sage-500">
-              <Circle className="h-2 w-2 fill-emerald-500 text-emerald-500" />
+            <p className="flex items-center gap-1.5 text-[11px] text-[#444] dark:text-sage-400">
+              <MsnPresenceIcon status="online" size={12} />
               {onlineCount} online
-              {typing && (
-                <span className="ml-1 italic text-sage-400">· someone is typing…</span>
-              )}
             </p>
           </div>
         </div>
 
-        <div className="flex min-h-[280px] flex-col gap-3 px-4 py-5 sm:min-h-[320px]">
+        <div className="msn-inset m-1.5 flex min-h-[260px] flex-col gap-2.5 p-3 sm:min-h-[300px]">
           {messages.slice(0, visible).map((m, i) => {
             const mine = i === messages.length - 1 && visible === messages.length;
             return (
-              <div
-                key={`${m.name}-${i}`}
-                className={cn(
-                  "flex flex-col animate-fade-in",
-                  mine ? "items-end" : "items-start"
-                )}
-              >
-                {!mine && (
-                  <span className="mb-0.5 px-1 text-xs font-medium text-sage-500">
-                    {m.name}
+              <div key={`${m.name}-${i}`} className={cn("msn-says animate-fade-in")}>
+                <p>
+                  <span
+                    className="msn-says-name"
+                    style={{ color: mine ? "#0a5a9c" : "#8b1a1a" }}
+                  >
+                    {mine ? "You" : m.name} says:
                   </span>
-                )}
-                <div
-                  className={cn(
-                    "max-w-[88%] rounded-2xl px-3.5 py-2 text-sm shadow-soft",
-                    mine
-                      ? "rounded-br-md bg-brand-600 text-white"
-                      : "rounded-bl-md bg-sage-100 text-sage-800 dark:bg-white/10 dark:text-sage-100"
-                  )}
-                >
-                  {m.text}
-                </div>
+                </p>
+                <p className="pl-1 text-[13px] text-[#1a1a1a] dark:text-sage-100">{m.text}</p>
               </div>
             );
           })}
 
           {typing && visible < messages.length && (
-            <div className="flex items-center gap-2 px-1 text-xs text-sage-400">
-              <span className="flex gap-1">
-                <span className="h-1.5 w-1.5 animate-pulse-soft rounded-full bg-sage-400" />
-                <span className="h-1.5 w-1.5 animate-pulse-soft rounded-full bg-sage-400 [animation-delay:0.2s]" />
-                <span className="h-1.5 w-1.5 animate-pulse-soft rounded-full bg-sage-400 [animation-delay:0.4s]" />
-              </span>
-              typing…
-            </div>
+            <p className="text-[11px] italic text-[#666] dark:text-sage-400">
+              Someone is typing a message…
+            </p>
           )}
         </div>
 
-        <div className="border-t border-sage-200/60 px-3 py-3 dark:border-white/10">
-          <div className="flex items-center gap-2 rounded-xl bg-sage-50 px-3 py-2.5 text-sm text-sage-400 dark:bg-white/5">
-            Message General Support…
-            <span className="ml-auto rounded-lg bg-brand-600 px-3 py-1 text-xs font-semibold text-white">
-              Send
-            </span>
-          </div>
+        <div className="msn-composer">
+          <button type="button" className="msn-nudge-btn" tabIndex={-1}>
+            Nudge!
+          </button>
+          <div className="msn-input flex-1 text-[#888]">Message General Support…</div>
+          <button type="button" className="msn-send" tabIndex={-1}>
+            Send
+          </button>
+        </div>
+
+        <div className="msn-statusbar">
+          {typing && visible < messages.length ? (
+            <span className="italic">Someone is typing a message…</span>
+          ) : (
+            <span>{onlineCount} people online</span>
+          )}
         </div>
       </div>
     </div>

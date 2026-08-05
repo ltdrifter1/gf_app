@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { ensureLaunchCatalog } from "@/lib/bootstrap";
+import { isNudgeMessage } from "@/lib/msn";
 
 export const ROOM_EMOJI: Record<string, string> = {
   "general-support": "💬",
@@ -45,7 +46,7 @@ export async function getRoomsWithStats() {
         online,
         lastMessage: last
           ? {
-              text: last.content,
+              text: isNudgeMessage(last.content) ? "sent a nudge!" : last.content,
               sender: last.sender.name,
               at: last.createdAt.toISOString(),
             }
