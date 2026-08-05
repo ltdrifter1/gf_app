@@ -64,6 +64,108 @@
   .text-gradient {
     @apply bg-amity-gradient bg-clip-text text-transparent;
   }
+
+  /* —— Early-2000s MSN / XP chrome —— */
+  .msn-window {
+    @apply flex flex-col overflow-hidden border border-[#0a246a]/40 bg-[#ece9d8] text-[#1a1a1a] shadow-[4px_6px_24px_-6px_rgba(10,36,106,0.45)];
+    border-radius: 3px 3px 2px 2px;
+  }
+  .dark .msn-window {
+    @apply border-[#1e3a5f] bg-[#1a2433] text-sage-100;
+  }
+  .msn-titlebar {
+    @apply flex items-center gap-2 px-2 py-1.5 text-white select-none;
+    background: linear-gradient(180deg, #0a9aef 0%, #0268c8 48%, #014a9c 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  }
+  .msn-titlebar-btn {
+    @apply grid h-4 w-4 place-items-center rounded-[2px] border border-white/40 text-[9px] leading-none text-white/95;
+    background: linear-gradient(180deg, #3db0f5, #0a6ec4);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  }
+  .msn-menubar {
+    @apply flex gap-3 border-b border-[#a0a0a0] bg-[#ece9d8] px-2 py-0.5 text-[11px] text-[#1a1a1a];
+  }
+  .dark .msn-menubar {
+    @apply border-white/15 bg-[#243044] text-sage-200;
+  }
+  .msn-menubar button {
+    @apply rounded-sm px-1 py-0.5 hover:bg-[#316ac5] hover:text-white;
+  }
+  .msn-inset {
+    border: 2px solid;
+    border-color: #808080 #fff #fff #808080;
+    background: #fff;
+  }
+  .dark .msn-inset {
+    border-color: #0a1220 #3a4a60 #3a4a60 #0a1220;
+    background: #121a28;
+  }
+  .msn-statusbar {
+    @apply flex items-center gap-2 border-t border-[#a0a0a0] bg-[#ece9d8] px-2 py-1 text-[11px] text-[#333];
+  }
+  .dark .msn-statusbar {
+    @apply border-white/15 bg-[#243044] text-sage-300;
+  }
+  .msn-group-header {
+    @apply flex w-full items-center gap-1 px-1 py-0.5 text-left text-[11px] font-bold text-[#1a1a1a] hover:bg-[#316ac5] hover:text-white;
+  }
+  .dark .msn-group-header {
+    @apply text-sage-100;
+  }
+  .msn-contact {
+    @apply flex w-full items-start gap-2 px-1 py-1 text-left text-[12px] hover:bg-[#316ac5] hover:text-white;
+  }
+  .msn-contact-active {
+    @apply bg-[#316ac5] text-white;
+  }
+  .msn-says {
+    @apply text-[13px] leading-snug;
+  }
+  .msn-says-name {
+    @apply font-bold;
+  }
+  .msn-composer {
+    @apply flex items-stretch gap-1 border-t border-[#a0a0a0] bg-[#ece9d8] p-1.5;
+  }
+  .dark .msn-composer {
+    @apply border-white/15 bg-[#243044];
+  }
+  .msn-input {
+    @apply w-full border border-[#7f9db9] bg-white px-2 py-1.5 text-[13px] text-[#1a1a1a] outline-none focus:border-[#0268c8];
+  }
+  .dark .msn-input {
+    @apply border-white/20 bg-[#121a28] text-sage-100;
+  }
+  .msn-send {
+    @apply shrink-0 border border-[#003c74] px-3 text-[12px] font-semibold text-white;
+    background: linear-gradient(180deg, #5eb1ef, #1a6dbf 55%, #0d5aa8);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  }
+  .msn-send:disabled {
+    @apply opacity-50;
+  }
+  .msn-nudge-btn {
+    @apply shrink-0 border border-[#8a6a20] px-2.5 text-[11px] font-semibold text-[#3a2a00];
+    background: linear-gradient(180deg, #ffe08a, #e8b84a 55%, #c99220);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  }
+  .msn-nudge-btn:disabled {
+    @apply opacity-50;
+  }
+}
+
+@keyframes msn-nudge-shake {
+  0%, 100% { transform: translate(0, 0); }
+  15% { transform: translate(-6px, 2px) rotate(-0.4deg); }
+  30% { transform: translate(7px, -2px) rotate(0.5deg); }
+  45% { transform: translate(-5px, 1px) rotate(-0.3deg); }
+  60% { transform: translate(5px, -1px) rotate(0.3deg); }
+  75% { transform: translate(-3px, 2px); }
+}
+
+.msn-nudge-shake {
+  animation: msn-nudge-shake 0.55s ease-in-out;
 }
 
 /* Custom scrollbar */

@@ -4,11 +4,9 @@ import { ArrowLeft } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
 import { getRoomsWithStats, ROOM_EMOJI } from "@/lib/chat";
-import { getDirectMessageRooms } from "@/lib/actions/chat";
-import { RoomsList } from "@/components/rooms-list";
+import { getContactList, getDirectMessageRooms } from "@/lib/actions/chat";
+import { ContactListPane } from "@/components/contact-list-pane";
 import { ChatWindow } from "@/components/chat-window";
-import { Avatar } from "@/components/ui/avatar";
-import { timeAgo } from "@/lib/utils";
 import { effectivePresence } from "@/lib/presence";
 
 export default async function ChatRoomPage({
@@ -32,6 +30,7 @@ export default async function ChatRoomPage({
               avatarUrl: true,
               presence: true,
               lastSeen: true,
+              profile: { select: { mood: true } },
             },
           },
         },
@@ -50,7 +49,7 @@ export default async function ChatRoomPage({
         data: { roomId: room.id, userId: user.id },
       });
     } else {
-      notFound(); // don't leak DM existence
+      notFound();
     }
   }
 
@@ -59,66 +58,27 @@ export default async function ChatRoomPage({
   const displayName = isDm && peer ? peer.name : room.name;
   const displayEmoji = isDm && peer ? null : ROOM_EMOJI[room.slug] ?? "💬";
 
-  const [rooms, dms] = await Promise.all([
+  const [rooms, contacts, dms] = await Promise.all([
     getRoomsWithStats(),
+    getContactList(user.id),
     getDirectMessageRooms(user.id),
   ]);
 
   return (
-    <div className="mx-auto grid max-w-6xl gap-4 lg:grid-cols-[340px_1fr]">
-      <div className="card hidden space-y-4 p-4 lg:block">
-        {dms.length > 0 && (
-          <div>
-            <h2 className="mb-2 px-1 text-xs font-semibold uppercase tracking-wide text-sage-400">
-              Direct messages
-            </h2>
-            <div className="space-y-1">
-              {dms.map((dm) => (
-                <Link
-                  key={dm.id}
-                  href={`/app/chat/${dm.slug}`}
-                  className={`flex items-center gap-3 rounded-2xl p-2.5 transition ${
-                    slug === dm.slug
-                      ? "bg-brand-50 dark:bg-brand-500/15"
-                      : "hover:bg-sage-100/60 dark:hover:bg-white/5"
-                  }`}
-                >
-                  <Avatar
-                    name={dm.name}
-                    src={dm.avatarUrl}
-                    size={40}
-                    presence={dm.presence}
-                  />
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate font-medium text-sage-900 dark:text-white">
-                      {dm.name}
-                    </p>
-                    <p className="truncate text-xs text-sage-500">
-                      {dm.lastMessage
-                        ? `${dm.lastMessage.sender}: ${dm.lastMessage.text}`
-                        : "Start chatting"}
-                    </p>
-                  </div>
-                  {dm.lastMessage && (
-                    <span className="shrink-0 text-[10px] text-sage-400">
-                      {timeAgo(dm.lastMessage.at)}
-                    </span>
-                  )}
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
-        <div>
-          <h2 className="mb-2 px-1 text-xs font-semibold uppercase tracking-wide text-sage-400">
-            Community rooms
-          </h2>
-          <RoomsList rooms={rooms} activeSlug={isDm ? undefined : slug} />
-        </div>
+    <div className="mx-auto grid max-w-6xl gap-3 lg:grid-cols-[340px_1fr]">
+      <div className="hidden lg:block">
+        <ContactListPane
+          onlineCount={contacts.onlineCount}
+          online={contacts.online}
+          offline={contacts.offline}
+          dms={dms}
+          rooms={rooms}
+          activeSlug={slug}
+        />
       </div>
       <div>
         <Link href="/app/chat" className="btn-ghost mb-2 w-fit lg:hidden">
-          <ArrowLeft className="h-4 w-4" /> Messenger
+          <ArrowLeft className="h-4 w-4" /> Contact List
         </Link>
         <ChatWindow
           roomId={room.id}
@@ -130,6 +90,7 @@ export default async function ChatRoomPage({
           peerPresence={
             isDm && peer ? effectivePresence(peer.presence, peer.lastSeen) : null
           }
+          peerStatusMessage={isDm && peer ? peer.profile?.mood ?? null : null}
         />
       </div>
     </div>
