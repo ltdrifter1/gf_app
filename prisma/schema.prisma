@@ -47,6 +47,7 @@ model User {
 
   moodEntries    MoodEntry[]
   journalEntries JournalEntry[]
+  healthLogs     HealthLog[]
 
   flagsRaised FlaggedContent[] @relation("reporter")
 }
@@ -255,21 +256,25 @@ model SavedRecipe {
 }
 
 model HealthResource {
-  id       String @id @default(cuid())
+  id       String  @id @default(cuid())
+  slug     String  @unique
   title    String
   pillar   String // mental | physical
   category String
   content  String
-  type     String @default("article") // article | exercise | tip
+  body     String  @default("")
+  type     String  @default("article") // article | exercise | tip
+  toolKey  String? // optional interactive tool id
 }
 
 model MoodEntry {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  mood      Int
-  note      String?
-  createdAt DateTime @default(now())
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mood           Int
+  note           String?
+  shareToProfile Boolean  @default(false)
+  createdAt      DateTime @default(now())
 }
 
 model JournalEntry {
@@ -278,6 +283,19 @@ model JournalEntry {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   prompt    String?
   content   String
+  mood      Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+/// Private glutening / symptom / flare log — never public
+model HealthLog {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind      String // glutening | symptom | flare
+  severity  Int // 1-5
+  note      String?
   createdAt DateTime @default(now())
 }
 

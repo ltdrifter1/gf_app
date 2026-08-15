@@ -317,84 +317,180 @@ export const LAUNCH_RECIPES = [
 
 export const LAUNCH_HEALTH = [
   {
+    slug: "eating-out-spiral",
     title: "Calming the Eating-Out Spiral",
     pillar: "mental",
     category: "eating-out",
     type: "exercise",
+    toolKey: "eating-out-spiral",
     content:
       "A 4-step grounding exercise for when restaurant anxiety hits: breathe, plan, ask, and self-compassion.",
+    body: `Restaurant anxiety is common with celiac — your nervous system is trying to keep you safe.
+
+Use this when you're spinning before or during a meal out:
+
+1. Breathe — four counts in, four out, three rounds.
+2. Plan — pick one known-safer spot or one dish you can verify.
+3. Ask — short script: "I have celiac. Can this be prepared without gluten cross-contact?"
+4. Soften — remind yourself: one careful meal is enough; you can leave if it doesn't feel right.
+
+If panic keeps rising, step outside, message a friend, or open the Mental Health room in Messenger.`,
   },
   {
+    slug: "diagnosis-grief",
     title: "When Diagnosis Feels Like Grief",
     pillar: "mental",
     category: "newly-diagnosed",
     type: "article",
+    toolKey: null,
     content:
       "Mourning your old relationship with food is normal. Naming the grief is the first step to moving through it.",
+    body: `A celiac diagnosis often brings grief — for foods, spontaneity, travel ease, or family traditions.
+
+Common waves: anger at "just one bite," sadness at missing shared plates, relief mixed with exhaustion.
+
+What helps many people:
+- Name what you miss without judging yourself for missing it.
+- Keep one ritual that still works (a tea, a walk, a favorite GF bakery).
+- Talk with people who live this — Community Support posts or Messenger rooms.
+- Give healing time a calendar: gut repair is measured in months, not weekends.
+
+Grief doesn't mean you're failing the diet. It means the change is real.`,
   },
   {
+    slug: "social-isolation",
     title: "Beating Social Isolation",
     pillar: "mental",
     category: "isolation",
     type: "article",
+    toolKey: null,
     content:
       "Practical scripts for navigating shared meals, plus how to find your people in Messenger.",
+    body: `Isolation sneaks in when every invite becomes a logistics problem.
+
+Scripts that lower the temperature:
+- "I'd love to come — can we pick a place with a dedicated GF option, or I'll eat first and join for dessert/tea?"
+- "I'm bringing a dish I know is safe so I can relax and hang with everyone."
+- "Rain check on dinner, but I'm free for a walk / coffee with a sealed drink."
+
+On Safely: open Messenger community rooms, follow people who get it, and post in Support when you need a reality check — not alone-time disguised as strength.`,
   },
   {
+    slug: "anxiety-toolkit",
     title: "Anxiety Toolkit for Celiac Life",
     pillar: "mental",
     category: "anxiety",
     type: "exercise",
+    toolKey: "anxiety-toolkit",
     content:
       "Box breathing, worry windows, and a 'safe foods' anchor list to reduce daily anxiety.",
+    body: `Daily vigilance is exhausting. Use small tools instead of white-knuckling all day.
+
+Box breathing: inhale 4 · hold 4 · exhale 4 · hold 4. Repeat 4 cycles.
+
+Worry window: pick a 10-minute slot to list food fears, then park them until then.
+
+Safe-foods anchor: write 5 meals you trust at home. When anxiety spikes, glance at the list — proof that safety exists.
+
+Pair with a mood check-in on the Track tab so patterns aren't only in your head.`,
   },
   {
+    slug: "low-mood-chronic",
     title: "Low Mood & Chronic Illness",
     pillar: "mental",
     category: "depression",
     type: "article",
+    toolKey: null,
     content:
       "What to look for in support, and when to reach out to a clinician who understands chronic illness.",
+    body: `Living with a chronic condition can flatten mood — especially after repeated glutening, social friction, or slow healing.
+
+Watch for: sleep changes, losing interest in things you usually enjoy, hopelessness about food forever, withdrawing from people who help.
+
+This space is peer support, not therapy. If low mood lasts most days for two weeks or more, or you have thoughts of harming yourself, contact a clinician or local crisis line.
+
+In the US, call or text 988. You're allowed to need more than an app.`,
   },
   {
+    slug: "gut-healing-basics",
     title: "Gut Healing Basics After Diagnosis",
     pillar: "physical",
     category: "gut",
     type: "article",
+    toolKey: null,
     content:
       "The small intestine needs time. Focus on nutrient-dense GF meals, hydration, and following your care team's timeline for follow-up.",
+    body: `Strict gluten-free eating is the treatment. Healing the lining still takes time — often months.
+
+Practical basics:
+- Stay strictly GF; cross-contact counts.
+- Favor protein, iron-rich foods, and easy-to-digest meals while symptoms settle.
+- Hydrate; rest more than you think you "should."
+- Follow your GI's plan for repeat serology / biopsy timing.
+
+Track flares on the Track tab so you can show your care team a clearer picture than memory alone.`,
   },
   {
+    slug: "nutrient-gaps",
     title: "Common Nutrient Gaps",
     pillar: "physical",
     category: "nutrition",
     type: "tip",
+    toolKey: null,
     content:
       "Iron, B12, vitamin D, calcium, and folate are commonly low. Ask about labs — don't self-supplement blindly.",
+    body: `Malabsorption and a limited diet can leave gaps. Common ones: iron, B12, vitamin D, calcium, folate, sometimes zinc.
+
+Don't megadose based on internet lists — some supplements interact or aren't absorbed well.
+
+Ask your clinician which labs to run and whether a dietitian familiar with celiac can review your week of eating. Food-first where possible; targeted supplements when labs say so.`,
   },
   {
+    slug: "after-glutening",
     title: "What To Do After Accidental Glutening",
     pillar: "physical",
     category: "recovery",
     type: "tip",
+    toolKey: "glutening-checklist",
     content:
       "Rest, hydrate, stick to known-safe foods, and track symptoms. Most flares ease in a few days — contact your doctor if severe.",
+    body: `Accidents happen even to careful people. A simple recovery checklist beats spiraling.
+
+Immediate: stop exposure, hydrate, rest, stick to known-safe simple foods.
+Next 48–72h: log severity and symptoms on Track; sleep extra; skip tough workouts if depleted.
+Call your doctor for severe pain, persistent vomiting, dehydration, blood in stool, or symptoms that don't ease.
+
+Shame doesn't heal the gut — rest and documentation do.`,
   },
   {
+    slug: "fighting-fatigue",
     title: "Fighting the Fatigue",
     pillar: "physical",
     category: "energy",
     type: "article",
+    toolKey: null,
     content:
       "Fatigue can linger while healing. Prioritize sleep, protein at meals, and gentle movement when you can.",
+    body: `Fatigue after diagnosis or glutening is common while iron stores and the intestine catch up.
+
+Levers that often help: consistent sleep, protein at each meal, short daylight walks, and treating "push through" as optional.
+
+If fatigue is crushing or paired with dizziness, ask about anemia and vitamin D. Bring your Track log — patterns help clinicians take you seriously.`,
   },
   {
+    slug: "labs-checklist",
     title: "Labs Worth Asking About",
     pillar: "physical",
     category: "labs",
     type: "tip",
+    toolKey: "labs-checklist",
     content:
       "tTG-IgA (and total IgA), CBC, ferritin, vitamin D, B12, and bone density when indicated. Bring a list to your next visit.",
+    body: `Every care plan is individual — this is a conversation starter, not a prescription.
+
+Often discussed: tTG-IgA (+ total IgA), CBC, ferritin, vitamin D, B12, folate; bone density when risk factors apply.
+
+Use the interactive checklist, then bring what you checked to your appointment. Educational only — your clinician decides what's appropriate.`,
   },
 ] as const;
 
@@ -432,9 +528,37 @@ export async function ensureCommunityRooms(prisma: PrismaClient) {
 }
 
 export async function ensureHealthResources(prisma: PrismaClient) {
-  if ((await prisma.healthResource.count()) > 0) return;
+  // Replace legacy tip stubs with richer slug-based catalog entries.
+  const existing = await prisma.healthResource.findMany({ select: { id: true, slug: true } });
+  const known = new Set<string>(LAUNCH_HEALTH.map((r) => r.slug));
+  const stale = existing.filter((r) => !r.slug || !known.has(r.slug));
+  if (stale.length) {
+    await prisma.healthResource.deleteMany({ where: { id: { in: stale.map((r) => r.id) } } });
+  }
+
   for (const r of LAUNCH_HEALTH) {
-    await prisma.healthResource.create({ data: { ...r } });
+    await prisma.healthResource.upsert({
+      where: { slug: r.slug },
+      update: {
+        title: r.title,
+        pillar: r.pillar,
+        category: r.category,
+        type: r.type,
+        content: r.content,
+        body: r.body,
+        toolKey: r.toolKey,
+      },
+      create: {
+        slug: r.slug,
+        title: r.title,
+        pillar: r.pillar,
+        category: r.category,
+        type: r.type,
+        content: r.content,
+        body: r.body,
+        toolKey: r.toolKey,
+      },
+    });
   }
 }
 

@@ -66,3 +66,11 @@ export const JOURNAL_PROMPTS = [
   "What boundary around food or plans do you want to honor?",
   "Write a short note to tomorrow-you after a hard day.",
 ];
+
+export const HEALTH_LOG_KINDS = [
+  { slug: "glutening", label: "Glutening", hint: "Accidental exposure" },
+  { slug: "symptom", label: "Symptom", hint: "Gut, energy, skin…" },
+  { slug: "flare", label: "Flare", hint: "Multi-day rough patch" },
+] as const;
+
+export const SEVERITY_LABELS = ["Mild", "Low", "Moderate", "Hard", "Severe"] as const;
