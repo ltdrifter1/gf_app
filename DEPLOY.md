@@ -23,6 +23,15 @@ Use [Neon](https://neon.tech) (recommended), Supabase, Railway, or Vercel Postgr
 
 4. Deploy. Confirm the `*.vercel.app` URL loads.
 
+### Build failed: `Environment variable not found: DATABASE_URL` (P1012)
+
+Vercel ran `prisma db push` without `DATABASE_URL`. Fix:
+
+1. **Settings → Environment Variables**
+2. Add `DATABASE_URL` = Neon URL (`?sslmode=require`) for **Production** and **Preview**
+3. Add `AUTH_SECRET` and `NEXT_PUBLIC_APP_URL=https://safelyceliac.com`
+4. **Deployments → … → Redeploy** (env vars are not applied to an already-failed build until redeploy)
+
 5. Optional catalog bootstrap (also auto-runs on first request):
 
 ```bash
