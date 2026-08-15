@@ -663,8 +663,41 @@ export async function ensureHealthResources(prisma: PrismaClient) {
 }
 
 export async function ensureRestaurants(prisma: PrismaClient) {
-  if ((await prisma.restaurant.count()) > 0) return;
   for (const r of LAUNCH_RESTAURANTS) {
+    const existing = await prisma.restaurant.findFirst({
+      where: { name: r.name, city: r.city },
+    });
+    if (existing) {
+      await prisma.restaurant.update({
+        where: { id: existing.id },
+        data: {
+          address: r.address,
+          lat: r.lat,
+          lng: r.lng,
+          cuisine: r.cuisine,
+          priceLevel: r.priceLevel,
+          dedicatedFryer: r.dedicatedFryer,
+          separatePrepArea: r.separatePrepArea,
+          dedicatedKitchen: r.dedicatedKitchen,
+          certified: r.certified,
+          glutenFreeMenu: r.glutenFreeMenu,
+          celiacSafe: r.celiacSafe,
+          delivery: r.delivery,
+          staffTrainingLevel: r.staffTrainingLevel,
+          // Don't overwrite live community scores if reviews exist
+          ...(existing.lastReviewAt
+            ? {}
+            : {
+                communityConfidence: r.communityConfidence,
+                crossContaminationRisk: 100 - r.communityConfidence,
+              }),
+          imageUrl: existing.imageUrl || img(r.img),
+          description: r.desc,
+          status: "published",
+        },
+      });
+      continue;
+    }
     await prisma.restaurant.create({
       data: {
         name: r.name,
@@ -686,6 +719,7 @@ export async function ensureRestaurants(prisma: PrismaClient) {
         crossContaminationRisk: 100 - r.communityConfidence,
         imageUrl: img(r.img),
         description: r.desc,
+        status: "published",
       },
     });
   }
