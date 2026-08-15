@@ -17,22 +17,17 @@ export async function POST(
     return NextResponse.json({ ok: false, error: access.error }, { status: access.status });
   }
 
-  await prisma.typingIndicator.upsert({
-    where: { roomId_userId: { roomId, userId: user.id } },
-    create: { roomId, userId: user.id },
-    update: { updatedAt: new Date() },
-  });
-
-  const since = new Date(Date.now() - 6_000);
-  const typing = await prisma.typingIndicator.findMany({
-    where: { roomId, updatedAt: { gte: since }, NOT: { userId: user.id } },
-    include: { user: { select: { name: true } } },
+  const now = new Date();
+  await prisma.chatRoomMember.updateMany({
+    where: { roomId, userId: user.id },
+    data: { lastReadAt: now },
   });
 
   publishChat(roomId, {
-    type: "typing",
-    names: typing.map((t) => t.user.name),
+    type: "read",
+    userId: user.id,
+    lastReadAt: now.toISOString(),
   });
 
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, lastReadAt: now.toISOString() });
 }

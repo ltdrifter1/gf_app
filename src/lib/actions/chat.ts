@@ -212,11 +212,18 @@ export async function getDirectMessageRooms(userId: string) {
     },
   });
 
-  return memberships
-    .map((m) => {
+  const withUnread = await Promise.all(
+    memberships.map(async (m) => {
       const peer = m.room.members[0]?.user;
       if (!peer) return null;
       const last = m.room.messages[0];
+      const unreadCount = await prisma.message.count({
+        where: {
+          roomId: m.room.id,
+          senderId: { not: userId },
+          createdAt: { gt: m.lastReadAt },
+        },
+      });
       return {
         id: m.room.id,
         slug: m.room.slug,
@@ -224,6 +231,7 @@ export async function getDirectMessageRooms(userId: string) {
         username: peer.username,
         avatarUrl: peer.avatarUrl,
         presence: effectivePresence(peer.presence, peer.lastSeen),
+        unreadCount,
         lastMessage: last
           ? {
               text: isNudgeMessage(last.content) ? "sent a nudge!" : last.content,
@@ -233,6 +241,9 @@ export async function getDirectMessageRooms(userId: string) {
           : null,
       };
     })
+  );
+
+  return withUnread
     .filter(Boolean)
     .sort((a, b) => {
       const at = a!.lastMessage?.at ?? "";
@@ -248,6 +259,7 @@ export async function getDirectMessageRooms(userId: string) {
     username: string;
     avatarUrl: string | null;
     presence: string;
+    unreadCount: number;
     lastMessage: { text: string; sender: string; at: string } | null;
   }[];
 }

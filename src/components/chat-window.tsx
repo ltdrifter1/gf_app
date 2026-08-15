@@ -48,11 +48,15 @@ export function ChatWindow({
   const [nudging, setNudging] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
   const [shake, setShake] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
+  const [loadingOlder, setLoadingOlder] = useState(false);
+  const [live, setLive] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const lastTypingSent = useRef(0);
   const initialised = useRef(false);
   const seenIds = useRef<Set<string>>(new Set());
   const soundsReady = useRef(false);
+  const loadingOlderRef = useRef(false);
 
   const scrollToBottom = useCallback((smooth = true) => {
     requestAnimationFrame(() => {
@@ -68,21 +72,16 @@ export function ChatWindow({
     window.setTimeout(() => setShake(false), 600);
   }, []);
 
-  const load = useCallback(async () => {
-    try {
-      const res = await fetch(`/api/chat/${roomId}/messages`, { cache: "no-store" });
-      if (!res.ok) return;
-      const data = await res.json();
+  const ingestMessages = useCallback(
+    (incoming: Msg[], { prepend = false }: { prepend?: boolean } = {}) => {
       setMessages((prev) => {
         const pending = prev.filter((m) => m.pending || m.failed);
-        const serverIds = new Set(data.messages.map((m: Msg) => m.id));
-        const keepPending = pending.filter((m) => !serverIds.has(m.id));
-        const mapped: Msg[] = data.messages.map((m: Msg) => ({
+        const mapped: Msg[] = incoming.map((m) => ({
           ...m,
           isNudge: m.isNudge || isNudgeMessage(m.content),
         }));
 
-        if (soundsReady.current && initialised.current) {
+        if (soundsReady.current && initialised.current && !prepend) {
           for (const m of mapped) {
             if (seenIds.current.has(m.id) || m.mine) continue;
             if (m.isNudge) {
@@ -95,19 +94,47 @@ export function ChatWindow({
         }
         for (const m of mapped) seenIds.current.add(m.id);
 
-        const next = [...mapped, ...keepPending];
-        const grew = next.length !== prev.length || next.at(-1)?.id !== prev.at(-1)?.id;
-        if (grew) {
-          const wasAtBottom =
-            !scrollRef.current ||
-            scrollRef.current.scrollHeight -
-              scrollRef.current.scrollTop -
-              scrollRef.current.clientHeight <
-              120;
-          if (wasAtBottom || !initialised.current) scrollToBottom(initialised.current);
+        let next: Msg[];
+        if (prepend) {
+          const existing = new Set(prev.map((m) => m.id));
+          const older = mapped.filter((m) => !existing.has(m.id));
+          next = [...older, ...prev];
+        } else {
+          const byId = new Map<string, Msg>();
+          for (const m of prev) {
+            if (!m.pending && !m.failed) byId.set(m.id, m);
+          }
+          for (const m of mapped) byId.set(m.id, m);
+          const serverIds = new Set(mapped.map((m) => m.id));
+          const keepPending = pending.filter((m) => !serverIds.has(m.id));
+          next = [...Array.from(byId.values()).sort((a, b) => a.createdAt.localeCompare(b.createdAt)), ...keepPending];
+        }
+
+        if (!prepend) {
+          const grew = next.length !== prev.length || next.at(-1)?.id !== prev.at(-1)?.id;
+          if (grew) {
+            const wasAtBottom =
+              !scrollRef.current ||
+              scrollRef.current.scrollHeight -
+                scrollRef.current.scrollTop -
+                scrollRef.current.clientHeight <
+                120;
+            if (wasAtBottom || !initialised.current) scrollToBottom(initialised.current);
+          }
         }
         return next;
       });
+    },
+    [scrollToBottom, triggerShake]
+  );
+
+  const loadInitial = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/chat/${roomId}/messages?limit=50`, { cache: "no-store" });
+      if (!res.ok) return;
+      const data = await res.json();
+      ingestMessages(data.messages || []);
+      setHasMore(Boolean(data.hasMore));
       setTyping(data.typing || []);
       setOnline(data.online || 0);
       setMemberCount(data.memberCount || 0);
@@ -115,10 +142,42 @@ export function ChatWindow({
         setPeerPresence(data.peerPresence);
       }
       initialised.current = true;
+      scrollToBottom(false);
     } catch {
       /* ignore network blips */
     }
-  }, [roomId, scrollToBottom, triggerShake]);
+  }, [roomId, ingestMessages, scrollToBottom]);
+
+  const loadOlder = useCallback(async () => {
+    if (loadingOlderRef.current || !hasMore) return;
+    const oldest = messages.find((m) => !m.pending && !m.failed);
+    if (!oldest) return;
+
+    loadingOlderRef.current = true;
+    setLoadingOlder(true);
+    const el = scrollRef.current;
+    const prevHeight = el?.scrollHeight ?? 0;
+    const prevTop = el?.scrollTop ?? 0;
+
+    try {
+      const res = await fetch(
+        `/api/chat/${roomId}/messages?limit=50&before=${encodeURIComponent(oldest.id)}`,
+        { cache: "no-store" }
+      );
+      if (!res.ok) return;
+      const data = await res.json();
+      ingestMessages(data.messages || [], { prepend: true });
+      setHasMore(Boolean(data.hasMore));
+      requestAnimationFrame(() => {
+        if (!scrollRef.current) return;
+        const delta = scrollRef.current.scrollHeight - prevHeight;
+        scrollRef.current.scrollTop = prevTop + delta;
+      });
+    } finally {
+      loadingOlderRef.current = false;
+      setLoadingOlder(false);
+    }
+  }, [hasMore, messages, roomId, ingestMessages]);
 
   useEffect(() => {
     initialised.current = false;
@@ -126,16 +185,106 @@ export function ChatWindow({
     soundsReady.current = false;
     setMessages([]);
     setSendError(null);
+    setHasMore(false);
+    setLive(false);
     setPeerPresence(initialPeerPresence ?? "offline");
-    load().then(() => {
-      // Avoid playing catch-up sounds for history
+
+    loadInitial().then(() => {
       window.setTimeout(() => {
         soundsReady.current = true;
       }, 800);
     });
-    const id = setInterval(load, 2500);
-    return () => clearInterval(id);
-  }, [load, initialPeerPresence]);
+
+    let es: EventSource | null = null;
+    let pollFallback: ReturnType<typeof setInterval> | null = null;
+    let closed = false;
+    let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const startFallbackPoll = () => {
+      if (pollFallback || closed) return;
+      pollFallback = setInterval(() => {
+        fetch(`/api/chat/${roomId}/messages?limit=50`, { cache: "no-store" })
+          .then((r) => (r.ok ? r.json() : null))
+          .then((data) => {
+            if (!data) return;
+            ingestMessages(data.messages || []);
+            setTyping(data.typing || []);
+            setOnline(data.online || 0);
+            setMemberCount(data.memberCount || 0);
+            if (typeof data.peerPresence === "string") setPeerPresence(data.peerPresence);
+          })
+          .catch(() => {});
+      }, 4000);
+    };
+
+    const connect = () => {
+      if (closed) return;
+      es?.close();
+      es = new EventSource(`/api/chat/${roomId}/events`);
+
+      es.onopen = () => {
+        setLive(true);
+        if (pollFallback) {
+          clearInterval(pollFallback);
+          pollFallback = null;
+        }
+      };
+
+      es.onmessage = (ev) => {
+        try {
+          const data = JSON.parse(ev.data) as {
+            type: string;
+            message?: Msg;
+            names?: string[];
+            online?: number;
+            memberCount?: number;
+            peerPresence?: string | null;
+          };
+          if (data.type === "ping" || data.type === "hello") return;
+          if (data.type === "message" && data.message) {
+            ingestMessages([data.message]);
+            return;
+          }
+          if (data.type === "typing" && Array.isArray(data.names)) {
+            setTyping(data.names);
+            return;
+          }
+          if (data.type === "presence") {
+            if (typeof data.online === "number") setOnline(data.online);
+            if (typeof data.memberCount === "number") setMemberCount(data.memberCount);
+            if (typeof data.peerPresence === "string") setPeerPresence(data.peerPresence);
+          }
+        } catch {
+          /* ignore malformed */
+        }
+      };
+
+      es.onerror = () => {
+        setLive(false);
+        es?.close();
+        startFallbackPoll();
+        if (reconnectTimer) clearTimeout(reconnectTimer);
+        reconnectTimer = setTimeout(connect, 2500);
+      };
+    };
+
+    connect();
+
+    return () => {
+      closed = true;
+      es?.close();
+      if (pollFallback) clearInterval(pollFallback);
+      if (reconnectTimer) clearTimeout(reconnectTimer);
+    };
+  }, [roomId, initialPeerPresence, loadInitial, ingestMessages]);
+
+  function onScroll() {
+    const el = scrollRef.current;
+    if (!el || loadingOlderRef.current || !hasMore) return;
+    if (el.scrollTop < 80) {
+      void loadOlder();
+    }
+  }
 
   function onType(value: string) {
     setInput(value);
@@ -183,7 +332,6 @@ export function ChatWindow({
             : msg
         )
       );
-      await load();
     } catch (err) {
       setMessages((m) =>
         m.map((msg) => (msg.id === tmpId ? { ...msg, pending: false, failed: true } : msg))
@@ -213,15 +361,18 @@ export function ChatWindow({
       }
       const data = await res.json();
       seenIds.current.add(data.message.id);
-      setMessages((m) => [
-        ...m,
-        {
-          ...data.message,
-          mine: true,
-          isNudge: true,
-          sender: data.message.sender,
-        },
-      ]);
+      setMessages((m) => {
+        if (m.some((msg) => msg.id === data.message.id)) return m;
+        return [
+          ...m,
+          {
+            ...data.message,
+            mine: true,
+            isNudge: true,
+            sender: data.message.sender,
+          },
+        ];
+      });
       scrollToBottom();
     } catch (err) {
       setSendError(err instanceof Error ? err.message : "Couldn't nudge");
@@ -245,6 +396,15 @@ export function ChatWindow({
         <span className="min-w-0 flex-1 truncate text-[12px] font-semibold tracking-wide">
           {roomName} — Instant Message
         </span>
+        <span
+          className={cn(
+            "mr-1 text-[10px]",
+            live ? "text-emerald-200" : "text-white/70"
+          )}
+          title={live ? "Live" : "Reconnecting…"}
+        >
+          {live ? "● Live" : "○ …"}
+        </span>
         <span className="msn-titlebar-btn" aria-hidden>
           _
         </span>
@@ -266,7 +426,6 @@ export function ChatWindow({
         <button type="button">Help</button>
       </div>
 
-      {/* Display picture + identity strip */}
       <div className="flex items-center gap-3 border-b border-[#a0a0a0] bg-[#f5f4ec] px-3 py-2 dark:border-white/15 dark:bg-[#1e2a3c]">
         {isDm ? (
           <Avatar name={roomName} src={peerAvatar ?? null} size={56} presence={status} className="rounded-sm" />
@@ -296,8 +455,16 @@ export function ChatWindow({
         </div>
       </div>
 
-      {/* Message history — classic “Name says:” */}
-      <div ref={scrollRef} className="msn-inset m-1.5 min-h-0 flex-1 space-y-2.5 overflow-y-auto p-3">
+      <div
+        ref={scrollRef}
+        onScroll={onScroll}
+        className="msn-inset m-1.5 min-h-0 flex-1 space-y-2.5 overflow-y-auto p-3"
+      >
+        {hasMore && (
+          <p className="text-center text-[11px] text-[#666] dark:text-sage-400">
+            {loadingOlder ? "Loading earlier messages…" : "Scroll up for earlier messages"}
+          </p>
+        )}
         {messages.length === 0 && (
           <p className="mt-8 text-center text-[12px] italic text-[#666] dark:text-sage-400">
             This is the beginning of your conversation. Say hello!

@@ -32,7 +32,7 @@ export function AuthShell({
       </div>
 
       <div className="relative hidden flex-col justify-between overflow-hidden p-12 lg:flex">
-        <div className="absolute inset-0 bg-amity-gradient" />
+        <div className="absolute inset-0 bg-safely-gradient" />
         <div className="absolute -left-20 top-20 h-72 w-72 animate-float rounded-full bg-white/10 blur-3xl" />
         <div className="absolute bottom-10 right-10 h-80 w-80 rounded-full bg-white/10 blur-3xl" />
         <Link href="/" className="relative z-10 brightness-0 invert">
@@ -43,7 +43,7 @@ export function AuthShell({
             Your gluten-free companion
           </p>
           <h1 className="mt-3 font-display text-5xl font-bold leading-tight text-white">
-            Amity
+            Safely
           </h1>
           <p className="mt-3 font-display text-2xl font-semibold text-white/95">
             Find your people.

@@ -11,6 +11,7 @@ type Dm = {
   name: string;
   avatarUrl: string | null;
   presence: string;
+  unreadCount?: number;
   lastMessage: { text: string; sender: string; at: string } | null;
 };
 
@@ -22,6 +23,7 @@ type Room = {
   emoji: string;
   members: number;
   online: number;
+  unreadCount?: number;
   lastMessage: { text: string; sender: string; at: string } | null;
 };
 
@@ -45,7 +47,7 @@ export function ContactListPane({
       <div className="msn-titlebar">
         <MsnPresenceIcon status="online" size={14} />
         <span className="min-w-0 flex-1 truncate text-[12px] font-semibold tracking-wide">
-          Amity Messenger — Contact List
+          Safely Messenger — Contact List
         </span>
         <span className="text-[10px] text-white/85">{onlineCount} online</span>
         <span className="msn-titlebar-btn" aria-hidden>
@@ -89,7 +91,14 @@ export function ContactListPane({
                   >
                     <MsnPresenceIcon status={dm.presence} size={16} className="mt-0.5" />
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate font-semibold">{dm.name}</span>
+                      <span className="block truncate font-semibold">
+                        {dm.name}
+                        {(dm.unreadCount ?? 0) > 0 ? (
+                          <span className="ml-1.5 inline-flex min-w-[1.1rem] justify-center rounded-sm bg-[#316ac5] px-1 text-[10px] font-bold text-white">
+                            {dm.unreadCount! > 99 ? "99+" : dm.unreadCount}
+                          </span>
+                        ) : null}
+                      </span>
                       <span className="block truncate text-[11px] opacity-80">
                         {dm.lastMessage
                           ? `${dm.lastMessage.sender}: ${dm.lastMessage.text}`

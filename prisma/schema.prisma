@@ -1,4 +1,4 @@
-// Amity — Your gluten-free companion. Find your people.
+// Safely — Your gluten-free companion. Find your people.
 //
 // Production database: PostgreSQL (Neon / Supabase / Railway / Vercel Postgres).
 // Local: set DATABASE_URL to a Postgres URL (see .env.example).
@@ -134,14 +134,16 @@ model ChatRoom {
 }
 
 model ChatRoomMember {
-  id       String   @id @default(cuid())
-  roomId   String
-  userId   String
-  room     ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
-  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  joinedAt DateTime @default(now())
+  id         String   @id @default(cuid())
+  roomId     String
+  userId     String
+  room       ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  joinedAt   DateTime @default(now())
+  lastReadAt DateTime @default(now())
 
   @@unique([roomId, userId])
+  @@index([userId])
 }
 
 model Message {
@@ -152,6 +154,8 @@ model Message {
   room      ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
   sender    User     @relation(fields: [senderId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
+
+  @@index([roomId, createdAt])
 }
 
 model TypingIndicator {

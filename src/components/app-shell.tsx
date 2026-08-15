@@ -215,7 +215,7 @@ export function AppShell({
               >
                 <span
                   className={cn(
-                    "flex h-14 w-14 items-center justify-center rounded-full bg-amity-gradient text-white transition",
+                    "flex h-14 w-14 items-center justify-center rounded-full bg-safely-gradient text-white transition",
                     active && "scale-105 ring-4 ring-brand-200/60 dark:ring-brand-500/30"
                   )}
                   style={{

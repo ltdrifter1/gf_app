@@ -16,9 +16,9 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "Amity — Your gluten-free companion",
+  title: "Safely — Your gluten-free companion",
   description:
-    "Amity — Your gluten-free companion. Find your people. Messenger, community pages, safe dining, and recipes for celiac and gluten intolerance.",
+    "Safely — Your gluten-free companion. Find your people. Messenger, community pages, safe dining, and recipes for celiac and gluten intolerance.",
 };
 
 const themeScript = `

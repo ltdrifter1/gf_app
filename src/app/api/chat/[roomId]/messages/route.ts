@@ -5,11 +5,49 @@ import { assertRoomAccess } from "@/lib/chat-access";
 import { effectivePresence } from "@/lib/presence";
 import { rateLimit } from "@/lib/rate-limit";
 import { NUDGE_CONTENT, isNudgeMessage } from "@/lib/msn";
+import { publishChat } from "@/lib/chat-events";
 
 const MAX_CONTENT = 2000;
+const DEFAULT_LIMIT = 50;
+const MAX_LIMIT = 100;
+
+function serializeMessage(
+  m: {
+    id: string;
+    content: string;
+    createdAt: Date;
+    senderId: string;
+    sender: {
+      id: string;
+      name: string;
+      username: string;
+      avatarUrl: string | null;
+      presence: string;
+      lastSeen?: Date;
+    };
+  },
+  userId: string
+) {
+  return {
+    id: m.id,
+    content: m.content,
+    createdAt: m.createdAt.toISOString(),
+    isNudge: isNudgeMessage(m.content),
+    sender: {
+      id: m.sender.id,
+      name: m.sender.name,
+      username: m.sender.username,
+      avatarUrl: m.sender.avatarUrl,
+      presence: m.sender.lastSeen
+        ? effectivePresence(m.sender.presence, m.sender.lastSeen)
+        : m.sender.presence,
+    },
+    mine: m.senderId === userId,
+  };
+}
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ roomId: string }> }
 ) {
   const user = await getCurrentUser();
@@ -21,11 +59,39 @@ export async function GET(
     return NextResponse.json({ error: access.error }, { status: access.status });
   }
 
-  // Latest 100 chronologically (newest first, then reverse for UI)
+  const url = req.nextUrl;
+  const before = url.searchParams.get("before");
+  const limitRaw = Number(url.searchParams.get("limit") || DEFAULT_LIMIT);
+  const limit = Math.min(Math.max(1, Number.isFinite(limitRaw) ? limitRaw : DEFAULT_LIMIT), MAX_LIMIT);
+
+  let beforeCursor: { createdAt: Date; id: string } | null = null;
+  if (before) {
+    const cursorMsg = await prisma.message.findFirst({
+      where: { id: before, roomId },
+      select: { id: true, createdAt: true },
+    });
+    if (cursorMsg) {
+      beforeCursor = { createdAt: cursorMsg.createdAt, id: cursorMsg.id };
+    }
+  }
+
   const recent = await prisma.message.findMany({
-    where: { roomId },
-    orderBy: { createdAt: "desc" },
-    take: 100,
+    where: {
+      roomId,
+      ...(beforeCursor
+        ? {
+            OR: [
+              { createdAt: { lt: beforeCursor.createdAt } },
+              {
+                createdAt: beforeCursor.createdAt,
+                id: { lt: beforeCursor.id },
+              },
+            ],
+          }
+        : {}),
+    },
+    orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+    take: limit + 1,
     include: {
       sender: {
         select: {
@@ -39,7 +105,10 @@ export async function GET(
       },
     },
   });
-  const messages = recent.reverse();
+
+  const hasMore = recent.length > limit;
+  const page = hasMore ? recent.slice(0, limit) : recent;
+  const messages = page.reverse();
 
   const since = new Date(Date.now() - 6000);
   const typing = await prisma.typingIndicator.findMany({
@@ -82,21 +151,18 @@ export async function GET(
     }
   }
 
+  // Fresh open (no pagination cursor) marks read
+  if (!before) {
+    await prisma.chatRoomMember.updateMany({
+      where: { roomId, userId: user.id },
+      data: { lastReadAt: new Date() },
+    });
+  }
+
   return NextResponse.json({
-    messages: messages.map((m) => ({
-      id: m.id,
-      content: m.content,
-      createdAt: m.createdAt.toISOString(),
-      isNudge: isNudgeMessage(m.content),
-      sender: {
-        id: m.sender.id,
-        name: m.sender.name,
-        username: m.sender.username,
-        avatarUrl: m.sender.avatarUrl,
-        presence: effectivePresence(m.sender.presence, m.sender.lastSeen),
-      },
-      mine: m.senderId === user.id,
-    })),
+    messages: messages.map((m) => serializeMessage(m, user.id)),
+    hasMore,
+    nextCursor: messages.length > 0 ? messages[0].id : null,
     typing: typing.map((t) => t.user.name),
     online,
     memberCount: members.length,
@@ -150,7 +216,14 @@ export async function POST(
     data: { roomId, senderId: user.id, content },
     include: {
       sender: {
-        select: { id: true, name: true, username: true, avatarUrl: true, presence: true },
+        select: {
+          id: true,
+          name: true,
+          username: true,
+          avatarUrl: true,
+          presence: true,
+          lastSeen: true,
+        },
       },
     },
   });
@@ -159,14 +232,26 @@ export async function POST(
     .deleteMany({ where: { roomId, userId: user.id } })
     .catch(() => {});
 
-  return NextResponse.json({
+  // Sender has read up through their own message
+  await prisma.chatRoomMember.updateMany({
+    where: { roomId, userId: user.id },
+    data: { lastReadAt: new Date() },
+  });
+
+  const payload = serializeMessage(message, user.id);
+
+  publishChat(roomId, {
+    type: "message",
     message: {
-      id: message.id,
-      content: message.content,
-      createdAt: message.createdAt.toISOString(),
-      isNudge: isNudgeMessage(message.content),
-      sender: message.sender,
-      mine: true,
+      id: payload.id,
+      content: payload.content,
+      createdAt: payload.createdAt,
+      isNudge: payload.isNudge,
+      sender: payload.sender,
     },
   });
+
+  publishChat(roomId, { type: "typing", names: [] });
+
+  return NextResponse.json({ message: payload });
 }
