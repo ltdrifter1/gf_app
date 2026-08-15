@@ -183,6 +183,11 @@
   75% { transform: translate(-3px, 2px); }
 }
 
+@keyframes safelyGrowBar {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
 .msn-nudge-shake {
   animation: msn-nudge-shake 0.55s ease-in-out;
 }

@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { ensureHealthResources } from "./catalog";
 
 const prisma = new PrismaClient();
 
@@ -236,23 +237,7 @@ async function main() {
     }
   }
 
-  if ((await prisma.healthResource.count()) === 0) {
-    const resources = [
-      { title: "Calming the Eating-Out Spiral", pillar: "mental", category: "eating-out", type: "exercise", content: "A 4-step grounding exercise for when restaurant anxiety hits: breathe, plan, ask, and self-compassion." },
-      { title: "When Diagnosis Feels Like Grief", pillar: "mental", category: "newly-diagnosed", type: "article", content: "Mourning your old relationship with food is normal. Naming the grief is the first step to moving through it." },
-      { title: "Beating Social Isolation", pillar: "mental", category: "isolation", type: "article", content: "Practical scripts for navigating shared meals, plus how to find your people in Messenger." },
-      { title: "Anxiety Toolkit for Celiac Life", pillar: "mental", category: "anxiety", type: "exercise", content: "Box breathing, worry windows, and a 'safe foods' anchor list to reduce daily anxiety." },
-      { title: "Low Mood & Chronic Illness", pillar: "mental", category: "depression", type: "article", content: "What to look for in support, and when to reach out to a clinician who understands chronic illness." },
-      { title: "Gut Healing Basics After Diagnosis", pillar: "physical", category: "gut", type: "article", content: "The small intestine needs time. Focus on nutrient-dense GF meals, hydration, and following your care team's timeline for follow-up." },
-      { title: "Common Nutrient Gaps", pillar: "physical", category: "nutrition", type: "tip", content: "Iron, B12, vitamin D, calcium, and folate are commonly low. Ask about labs — don't self-supplement blindly." },
-      { title: "What To Do After Accidental Glutening", pillar: "physical", category: "recovery", type: "tip", content: "Rest, hydrate, stick to known-safe foods, and track symptoms. Most flares ease in a few days — contact your doctor if severe." },
-      { title: "Fighting the Fatigue", pillar: "physical", category: "energy", type: "article", content: "Fatigue can linger while healing. Prioritize sleep, protein at meals, and gentle movement when you can." },
-      { title: "Labs Worth Asking About", pillar: "physical", category: "labs", type: "tip", content: "tTG-IgA (and total IgA), CBC, ferritin, vitamin D, B12, and bone density when indicated. Bring a list to your next visit." },
-    ];
-    for (const r of resources) {
-      await prisma.healthResource.create({ data: r });
-    }
-  }
+  await ensureHealthResources(prisma);
 
   if ((await prisma.moodEntry.count({ where: { userId: users["maya"].id } })) === 0) {
     for (const [d, mood, note] of [

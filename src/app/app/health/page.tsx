@@ -6,8 +6,9 @@ import {
   PHYSICAL_HEALTH_CATEGORIES,
 } from "@/lib/constants";
 import { JournalStudio } from "@/components/wellness-widgets";
+import { HealthTrackPanel } from "@/components/health-track";
 import { Avatar } from "@/components/ui/avatar";
-import { MessageCircle, Activity, Brain, BookOpen } from "lucide-react";
+import { MessageCircle, Activity, Brain, BookOpen, LineChart, ArrowRight } from "lucide-react";
 import { timeAgo, cn } from "@/lib/utils";
 
 export default async function HealthPage({
@@ -17,23 +18,40 @@ export default async function HealthPage({
 }) {
   const { tab } = await searchParams;
   const active =
-    tab === "mental" ? "mental" : tab === "physical" ? "physical" : "journal";
+    tab === "mental"
+      ? "mental"
+      : tab === "physical"
+        ? "physical"
+        : tab === "track"
+          ? "track"
+          : "journal";
   const user = await requireUser();
 
-  const [resources, journalEntries, supportPosts] = await Promise.all([
-    prisma.healthResource.findMany(),
-    prisma.journalEntry.findMany({
-      where: { userId: user.id },
-      orderBy: { createdAt: "desc" },
-      take: 40,
-    }),
-    prisma.post.findMany({
-      where: { category: "mental-health" },
-      orderBy: { createdAt: "desc" },
-      take: 3,
-      include: { author: { select: { name: true, username: true, avatarUrl: true } } },
-    }),
-  ]);
+  const [resources, journalEntries, moodEntries, healthLogs, supportPosts] =
+    await Promise.all([
+      prisma.healthResource.findMany({ orderBy: { title: "asc" } }),
+      prisma.journalEntry.findMany({
+        where: { userId: user.id },
+        orderBy: { createdAt: "desc" },
+        take: 80,
+      }),
+      prisma.moodEntry.findMany({
+        where: { userId: user.id },
+        orderBy: { createdAt: "desc" },
+        take: 60,
+      }),
+      prisma.healthLog.findMany({
+        where: { userId: user.id },
+        orderBy: { createdAt: "desc" },
+        take: 40,
+      }),
+      prisma.post.findMany({
+        where: { category: "mental-health" },
+        orderBy: { createdAt: "desc" },
+        take: 3,
+        include: { author: { select: { name: true, username: true, avatarUrl: true } } },
+      }),
+    ]);
 
   const mental = resources.filter((r) => r.pillar === "mental");
   const physical = resources.filter((r) => r.pillar === "physical");
@@ -42,8 +60,45 @@ export default async function HealthPage({
     id: e.id,
     prompt: e.prompt,
     content: e.content,
+    mood: e.mood,
+    createdAt: e.createdAt.toISOString(),
+    updatedAt: e.updatedAt.toISOString(),
+  }));
+
+  const initialMoods = moodEntries.map((e) => ({
+    id: e.id,
+    mood: e.mood,
+    note: e.note,
+    shareToProfile: e.shareToProfile,
     createdAt: e.createdAt.toISOString(),
   }));
+
+  const initialLogs = healthLogs.map((e) => ({
+    id: e.id,
+    kind: e.kind,
+    severity: e.severity,
+    note: e.note,
+    createdAt: e.createdAt.toISOString(),
+  }));
+
+  const headlines = {
+    journal: {
+      title: "Journal",
+      blurb: "A quiet place to write — private, unhurried, yours.",
+    },
+    track: {
+      title: "Track",
+      blurb: "Mood trends and glutening logs — private unless you share status.",
+    },
+    mental: {
+      title: "Mental care",
+      blurb: "Gentle guidance for gluten-free life. Not a substitute for your doctor.",
+    },
+    physical: {
+      title: "Physical care",
+      blurb: "Healing notes and checklists. Educational only — ask your care team.",
+    },
+  } as const;
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
@@ -54,16 +109,10 @@ export default async function HealthPage({
             Health
           </p>
           <h1 className="mt-2 font-display text-3xl font-bold tracking-tight sm:text-4xl">
-            {active === "journal"
-              ? "Journal"
-              : active === "mental"
-                ? "Mental care"
-                : "Physical care"}
+            {headlines[active].title}
           </h1>
           <p className="mt-2 max-w-lg text-sm text-white/70 sm:text-base">
-            {active === "journal"
-              ? "A quiet place to write — private, unhurried, yours."
-              : "Gentle guidance for gluten-free life. Not a substitute for your doctor."}
+            {headlines[active].blurb}
           </p>
         </div>
       </header>
@@ -72,6 +121,7 @@ export default async function HealthPage({
         {(
           [
             { id: "journal", href: "/app/health", label: "Journal", icon: BookOpen },
+            { id: "track", href: "/app/health?tab=track", label: "Track", icon: LineChart },
             { id: "mental", href: "/app/health?tab=mental", label: "Mental", icon: Brain },
             { id: "physical", href: "/app/health?tab=physical", label: "Physical", icon: Activity },
           ] as const
@@ -98,6 +148,10 @@ export default async function HealthPage({
 
       {active === "journal" && <JournalStudio initialEntries={initialEntries} />}
 
+      {active === "track" && (
+        <HealthTrackPanel initialMoods={initialMoods} initialLogs={initialLogs} />
+      )}
+
       {active === "mental" && (
         <div className="grid gap-4 lg:grid-cols-[1fr_300px]">
           <div className="grid gap-4 sm:grid-cols-2">
@@ -109,14 +163,25 @@ export default async function HealthPage({
                   <h3 className="mt-2 font-display font-semibold text-sage-900 dark:text-white">
                     {c.label}
                   </h3>
-                  <ul className="mt-2 space-y-2">
+                  <ul className="mt-2 space-y-3">
                     {items.length ? (
                       items.map((r) => (
-                        <li key={r.id} className="text-sm text-sage-600 dark:text-sage-300">
-                          <span className="font-medium text-sage-800 dark:text-sage-100">
-                            {r.title}
-                          </span>
-                          <span className="mt-0.5 block text-sage-500">{r.content}</span>
+                        <li key={r.id}>
+                          <Link
+                            href={`/app/health/r/${r.slug}`}
+                            className="group block rounded-xl p-1 transition hover:bg-white/50 dark:hover:bg-white/5"
+                          >
+                            <span className="flex items-center gap-2 font-medium text-sage-800 group-hover:text-brand-700 dark:text-sage-100 dark:group-hover:text-brand-300">
+                              {r.title}
+                              {r.type === "exercise" && (
+                                <span className="rounded-full bg-brand-500/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-brand-700 dark:text-brand-300">
+                                  Tool
+                                </span>
+                              )}
+                              <ArrowRight className="ml-auto h-3.5 w-3.5 opacity-0 transition group-hover:opacity-100" />
+                            </span>
+                            <span className="mt-0.5 block text-sm text-sage-500">{r.content}</span>
+                          </Link>
                         </li>
                       ))
                     ) : (
@@ -142,6 +207,14 @@ export default async function HealthPage({
               </div>
               <MessageCircle className="ml-auto h-5 w-5 text-sage-400" />
             </Link>
+
+            <div className="card border border-rose-300/30 bg-rose-50/50 p-5 dark:bg-rose-500/10">
+              <p className="text-sm font-semibold text-sage-900 dark:text-white">Crisis support</p>
+              <p className="mt-1 text-sm text-sage-600 dark:text-sage-300">
+                If you&apos;re in danger or thinking of harming yourself, contact local emergency
+                services or call/text 988 (US).
+              </p>
+            </div>
 
             {supportPosts.length > 0 && (
               <div className="card p-5">
@@ -181,9 +254,9 @@ export default async function HealthPage({
               </div>
             )}
 
-            <Link href="/app/health" className="btn-secondary w-full justify-center">
-              <BookOpen className="h-4 w-4" />
-              Open journal
+            <Link href="/app/health?tab=track" className="btn-secondary w-full justify-center">
+              <LineChart className="h-4 w-4" />
+              Open Track
             </Link>
           </div>
         </div>
@@ -203,12 +276,23 @@ export default async function HealthPage({
                   {items.length ? (
                     items.map((r) => (
                       <li key={r.id}>
-                        <p className="text-sm font-medium text-sage-800 dark:text-sage-100">
-                          {r.title}
-                        </p>
-                        <p className="mt-0.5 text-sm text-sage-500 dark:text-sage-400">
-                          {r.content}
-                        </p>
+                        <Link
+                          href={`/app/health/r/${r.slug}`}
+                          className="group block rounded-xl p-1 transition hover:bg-white/50 dark:hover:bg-white/5"
+                        >
+                          <p className="flex items-center gap-2 text-sm font-medium text-sage-800 group-hover:text-brand-700 dark:text-sage-100 dark:group-hover:text-brand-300">
+                            {r.title}
+                            {(r.type === "exercise" || r.toolKey) && (
+                              <span className="rounded-full bg-brand-500/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-brand-700 dark:text-brand-300">
+                                Tool
+                              </span>
+                            )}
+                            <ArrowRight className="ml-auto h-3.5 w-3.5 opacity-0 transition group-hover:opacity-100" />
+                          </p>
+                          <p className="mt-0.5 text-sm text-sage-500 dark:text-sage-400">
+                            {r.content}
+                          </p>
+                        </Link>
                       </li>
                     ))
                   ) : (
