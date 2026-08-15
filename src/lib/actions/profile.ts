@@ -60,6 +60,21 @@ export async function setPresence(presence: "online" | "away" | "offline") {
   return { ok: true };
 }
 
+/** Quick status/mood line for the Messenger "You" strip. */
+export async function updateStatusMessage(mood: string) {
+  const user = await requireUser();
+  const cleaned = mood.trim().slice(0, 80);
+  await prisma.profile.upsert({
+    where: { userId: user.id },
+    create: { userId: user.id, diagnosis: "unspecified", mood: cleaned || null },
+    update: { mood: cleaned || null },
+  });
+  revalidatePath("/app/chat");
+  revalidatePath("/app/profile");
+  revalidatePath(`/app/u/${user.username}`);
+  return { ok: true };
+}
+
 /** Top 8 friends = people you follow (newest first), classic MySpace Friend Space. */
 export async function getTopFriends(userId: string, take = 8) {
   const follows = await prisma.follow.findMany({

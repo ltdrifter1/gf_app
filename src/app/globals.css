@@ -70,6 +70,17 @@
     @apply flex flex-col overflow-hidden border border-[#0a246a]/40 bg-[#ece9d8] text-[#1a1a1a] shadow-[4px_6px_24px_-6px_rgba(10,36,106,0.45)];
     border-radius: 3px 3px 2px 2px;
   }
+  .msn-window-fill {
+    height: calc(100svh - 3.5rem);
+  }
+  .msn-window-fill-with-dock {
+    height: calc(100svh - 7.5rem);
+  }
+  @media (min-width: 1024px) {
+    .msn-window-fill-with-dock {
+      height: calc(100svh - 3.5rem);
+    }
+  }
   .dark .msn-window {
     @apply border-[#1e3a5f] bg-[#1a2433] text-sage-100;
   }
@@ -89,6 +100,7 @@
   .dark .msn-menubar {
     @apply border-white/15 bg-[#243044] text-sage-200;
   }
+  .msn-menubar a,
   .msn-menubar button {
     @apply rounded-sm px-1 py-0.5 hover:bg-[#316ac5] hover:text-white;
   }

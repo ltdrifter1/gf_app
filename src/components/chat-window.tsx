@@ -390,7 +390,7 @@ export function ChatWindow({
         : `${typing.slice(0, 2).join(" and ")} are typing a message…`;
 
   return (
-    <div className={cn("msn-window h-[calc(100vh-7rem)]", shake && "msn-nudge-shake")}>
+    <div className={cn("msn-window msn-window-fill", shake && "msn-nudge-shake")}>
       <div className="msn-titlebar">
         <MsnPresenceIcon status={isDm ? status : online > 0 ? "online" : "offline"} size={14} />
         <span className="min-w-0 flex-1 truncate text-[12px] font-semibold tracking-wide">

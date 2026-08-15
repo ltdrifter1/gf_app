@@ -1,19 +1,9 @@
 import Link from "next/link";
 import { BuddyList, type MsnContact } from "@/components/buddy-list";
 import { RoomsList } from "@/components/rooms-list";
+import { MsnMeStrip } from "@/components/msn-me-strip";
 import { MsnPresenceIcon } from "@/components/msn-presence-icon";
-import { timeAgo } from "@/lib/utils";
 import { cn } from "@/lib/utils";
-
-type Dm = {
-  id: string;
-  slug: string;
-  name: string;
-  avatarUrl: string | null;
-  presence: string;
-  unreadCount?: number;
-  lastMessage: { text: string; sender: string; at: string } | null;
-};
 
 type Room = {
   id: string;
@@ -27,23 +17,33 @@ type Room = {
   lastMessage: { text: string; sender: string; at: string } | null;
 };
 
+type Me = {
+  name: string;
+  username: string;
+  avatarUrl: string | null;
+  presence: string;
+  statusMessage: string | null;
+};
+
 export function ContactListPane({
   onlineCount,
   online,
   offline,
-  dms,
   rooms,
+  me,
   activeSlug,
+  className,
 }: {
   onlineCount: number;
   online: MsnContact[];
   offline: MsnContact[];
-  dms: Dm[];
   rooms: Room[];
+  me: Me;
   activeSlug?: string;
+  className?: string;
 }) {
   return (
-    <div className="msn-window h-[calc(100vh-7rem)]">
+    <div className={cn("msn-window msn-window-fill", className)}>
       <div className="msn-titlebar">
         <MsnPresenceIcon status="online" size={14} />
         <span className="min-w-0 flex-1 truncate text-[12px] font-semibold tracking-wide">
@@ -62,60 +62,15 @@ export function ContactListPane({
       </div>
 
       <div className="msn-menubar">
-        <button type="button">File</button>
-        <button type="button">Contacts</button>
-        <button type="button">Actions</button>
-        <button type="button">Tools</button>
-        <button type="button">Help</button>
+        <Link href="/app/search">Contacts</Link>
+        <Link href="/app/profile">Profile</Link>
+        <Link href="/app">Community</Link>
       </div>
 
-      <div className="msn-inset m-1.5 min-h-0 flex-1 overflow-y-auto p-1">
-        <p className="mb-1 px-1 text-[10px] font-bold uppercase tracking-wide text-[#555] dark:text-sage-400">
-          IMs
-        </p>
-        <BuddyList online={online} offline={offline} />
+      <MsnMeStrip me={me} />
 
-        {dms.length > 0 && (
-          <div className="mt-3 border-t border-[#c0c0c0] pt-2 dark:border-white/10">
-            <p className="mb-1 px-1 text-[10px] font-bold uppercase tracking-wide text-[#555] dark:text-sage-400">
-              Conversations
-            </p>
-            <div className="space-y-0.5">
-              {dms.map((dm) => {
-                const active = activeSlug === dm.slug;
-                return (
-                  <Link
-                    key={dm.id}
-                    href={`/app/chat/${dm.slug}`}
-                    className={cn("msn-contact", active && "msn-contact-active")}
-                  >
-                    <MsnPresenceIcon status={dm.presence} size={16} className="mt-0.5" />
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate font-semibold">
-                        {dm.name}
-                        {(dm.unreadCount ?? 0) > 0 ? (
-                          <span className="ml-1.5 inline-flex min-w-[1.1rem] justify-center rounded-sm bg-[#316ac5] px-1 text-[10px] font-bold text-white">
-                            {dm.unreadCount! > 99 ? "99+" : dm.unreadCount}
-                          </span>
-                        ) : null}
-                      </span>
-                      <span className="block truncate text-[11px] opacity-80">
-                        {dm.lastMessage
-                          ? `${dm.lastMessage.sender}: ${dm.lastMessage.text}`
-                          : "Start chatting"}
-                      </span>
-                    </span>
-                    {dm.lastMessage && (
-                      <span className="shrink-0 text-[10px] opacity-70">
-                        {timeAgo(dm.lastMessage.at)}
-                      </span>
-                    )}
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        )}
+      <div className="msn-inset m-1.5 min-h-0 flex-1 overflow-y-auto p-1">
+        <BuddyList online={online} offline={offline} activeSlug={activeSlug} />
 
         <div className="mt-3 border-t border-[#c0c0c0] pt-2 dark:border-white/10">
           <p className="mb-1 px-1 text-[10px] font-bold uppercase tracking-wide text-[#555] dark:text-sage-400">
@@ -127,7 +82,9 @@ export function ContactListPane({
 
       <div className="msn-statusbar">
         <MsnPresenceIcon status="online" size={12} />
-        <span>Signed in · Click a contact to open a conversation</span>
+        <span>
+          Signed in as {me.name} · Click a contact to open an Instant Message
+        </span>
       </div>
     </div>
   );
