@@ -62,4 +62,7 @@ export const JOURNAL_PROMPTS = [
   "What is a worry you'd like to let go of?",
   "Name three foods you're grateful you can still enjoy.",
   "What would you tell someone newly diagnosed today?",
+  "Where did you feel safest eating this week?",
+  "What boundary around food or plans do you want to honor?",
+  "Write a short note to tomorrow-you after a hard day.",
 ];

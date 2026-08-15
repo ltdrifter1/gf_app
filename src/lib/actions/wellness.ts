@@ -34,7 +34,20 @@ export async function addJournal(formData: FormData) {
   const content = String(formData.get("content") || "").trim();
   const prompt = String(formData.get("prompt") || "").trim() || null;
   if (!content) return { error: "Write something first" };
-  await prisma.journalEntry.create({ data: { userId: user.id, content, prompt } });
+  if (content.length > 8000) return { error: "Keep entries under 8,000 characters" };
+
+  const entry = await prisma.journalEntry.create({
+    data: { userId: user.id, content, prompt },
+  });
+
   revalidatePath("/app/health");
-  return { ok: true };
+  return {
+    ok: true,
+    entry: {
+      id: entry.id,
+      prompt: entry.prompt,
+      content: entry.content,
+      createdAt: entry.createdAt.toISOString(),
+    },
+  };
 }
