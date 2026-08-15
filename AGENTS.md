@@ -28,6 +28,7 @@ Design: glassmorphism with MSN gloss. Brand gradient: `bg-safely-gradient`.
 - Reset: `npx prisma db push --force-reset && npx prisma db seed`
 - Demo (local only): `maya@safely.app` / `password123`
 - Prod catalog (no demos): `npm run db:seed:prod` — also auto-runs via `ensureLaunchCatalog`
+- Production domain: `https://safelyceliac.com` (see `DEPLOY.md` for Namecheap → Vercel DNS)
 - `AUTH_SECRET` is required in production (fails closed)
 - Vercel build: `ship:build` (see `vercel.json`)
 - DMs are membership-gated; community rooms auto-join

@@ -21,7 +21,7 @@ Local demo login (dev only): `maya@safely.app` / `password123`
 
 ## Ship to production
 
-See **[DEPLOY.md](./DEPLOY.md)** — Postgres + Vercel + `AUTH_SECRET`.  
+See **[DEPLOY.md](./DEPLOY.md)** — Postgres + Vercel + Namecheap DNS for **https://safelyceliac.com**.  
 Catalog boots safely without demo accounts (`npm run db:seed:prod` or auto on first request).
 
 ## Features

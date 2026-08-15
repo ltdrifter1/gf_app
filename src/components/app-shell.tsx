@@ -31,17 +31,22 @@ type NavUser = {
   presence: string;
 };
 
-const PRIMARY_NAV = [
+const SIDEBAR_NAV = [
+  { href: "/app/chat", label: "Messenger", icon: MessageCircle },
+  { href: "/app", label: "Community", icon: Users, exact: true },
+  { href: "/app/health", label: "Health", icon: HeartPulse },
+  { href: "/app/restaurants", label: "Dining", icon: UtensilsCrossed },
+  { href: "/app/recipes", label: "Recipes", icon: BookOpen },
+  { href: "/app/saved", label: "Saved", icon: Bookmark },
+  { href: "/app/profile", label: "You", icon: UserRound },
+] as const;
+
+/** Compact primary tabs for the mobile bottom bar */
+const MOBILE_NAV = [
   { href: "/app/chat", label: "Messenger", icon: MessageCircle },
   { href: "/app", label: "Community", icon: Users, exact: true },
   { href: "/app/restaurants", label: "Dining", icon: UtensilsCrossed },
   { href: "/app/profile", label: "You", icon: UserRound },
-] as const;
-
-const MORE_NAV = [
-  { href: "/app/recipes", label: "Recipes", icon: BookOpen },
-  { href: "/app/health", label: "Health", icon: HeartPulse },
-  { href: "/app/saved", label: "Saved", icon: Bookmark },
 ] as const;
 
 function navActive(pathname: string, href: string, exact?: boolean) {
@@ -82,28 +87,9 @@ export function AppShell({
           </div>
 
           <nav className="mt-6 flex-1 space-y-1 overflow-y-auto pr-1">
-            {PRIMARY_NAV.map((item) => {
+            {SIDEBAR_NAV.map((item) => {
               const Icon = item.icon;
               const active = navActive(pathname, item.href, "exact" in item ? item.exact : false);
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setOpen(false)}
-                  className={cn("nav-link", active && "nav-link-active")}
-                >
-                  <Icon className="h-[18px] w-[18px]" />
-                  {item.label}
-                </Link>
-              );
-            })}
-
-            <p className="mb-1 mt-5 px-3.5 text-[10px] font-semibold uppercase tracking-wider text-sage-400">
-              More
-            </p>
-            {MORE_NAV.map((item) => {
-              const Icon = item.icon;
-              const active = navActive(pathname, item.href);
               return (
                 <Link
                   key={item.href}
@@ -199,7 +185,7 @@ export function AppShell({
         className="fixed inset-x-0 bottom-0 z-40 flex items-end justify-around border-t border-white/50 bg-white/90 px-2 pb-[max(0.4rem,env(safe-area-inset-bottom))] pt-1.5 backdrop-blur-xl dark:border-white/10 dark:bg-[#0c1412]/95 lg:hidden"
         aria-label="Primary"
       >
-        {PRIMARY_NAV.map((item) => {
+        {MOBILE_NAV.map((item) => {
           const active = navActive(pathname, item.href, "exact" in item ? item.exact : false);
           const Icon = item.icon;
           const isHero = item.href === "/app/chat";

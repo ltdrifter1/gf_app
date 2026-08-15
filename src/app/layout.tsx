@@ -21,6 +21,9 @@ export const metadata: Metadata = {
   ),
   title: "Safely",
   description: "Find your people. Your gluten-free companion.",
+  alternates: {
+    canonical: "/",
+  },
   icons: {
     icon: [{ url: "/logo.png", type: "image/png" }],
     apple: [{ url: "/apple-touch-icon.png" }],
