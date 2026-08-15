@@ -256,7 +256,3 @@ export function HealthTool({ toolKey }: { toolKey: string }) {
     </div>
   );
 }
-
-export function hasHealthTool(toolKey: string | null | undefined) {
-  return !!toolKey && !!TOOLS[toolKey];
-}

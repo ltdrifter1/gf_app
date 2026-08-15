@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
-import { HealthTool, hasHealthTool } from "@/components/health-tools";
+import { HealthTool } from "@/components/health-tools";
 import {
   MENTAL_HEALTH_CATEGORIES,
   PHYSICAL_HEALTH_CATEGORIES,
@@ -62,9 +62,7 @@ export default async function HealthResourcePage({
         </div>
       </article>
 
-      {hasHealthTool(resource.toolKey) && resource.toolKey && (
-        <HealthTool toolKey={resource.toolKey} />
-      )}
+      {resource.toolKey ? <HealthTool toolKey={resource.toolKey} /> : null}
 
       <div className="flex flex-wrap gap-2">
         {resource.pillar === "mental" && (
