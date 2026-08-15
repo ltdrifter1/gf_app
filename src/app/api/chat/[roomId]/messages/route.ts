@@ -6,6 +6,7 @@ import { effectivePresence } from "@/lib/presence";
 import { rateLimit } from "@/lib/rate-limit";
 import { NUDGE_CONTENT, isNudgeMessage } from "@/lib/msn";
 import { publishChat } from "@/lib/chat-events";
+import { createNotification } from "@/lib/actions/notifications";
 
 const MAX_CONTENT = 2000;
 const DEFAULT_LIMIT = 50;
@@ -252,6 +253,28 @@ export async function POST(
   });
 
   publishChat(roomId, { type: "typing", names: [] });
+
+  // In-app notifications for DM peers (and keep community quiet)
+  if (!access.room.isCommunity) {
+    const peers = await prisma.chatRoomMember.findMany({
+      where: { roomId, userId: { not: user.id } },
+      select: { userId: true },
+    });
+    const preview = isNudge
+      ? `${user.name} sent a nudge`
+      : content.slice(0, 120);
+    await Promise.all(
+      peers.map((p) =>
+        createNotification({
+          userId: p.userId,
+          type: "message",
+          title: user.name,
+          body: preview,
+          href: `/app/chat/${access.room.slug}`,
+        }).catch(() => null)
+      )
+    );
+  }
 
   return NextResponse.json({ message: payload });
 }

@@ -141,6 +141,25 @@ export async function addHealthLog(formData: FormData) {
     data: { userId: user.id, kind, severity, note },
   });
 
+  // Companion loop: after a rough glutening/flare, nudge toward support + recovery
+  if (kind === "glutening" || (kind === "flare" && severity >= 4)) {
+    const tip =
+      kind === "glutening"
+        ? "Rest, hydrate, and skip the blame spiral. Recovery tips + a gentle room are ready."
+        : "Hard flares deserve soft landings — check recovery resources or talk it out.";
+    await prisma.notification
+      .create({
+        data: {
+          userId: user.id,
+          type: "companion",
+          title: kind === "glutening" ? "You're not alone after a glutening" : "Flare support",
+          body: tip,
+          href: "/app/health/r/after-glutening",
+        },
+      })
+      .catch(() => {});
+  }
+
   revalidateHealth();
   return {
     ok: true,
@@ -151,6 +170,17 @@ export async function addHealthLog(formData: FormData) {
       note: entry.note,
       createdAt: entry.createdAt.toISOString(),
     },
+    companion:
+      kind === "glutening" || (kind === "flare" && severity >= 4)
+        ? {
+            href: "/app/chat/mental-health",
+            tipHref: "/app/health/r/after-glutening",
+            message:
+              kind === "glutening"
+                ? "Want company? The Mental Health room gets it — or read recovery tips."
+                : "Open Mental Health room or recovery tips when you're ready.",
+          }
+        : null,
   };
 }
 

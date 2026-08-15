@@ -1,9 +1,10 @@
 /**
- * In-process pub/sub for Messenger SSE.
- * Works across connections on the same Node process (local `next dev`,
- * single long-lived Node host). Multi-instance serverless may miss
- * cross-instance fan-out; clients still hydrate via history + reconnect.
+ * Chat fan-out: in-process hub (same Node process) + Postgres ChatBusEvent
+ * so multi-instance / serverless hosts can still deliver via SSE bus polling.
  */
+
+import "server-only";
+import { prisma } from "@/lib/prisma";
 
 export type ChatStreamEvent =
   | {
@@ -61,7 +62,7 @@ export function subscribeChat(roomId: string, listener: Listener) {
   };
 }
 
-export function publishChat(roomId: string, event: ChatStreamEvent) {
+function fanLocal(roomId: string, event: ChatStreamEvent) {
   const set = rooms.get(roomId);
   if (!set) return;
   for (const listener of set) {
@@ -71,4 +72,42 @@ export function publishChat(roomId: string, event: ChatStreamEvent) {
       /* ignore broken listeners */
     }
   }
+}
+
+/** Publish to local hub + durable bus (best-effort). */
+export function publishChat(roomId: string, event: ChatStreamEvent) {
+  fanLocal(roomId, event);
+
+  // Persist message/read events for cross-instance delivery. Skip high-churn typing/presence.
+  if (event.type === "typing" || event.type === "presence") return;
+
+  void prisma.chatBusEvent
+    .create({
+      data: {
+        roomId,
+        payload: event as object,
+      },
+    })
+    .catch(() => {});
+}
+
+/** Poll durable bus for events strictly after `after` timestamp. */
+export async function fetchBusEventsSince(roomId: string, after: Date, limit = 50) {
+  const rows = await prisma.chatBusEvent.findMany({
+    where: { roomId, createdAt: { gt: after } },
+    orderBy: { createdAt: "asc" },
+    take: limit,
+  });
+
+  return rows.map((r) => ({
+    id: r.id,
+    createdAt: r.createdAt,
+    event: r.payload as ChatStreamEvent,
+  }));
+}
+
+/** Trim old bus rows (called opportunistically). */
+export async function pruneChatBus(olderThanMs = 1000 * 60 * 60 * 6) {
+  const cutoff = new Date(Date.now() - olderThanMs);
+  await prisma.chatBusEvent.deleteMany({ where: { createdAt: { lt: cutoff } } }).catch(() => {});
 }

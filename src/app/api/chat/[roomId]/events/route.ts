@@ -3,16 +3,22 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { assertRoomAccess } from "@/lib/chat-access";
 import { effectivePresence } from "@/lib/presence";
-import { publishChat, subscribeChat, type ChatStreamEvent } from "@/lib/chat-events";
+import {
+  publishChat,
+  subscribeChat,
+  fetchBusEventsSince,
+  pruneChatBus,
+  type ChatStreamEvent,
+} from "@/lib/chat-events";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 const HEARTBEAT_MS = 15_000;
 const SNAPSHOT_MS = 8_000;
+const BUS_POLL_MS = 1_200;
 
 async function roomSnapshot(roomId: string, userId: string) {
-  const onlineSince = new Date(Date.now() - 60_000);
   const members = await prisma.chatRoomMember.findMany({
     where: { roomId },
     include: {
@@ -78,17 +84,22 @@ export async function GET(
     return new Response(access.error, { status: access.status });
   }
 
-  // Opening the stream marks the room read
   await prisma.chatRoomMember.updateMany({
     where: { roomId, userId: user.id },
     data: { lastReadAt: new Date() },
   });
 
+  // Opportunistic cleanup
+  if (Math.random() < 0.05) void pruneChatBus();
+
   const encoder = new TextEncoder();
   let cleanup = () => {};
   let heartbeat: ReturnType<typeof setInterval> | null = null;
   let snapshot: ReturnType<typeof setInterval> | null = null;
+  let busPoll: ReturnType<typeof setInterval> | null = null;
   let closed = false;
+  let busCursor = new Date();
+  const seenBusIds = new Set<string>();
 
   const stream = new ReadableStream({
     start(controller) {
@@ -110,7 +121,6 @@ export async function GET(
               mine: event.message.sender.id === user.id,
             },
           });
-          // Viewer is in the room — keep read cursor fresh for inbound mail
           if (event.message.sender.id !== user.id) {
             prisma.chatRoomMember
               .updateMany({
@@ -144,11 +154,31 @@ export async function GET(
           .catch(() => {});
       }, SNAPSHOT_MS);
 
+      // Cross-instance delivery via durable bus
+      busPoll = setInterval(() => {
+        fetchBusEventsSince(roomId, busCursor)
+          .then((rows) => {
+            for (const row of rows) {
+              if (seenBusIds.has(row.id)) continue;
+              seenBusIds.add(row.id);
+              if (row.createdAt > busCursor) busCursor = row.createdAt;
+              onEvent(row.event);
+            }
+            if (seenBusIds.size > 200) {
+              const keep = [...seenBusIds].slice(-100);
+              seenBusIds.clear();
+              for (const id of keep) seenBusIds.add(id);
+            }
+          })
+          .catch(() => {});
+      }, BUS_POLL_MS);
+
       const abort = () => {
         if (closed) return;
         closed = true;
         if (heartbeat) clearInterval(heartbeat);
         if (snapshot) clearInterval(snapshot);
+        if (busPoll) clearInterval(busPoll);
         cleanup();
         try {
           controller.close();
@@ -163,11 +193,11 @@ export async function GET(
       closed = true;
       if (heartbeat) clearInterval(heartbeat);
       if (snapshot) clearInterval(snapshot);
+      if (busPoll) clearInterval(busPoll);
       cleanup();
     },
   });
 
-  // Touch publish so tree-shaking keeps the hub linked from this module graph
   void publishChat;
 
   return new Response(stream, {

@@ -13,18 +13,20 @@ datasource db {
 }
 
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  username     String   @unique
-  passwordHash String
-  name         String
-  role         String   @default("USER") // USER | ADMIN
-  avatarUrl    String?
-  bio          String?
-  location     String?
-  presence     String   @default("offline") // online | away | offline
-  lastSeen     DateTime @default(now())
-  createdAt    DateTime @default(now())
+  id                 String   @id @default(cuid())
+  email              String   @unique
+  username           String   @unique
+  passwordHash       String
+  name               String
+  role               String   @default("USER") // USER | ADMIN
+  avatarUrl          String?
+  bio                String?
+  location           String?
+  presence           String   @default("offline") // online | away | offline
+  lastSeen           DateTime @default(now())
+  /// Existing accounts default complete; new signups set false until /app/onboarding
+  onboardingComplete Boolean  @default(true)
+  createdAt          DateTime @default(now())
 
   profile Profile?
 
@@ -40,14 +42,16 @@ model User {
   messages        Message[]
   typing          TypingIndicator[]
 
-  restaurantReviews RestaurantReview[]
-  recipes           Recipe[]
-  recipeRatings     RecipeRating[]
-  savedRecipes      SavedRecipe[]
+  restaurantReviews    RestaurantReview[]
+  restaurantsSubmitted Restaurant[]       @relation("restaurantSubmitter")
+  recipes              Recipe[]
+  recipeRatings        RecipeRating[]
+  savedRecipes         SavedRecipe[]
 
   moodEntries    MoodEntry[]
   journalEntries JournalEntry[]
   healthLogs     HealthLog[]
+  notifications  Notification[]
 
   flagsRaised FlaggedContent[] @relation("reporter")
 }
@@ -58,6 +62,8 @@ model Profile {
   user         User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   diagnosis    String? // celiac | gluten-intolerance | supporter | unspecified
   dietaryNotes String?
+  /// Comma-separated goals: dining,support,parents,newly-diagnosed,recipes
+  goals        String?
   // MySpace-style blurbs
   mood         String?
   likeToMeet   String?
@@ -171,7 +177,7 @@ model TypingIndicator {
 }
 
 model Restaurant {
-  id                     String   @id @default(cuid())
+  id                     String    @id @default(cuid())
   name                   String
   description            String?
   address                String
@@ -180,33 +186,46 @@ model Restaurant {
   lng                    Float
   imageUrl               String?
   cuisine                String?
-  priceLevel             Int      @default(2)
-  dedicatedFryer         Boolean  @default(false)
-  separatePrepArea       Boolean  @default(false)
-  dedicatedKitchen       Boolean  @default(false)
-  certified              Boolean  @default(false)
-  glutenFreeMenu         Boolean  @default(false)
-  celiacSafe             Boolean  @default(false)
-  delivery               Boolean  @default(false)
-  staffTrainingLevel     String   @default("basic")
-  crossContaminationRisk Int      @default(50)
-  communityConfidence    Int      @default(50)
-  createdAt              DateTime @default(now())
+  priceLevel             Int       @default(2)
+  dedicatedFryer         Boolean   @default(false)
+  separatePrepArea       Boolean   @default(false)
+  dedicatedKitchen       Boolean   @default(false)
+  certified              Boolean   @default(false)
+  glutenFreeMenu         Boolean   @default(false)
+  celiacSafe             Boolean   @default(false)
+  delivery               Boolean   @default(false)
+  staffTrainingLevel     String    @default("basic")
+  crossContaminationRisk Int       @default(50)
+  communityConfidence    Int       @default(50)
+  /// published | pending
+  status                 String    @default("published")
+  lastReviewAt           DateTime?
+  submittedById          String?
+  submittedBy            User?     @relation("restaurantSubmitter", fields: [submittedById], references: [id], onDelete: SetNull)
+  createdAt              DateTime  @default(now())
 
   reviews RestaurantReview[]
 }
 
 model RestaurantReview {
-  id           String     @id @default(cuid())
-  restaurantId String
-  userId       String
-  rating       Int
-  safetyRating Int
-  content      String
-  imageUrl     String?
-  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
-  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt    DateTime   @default(now())
+  id                        String     @id @default(cuid())
+  restaurantId              String
+  userId                    String
+  rating                    Int
+  safetyRating              Int
+  content                   String
+  imageUrl                  String?
+  /// Structured celiac safety checklist (observed on this visit)
+  observedDedicatedKitchen  Boolean?
+  observedDedicatedFryer    Boolean?
+  observedSeparatePrep      Boolean?
+  observedLabeledMenu       Boolean?
+  observedStaffUnderstood   Boolean?
+  crossContactIncident      Boolean    @default(false)
+  evidenceUrl               String?
+  restaurant                Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  user                      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt                 DateTime   @default(now())
 }
 
 model Recipe {
@@ -308,4 +327,30 @@ model FlaggedContent {
   reporterId String
   reporter   User     @relation("reporter", fields: [reporterId], references: [id], onDelete: Cascade)
   createdAt  DateTime @default(now())
+}
+
+/// In-app notifications (DMs, companion nudges, system)
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String // message | companion | system | dining
+  title     String
+  body      String
+  href      String?
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, createdAt])
+  @@index([userId, readAt])
+}
+
+/// Durable chat fan-out for multi-instance hosts (SSE polls this + in-process hub)
+model ChatBusEvent {
+  id        String   @id @default(cuid())
+  roomId    String
+  payload   Json
+  createdAt DateTime @default(now())
+
+  @@index([roomId, createdAt])
 }

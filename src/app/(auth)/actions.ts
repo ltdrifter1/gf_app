@@ -59,6 +59,7 @@ export async function registerAction(_prev: unknown, formData: FormData) {
       username,
       passwordHash: await hashPassword(password),
       bio: "New to Safely",
+      onboardingComplete: false,
       profile: {
         create: {
           diagnosis: diagnosis || "unspecified",
@@ -80,7 +81,7 @@ export async function registerAction(_prev: unknown, formData: FormData) {
   });
 
   await createSession({ userId: user.id, email: user.email, role: user.role });
-  redirect("/app/chat/general-support");
+  redirect("/app/onboarding");
 }
 
 export async function loginAction(_prev: unknown, formData: FormData) {
