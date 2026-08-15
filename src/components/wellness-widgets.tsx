@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition, useEffectEvent } from "react";
+import { useMemo, useState, useTransition, useCallback } from "react";
 import { format } from "date-fns";
 import { Shuffle, Feather, Lock, Check } from "lucide-react";
 import { JOURNAL_PROMPTS, MOOD_OPTIONS } from "@/lib/constants";
@@ -101,7 +101,7 @@ export function JournalStudio({
     return t.split(/\s+/).length;
   }, [content]);
 
-  const shufflePrompt = useEffectEvent(() => {
+  const shufflePrompt = useCallback(() => {
     let next = prompt;
     if (JOURNAL_PROMPTS.length > 1) {
       while (next === prompt) {
@@ -109,7 +109,7 @@ export function JournalStudio({
       }
     }
     setPrompt(next);
-  });
+  }, [prompt]);
 
   function save() {
     const body = content.trim();
