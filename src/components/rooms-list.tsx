@@ -13,10 +13,33 @@ type Room = {
   lastMessage: { text: string; sender: string; at: string } | null;
 };
 
-export function RoomsList({ rooms, activeSlug }: { rooms: Room[]; activeSlug?: string }) {
+export function RoomsList({
+  rooms,
+  activeSlug,
+  query = "",
+}: {
+  rooms: Room[];
+  activeSlug?: string;
+  query?: string;
+}) {
+  const q = query.trim().toLowerCase();
+  const filtered = q
+    ? rooms.filter((r) =>
+        `${r.name} ${r.description ?? ""} ${r.lastMessage?.text ?? ""}`.toLowerCase().includes(q)
+      )
+    : rooms;
+
+  if (filtered.length === 0) {
+    return (
+      <p className="px-4 py-1 text-[11px] italic text-[#666] dark:text-sage-400">
+        No rooms match
+      </p>
+    );
+  }
+
   return (
     <div className="space-y-0.5">
-      {rooms.map((r) => {
+      {filtered.map((r) => {
         const active = activeSlug === r.slug;
         return (
           <Link

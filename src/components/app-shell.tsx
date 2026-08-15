@@ -16,7 +16,6 @@ import {
   HeartPulse,
   Bookmark,
   Shield,
-  ArrowLeft,
 } from "lucide-react";
 import { Logo } from "./logo";
 import { Avatar } from "./ui/avatar";
@@ -55,124 +54,30 @@ function navActive(pathname: string, href: string, exact?: boolean) {
   return pathname === href || pathname.startsWith(href + "/");
 }
 
+function UnreadBadge({ count }: { count: number }) {
+  if (count <= 0) return null;
+  return (
+    <span className="ml-auto inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-brand-600 px-1.5 text-[10px] font-bold text-white">
+      {count > 99 ? "99+" : count}
+    </span>
+  );
+}
+
 export function AppShell({
   user,
+  messengerUnread = 0,
   children,
 }: {
   user: NavUser;
+  messengerUnread?: number;
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const messengerMode = pathname.startsWith("/app/chat");
-  const inConversation = /^\/app\/chat\/[^/]+/.test(pathname);
 
   useEffect(() => {
     setOpen(false);
   }, [pathname]);
-
-  if (messengerMode) {
-    return (
-      <div className="flex min-h-svh flex-col">
-        <header className="sticky top-0 z-20 flex items-center gap-2 border-b border-[#7f9db9]/50 bg-[#ece9d8]/95 px-2 py-1.5 backdrop-blur-md dark:border-white/10 dark:bg-[#1a2433]/95">
-          {inConversation ? (
-            <Link href="/app/chat" className="btn-ghost gap-1 px-2 py-1.5 text-[12px] lg:hidden">
-              <ArrowLeft className="h-4 w-4" />
-              Contacts
-            </Link>
-          ) : (
-            <Link href="/app" className="btn-ghost gap-1 px-2 py-1.5 text-[12px]">
-              <ArrowLeft className="h-4 w-4" />
-              <span className="hidden sm:inline">Community</span>
-            </Link>
-          )}
-          <Link href="/app/chat" className="min-w-0 flex-1">
-            <Logo size={28} />
-          </Link>
-          <ThemeToggle />
-          <Link href="/app/profile" className="shrink-0" title="Your profile">
-            <Avatar name={user.name} src={user.avatarUrl} size={28} presence={user.presence} />
-          </Link>
-          <form action="/api/auth/logout" method="post">
-            <button className="btn-ghost p-2" title="Sign out" type="submit">
-              <LogOut className="h-4 w-4" />
-            </button>
-          </form>
-        </header>
-
-        <main
-          className={cn(
-            "flex min-h-0 flex-1 flex-col p-2 sm:p-3",
-            !inConversation && "pb-[calc(4.25rem+env(safe-area-inset-bottom))] lg:pb-3"
-          )}
-        >
-          {children}
-        </main>
-
-        {/* Contact-list home keeps a compact Messenger/Community escape on mobile */}
-        {!inConversation && (
-          <nav
-            className="fixed inset-x-0 bottom-0 z-40 flex items-end justify-around border-t border-white/50 bg-white/90 px-2 pb-[max(0.4rem,env(safe-area-inset-bottom))] pt-1.5 backdrop-blur-xl dark:border-white/10 dark:bg-[#0c1412]/95 lg:hidden"
-            aria-label="Primary"
-          >
-            {MOBILE_NAV.map((item) => {
-              const active = navActive(pathname, item.href, "exact" in item ? item.exact : false);
-              const Icon = item.icon;
-              const isHero = item.href === "/app/chat";
-
-              if (isHero) {
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className="relative -mt-5 flex flex-col items-center"
-                    aria-label="Messenger"
-                    aria-current={active ? "page" : undefined}
-                  >
-                    <span
-                      className={cn(
-                        "flex h-14 w-14 items-center justify-center rounded-full bg-safely-gradient text-white transition",
-                        active && "scale-105 ring-4 ring-brand-200/60 dark:ring-brand-500/30"
-                      )}
-                      style={{
-                        boxShadow:
-                          "inset 0 1px 0 0 rgba(255,255,255,0.4), 0 8px 24px -8px rgba(51, 123, 255, 0.55)",
-                      }}
-                    >
-                      <Icon className="h-6 w-6" />
-                    </span>
-                    <span
-                      className={cn(
-                        "mt-1 text-[10px] font-semibold",
-                        active ? "text-brand-600 dark:text-brand-300" : "text-sage-500"
-                      )}
-                    >
-                      Messenger
-                    </span>
-                  </Link>
-                );
-              }
-
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  aria-current={active ? "page" : undefined}
-                  className={cn(
-                    "flex min-w-[4.5rem] flex-col items-center gap-0.5 px-2 py-1",
-                    active ? "text-brand-600 dark:text-brand-300" : "text-sage-500"
-                  )}
-                >
-                  <Icon className={cn("h-5 w-5", active && "stroke-[2.25]")} />
-                  <span className="text-[10px] font-medium">{item.label}</span>
-                </Link>
-              );
-            })}
-          </nav>
-        )}
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen lg:flex">
@@ -196,6 +101,7 @@ export function AppShell({
             {SIDEBAR_NAV.map((item) => {
               const Icon = item.icon;
               const active = navActive(pathname, item.href, "exact" in item ? item.exact : false);
+              const showUnread = item.href === "/app/chat" && messengerUnread > 0;
               return (
                 <Link
                   key={item.href}
@@ -205,6 +111,7 @@ export function AppShell({
                 >
                   <Icon className="h-[18px] w-[18px]" />
                   {item.label}
+                  {showUnread && <UnreadBadge count={messengerUnread} />}
                 </Link>
               );
             })}
@@ -295,6 +202,7 @@ export function AppShell({
           const active = navActive(pathname, item.href, "exact" in item ? item.exact : false);
           const Icon = item.icon;
           const isHero = item.href === "/app/chat";
+          const showUnread = isHero && messengerUnread > 0;
 
           if (isHero) {
             return (
@@ -307,7 +215,7 @@ export function AppShell({
               >
                 <span
                   className={cn(
-                    "flex h-14 w-14 items-center justify-center rounded-full bg-safely-gradient text-white transition",
+                    "relative flex h-14 w-14 items-center justify-center rounded-full bg-safely-gradient text-white transition",
                     active && "scale-105 ring-4 ring-brand-200/60 dark:ring-brand-500/30"
                   )}
                   style={{
@@ -316,6 +224,11 @@ export function AppShell({
                   }}
                 >
                   <Icon className="h-6 w-6" />
+                  {showUnread && (
+                    <span className="absolute -right-0.5 -top-0.5 inline-flex min-w-[1.15rem] items-center justify-center rounded-full bg-rose-500 px-1 text-[9px] font-bold text-white ring-2 ring-white dark:ring-[#0c1412]">
+                      {messengerUnread > 99 ? "99+" : messengerUnread}
+                    </span>
+                  )}
                 </span>
                 <span
                   className={cn(

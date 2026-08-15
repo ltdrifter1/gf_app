@@ -77,6 +77,8 @@ export type ContactListEntry = {
   dmSlug: string | null;
   unreadCount: number;
   lastMessage: { text: string; sender: string; at: string } | null;
+  /** People you follow — shown under Favorites */
+  isFavorite: boolean;
 };
 
 /** Classic MSN contact list: Online + Offline (DM peers & follows) — one row per person. */
@@ -161,6 +163,7 @@ export async function getContactList(userId: string) {
     profile: { mood: string | null } | null;
   };
 
+  const favoriteIds = new Set(follows.map((f) => f.following.id));
   const byId = new Map<string, Raw>();
   for (const u of onlineUsers) byId.set(u.id, u);
   for (const f of follows) byId.set(f.following.id, f.following);
@@ -217,6 +220,7 @@ export async function getContactList(userId: string) {
       dmSlug: dm?.dmSlug ?? null,
       unreadCount: dm?.unreadCount ?? 0,
       lastMessage: dm?.lastMessage ?? null,
+      isFavorite: favoriteIds.has(u.id),
     };
     if (presence === "online" || presence === "away") online.push(row);
     else offline.push(row);
@@ -231,6 +235,27 @@ export async function getContactList(userId: string) {
   offline.sort(rank);
 
   return { online, offline, onlineCount: online.filter((c) => c.presence === "online").length + 1 };
+}
+
+/** Unread DMs + community rooms for nav badge. */
+export async function getMessengerUnreadTotal(userId: string) {
+  const memberships = await prisma.chatRoomMember.findMany({
+    where: { userId },
+    select: { roomId: true, lastReadAt: true },
+  });
+  if (memberships.length === 0) return 0;
+  const counts = await Promise.all(
+    memberships.map((m) =>
+      prisma.message.count({
+        where: {
+          roomId: m.roomId,
+          senderId: { not: userId },
+          createdAt: { gt: m.lastReadAt },
+        },
+      })
+    )
+  );
+  return counts.reduce((a, b) => a + b, 0);
 }
 
 export async function getDirectMessageRooms(userId: string) {

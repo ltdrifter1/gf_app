@@ -1,4 +1,6 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
 import { getRoomsWithStats, ROOM_EMOJI } from "@/lib/chat";
@@ -61,8 +63,16 @@ export default async function ChatRoomPage({
     getContactList(user.id),
   ]);
 
+  const me = {
+    name: user.name,
+    username: user.username,
+    avatarUrl: user.avatarUrl,
+    presence: effectivePresence(user.presence, user.lastSeen),
+    statusMessage: user.profile?.mood?.trim() || null,
+  };
+
   return (
-    <div className="mx-auto grid h-full min-h-0 w-full max-w-6xl flex-1 gap-3 lg:grid-cols-[320px_1fr]">
+    <div className="mx-auto grid h-full min-h-0 w-full max-w-6xl gap-3 lg:grid-cols-[320px_1fr]">
       <div className="hidden min-h-0 lg:block">
         <ContactListPane
           onlineCount={contacts.onlineCount}
@@ -70,16 +80,13 @@ export default async function ChatRoomPage({
           offline={contacts.offline}
           rooms={rooms}
           activeSlug={slug}
-          me={{
-            name: user.name,
-            username: user.username,
-            avatarUrl: user.avatarUrl,
-            presence: effectivePresence(user.presence, user.lastSeen),
-            statusMessage: user.profile?.mood?.trim() || null,
-          }}
+          me={me}
         />
       </div>
       <div className="min-h-0 min-w-0">
+        <Link href="/app/chat" className="btn-ghost mb-2 w-fit lg:hidden">
+          <ArrowLeft className="h-4 w-4" /> Contact List
+        </Link>
         <ChatWindow
           roomId={room.id}
           roomName={displayName}

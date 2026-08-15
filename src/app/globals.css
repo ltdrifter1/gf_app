@@ -71,14 +71,21 @@
     border-radius: 3px 3px 2px 2px;
   }
   .msn-window-fill {
-    height: calc(100svh - 3.5rem);
+    /* Shared AppShell: sticky search header + padding + mobile bottom dock */
+    height: calc(100svh - 9.5rem);
+  }
+  @media (min-width: 1024px) {
+    .msn-window-fill {
+      height: calc(100svh - 6.25rem);
+    }
   }
   .msn-window-fill-with-dock {
-    height: calc(100svh - 7.5rem);
+    /* legacy alias — same as fill now that Messenger uses shared shell */
+    height: calc(100svh - 9.5rem);
   }
   @media (min-width: 1024px) {
     .msn-window-fill-with-dock {
-      height: calc(100svh - 3.5rem);
+      height: calc(100svh - 6.25rem);
     }
   }
   .dark .msn-window {

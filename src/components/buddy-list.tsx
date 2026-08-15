@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { MsnPresenceIcon } from "./msn-presence-icon";
@@ -18,6 +18,7 @@ export type MsnContact = {
   dmSlug?: string | null;
   unreadCount?: number;
   lastMessage?: { text: string; sender: string; at: string } | null;
+  isFavorite?: boolean;
 };
 
 function isRedirectError(err: unknown) {
@@ -44,6 +45,7 @@ function Group({
   onMessage: (c: MsnContact) => void;
 }) {
   const [open, setOpen] = useState(defaultOpen);
+  if (contacts.length === 0 && title !== "Online" && title !== "Offline") return null;
 
   return (
     <div className="mb-0.5">
@@ -76,6 +78,7 @@ function Group({
                 <MsnPresenceIcon status={status} size={16} className="mt-0.5" />
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-semibold">
+                    {c.isFavorite ? "★ " : ""}
                     {c.name}{" "}
                     <span className="font-normal opacity-80">({presenceLabel(status)})</span>
                     {unread > 0 ? (
@@ -99,19 +102,47 @@ function Group({
   );
 }
 
+function matchesQuery(c: MsnContact, q: string) {
+  if (!q) return true;
+  const hay = `${c.name} ${c.username} ${c.statusMessage ?? ""}`.toLowerCase();
+  return hay.includes(q);
+}
+
 export function BuddyList({
   online,
   offline,
   activeSlug,
+  query = "",
   className,
 }: {
   online: MsnContact[];
   offline: MsnContact[];
   activeSlug?: string;
+  query?: string;
   className?: string;
 }) {
   const router = useRouter();
   const [pending, start] = useTransition();
+  const q = query.trim().toLowerCase();
+
+  const { favorites, recent, onlineRest, offlineRest } = useMemo(() => {
+    const all = [...online, ...offline].filter((c) => matchesQuery(c, q));
+    const favorites = all
+      .filter((c) => c.isFavorite)
+      .sort((a, b) => a.name.localeCompare(b.name));
+    const favoriteIds = new Set(favorites.map((c) => c.id));
+    const recent = all
+      .filter((c) => c.lastMessage && !favoriteIds.has(c.id))
+      .sort((a, b) => (b.lastMessage?.at ?? "").localeCompare(a.lastMessage?.at ?? ""))
+      .slice(0, 12);
+    const recentIds = new Set(recent.map((c) => c.id));
+    const claimed = new Set([...favoriteIds, ...recentIds]);
+    const onlineRest = all.filter(
+      (c) => !claimed.has(c.id) && (c.presence === "online" || c.presence === "away")
+    );
+    const offlineRest = all.filter((c) => !claimed.has(c.id) && c.presence === "offline");
+    return { favorites, recent, onlineRest, offlineRest };
+  }, [online, offline, q]);
 
   function message(c: MsnContact) {
     if (pending) return;
@@ -130,11 +161,31 @@ export function BuddyList({
 
   return (
     <div className={cn("select-none", className)}>
-      <Group title="Online" contacts={online} defaultOpen activeSlug={activeSlug} onMessage={message} />
+      <Group
+        title="Favorites"
+        contacts={favorites}
+        defaultOpen
+        activeSlug={activeSlug}
+        onMessage={message}
+      />
+      <Group
+        title="Recent"
+        contacts={recent}
+        defaultOpen
+        activeSlug={activeSlug}
+        onMessage={message}
+      />
+      <Group
+        title="Online"
+        contacts={onlineRest}
+        defaultOpen
+        activeSlug={activeSlug}
+        onMessage={message}
+      />
       <Group
         title="Offline"
-        contacts={offline}
-        defaultOpen={offline.length > 0 && offline.length <= 12}
+        contacts={offlineRest}
+        defaultOpen={offlineRest.length > 0 && offlineRest.length <= 12}
         activeSlug={activeSlug}
         onMessage={message}
       />

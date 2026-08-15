@@ -3,12 +3,14 @@ import { getCurrentUser } from "@/lib/auth";
 import { AppShell } from "@/components/app-shell";
 import { PresenceHeartbeat } from "@/components/presence-heartbeat";
 import { ensureLaunchCatalog } from "@/lib/bootstrap";
+import { getMessengerUnreadTotal } from "@/lib/actions/chat";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
 
   await ensureLaunchCatalog();
+  const messengerUnread = await getMessengerUnreadTotal(user.id);
 
   return (
     <AppShell
@@ -20,6 +22,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         role: user.role,
         presence: user.presence,
       }}
+      messengerUnread={messengerUnread}
     >
       <PresenceHeartbeat />
       {children}

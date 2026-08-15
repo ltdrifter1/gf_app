@@ -1,5 +1,7 @@
 /** Lightweight MSN-style UI sounds via Web Audio (no asset files). */
 
+import { msnSoundsEnabled } from "./msn-prefs";
+
 let ctx: AudioContext | null = null;
 
 function getCtx() {
@@ -20,6 +22,7 @@ function tone(
   type: OscillatorType = "sine",
   gain = 0.12
 ) {
+  if (!msnSoundsEnabled()) return;
   const audio = getCtx();
   if (!audio) return;
   const osc = audio.createOscillator();

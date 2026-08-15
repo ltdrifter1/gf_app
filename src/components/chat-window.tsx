@@ -7,6 +7,7 @@ import { timeAgo, cn } from "@/lib/utils";
 import { presenceLabel } from "@/lib/presence";
 import { isNudgeMessage, nudgeSystemLine } from "@/lib/msn";
 import { playMessageSound, playNudgeSound } from "@/lib/msn-sounds";
+import { notifyMsnMessage } from "@/lib/msn-prefs";
 
 type Msg = {
   id: string;
@@ -87,8 +88,10 @@ export function ChatWindow({
             if (m.isNudge) {
               playNudgeSound();
               triggerShake();
+              notifyMsnMessage(roomName, `${m.sender.name} sent a nudge!`);
             } else {
               playMessageSound();
+              notifyMsnMessage(roomName, `${m.sender.name}: ${m.content.slice(0, 120)}`);
             }
           }
         }
@@ -125,7 +128,7 @@ export function ChatWindow({
         return next;
       });
     },
-    [scrollToBottom, triggerShake]
+    [scrollToBottom, triggerShake, roomName]
   );
 
   const loadInitial = useCallback(async () => {
@@ -417,13 +420,18 @@ export function ChatWindow({
       </div>
 
       <div className="msn-menubar">
-        <button type="button">File</button>
-        <button type="button">Edit</button>
         <button type="button" onClick={sendNudge} disabled={nudging}>
-          Actions
+          Nudge
         </button>
-        <button type="button">Tools</button>
-        <button type="button">Help</button>
+        <button
+          type="button"
+          onClick={() => {
+            const el = document.querySelector<HTMLInputElement>(".msn-composer .msn-input");
+            el?.focus();
+          }}
+        >
+          Message
+        </button>
       </div>
 
       <div className="flex items-center gap-3 border-b border-[#a0a0a0] bg-[#f5f4ec] px-3 py-2 dark:border-white/15 dark:bg-[#1e2a3c]">
