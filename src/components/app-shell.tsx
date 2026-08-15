@@ -20,6 +20,7 @@ import {
 import { Logo } from "./logo";
 import { Avatar } from "./ui/avatar";
 import { ThemeToggle } from "./theme-toggle";
+import { NotificationBell } from "./notification-bell";
 import { cn } from "@/lib/utils";
 
 type NavUser = {
@@ -66,10 +67,12 @@ function UnreadBadge({ count }: { count: number }) {
 export function AppShell({
   user,
   messengerUnread = 0,
+  notificationUnread = 0,
   children,
 }: {
   user: NavUser;
   messengerUnread?: number;
+  notificationUnread?: number;
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
@@ -174,6 +177,7 @@ export function AppShell({
             <Link href="/app/search" className="btn-ghost p-2 sm:hidden" title="Search">
               <Search className="h-5 w-5" />
             </Link>
+            <NotificationBell initialUnread={notificationUnread} />
             <ThemeToggle />
             <form action="/api/auth/logout" method="post">
               <button className="btn-ghost p-2" title="Sign out" type="submit">

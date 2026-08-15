@@ -154,6 +154,106 @@ export const LAUNCH_RESTAURANTS = [
     img: "rest-cafe",
     desc: "Limited GF; cross-contamination risk is real here.",
   },
+  {
+    name: "Verdant Bowl Co.",
+    city: "Austin",
+    address: "2110 S Lamar Blvd",
+    lat: 30.2495,
+    lng: -97.769,
+    cuisine: "Bowls",
+    priceLevel: 2,
+    dedicatedFryer: true,
+    separatePrepArea: true,
+    dedicatedKitchen: false,
+    certified: false,
+    glutenFreeMenu: true,
+    celiacSafe: true,
+    delivery: true,
+    staffTrainingLevel: "trained",
+    communityConfidence: 84,
+    img: "rest-verdant",
+    desc: "Clearly marked allergens and a dedicated fryer for GF crunch.",
+  },
+  {
+    name: "Nonna's Sister",
+    city: "Brooklyn",
+    address: "190 Smith St",
+    lat: 40.684,
+    lng: -73.992,
+    cuisine: "Italian",
+    priceLevel: 2,
+    dedicatedFryer: true,
+    separatePrepArea: true,
+    dedicatedKitchen: true,
+    certified: true,
+    glutenFreeMenu: true,
+    celiacSafe: true,
+    delivery: false,
+    staffTrainingLevel: "expert",
+    communityConfidence: 93,
+    img: "rest-nonna2",
+    desc: "Sister kitchen to Nonna's — 100% GF pasta and pizza.",
+  },
+  {
+    name: "Cascade Bakery",
+    city: "Portland",
+    address: "4128 SE Hawthorne Blvd",
+    lat: 45.512,
+    lng: -122.62,
+    cuisine: "Bakery",
+    priceLevel: 2,
+    dedicatedFryer: false,
+    separatePrepArea: true,
+    dedicatedKitchen: true,
+    certified: true,
+    glutenFreeMenu: true,
+    celiacSafe: true,
+    delivery: true,
+    staffTrainingLevel: "expert",
+    communityConfidence: 90,
+    img: "rest-cascade",
+    desc: "Dedicated GF bakery — croissants that don't crumble under pressure.",
+  },
+  {
+    name: "Mission Tortilla Lab",
+    city: "San Francisco",
+    address: "2889 Mission St",
+    lat: 37.752,
+    lng: -122.418,
+    cuisine: "Mexican",
+    priceLevel: 1,
+    dedicatedFryer: false,
+    separatePrepArea: true,
+    dedicatedKitchen: false,
+    certified: false,
+    glutenFreeMenu: true,
+    celiacSafe: true,
+    delivery: true,
+    staffTrainingLevel: "trained",
+    communityConfidence: 76,
+    img: "rest-mission",
+    desc: "Corn tortillas made in-house; staff will change gloves on request.",
+  },
+  {
+    name: "Lakefront Grill",
+    city: "Chicago",
+    address: "201 E Grand Ave",
+    lat: 41.892,
+    lng: -87.622,
+    cuisine: "American",
+    priceLevel: 3,
+    dedicatedFryer: true,
+    separatePrepArea: true,
+    dedicatedKitchen: false,
+    certified: false,
+    glutenFreeMenu: true,
+    celiacSafe: true,
+    delivery: false,
+    staffTrainingLevel: "trained",
+    communityConfidence: 79,
+    img: "rest-lake",
+    desc: "Downtown grill with a serious allergen protocol and GF bun option.",
+  },
 ] as const;
 
 export const LAUNCH_RECIPES = [
@@ -563,8 +663,41 @@ export async function ensureHealthResources(prisma: PrismaClient) {
 }
 
 export async function ensureRestaurants(prisma: PrismaClient) {
-  if ((await prisma.restaurant.count()) > 0) return;
   for (const r of LAUNCH_RESTAURANTS) {
+    const existing = await prisma.restaurant.findFirst({
+      where: { name: r.name, city: r.city },
+    });
+    if (existing) {
+      await prisma.restaurant.update({
+        where: { id: existing.id },
+        data: {
+          address: r.address,
+          lat: r.lat,
+          lng: r.lng,
+          cuisine: r.cuisine,
+          priceLevel: r.priceLevel,
+          dedicatedFryer: r.dedicatedFryer,
+          separatePrepArea: r.separatePrepArea,
+          dedicatedKitchen: r.dedicatedKitchen,
+          certified: r.certified,
+          glutenFreeMenu: r.glutenFreeMenu,
+          celiacSafe: r.celiacSafe,
+          delivery: r.delivery,
+          staffTrainingLevel: r.staffTrainingLevel,
+          // Don't overwrite live community scores if reviews exist
+          ...(existing.lastReviewAt
+            ? {}
+            : {
+                communityConfidence: r.communityConfidence,
+                crossContaminationRisk: 100 - r.communityConfidence,
+              }),
+          imageUrl: existing.imageUrl || img(r.img),
+          description: r.desc,
+          status: "published",
+        },
+      });
+      continue;
+    }
     await prisma.restaurant.create({
       data: {
         name: r.name,
@@ -586,6 +719,7 @@ export async function ensureRestaurants(prisma: PrismaClient) {
         crossContaminationRisk: 100 - r.communityConfidence,
         imageUrl: img(r.img),
         description: r.desc,
+        status: "published",
       },
     });
   }

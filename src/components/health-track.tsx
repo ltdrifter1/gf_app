@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { format } from "date-fns";
-import { Lock, Trash2 } from "lucide-react";
+import { HeartPulse, Lock, MessageCircle, Trash2 } from "lucide-react";
 import { HEALTH_LOG_KINDS, MOOD_OPTIONS, SEVERITY_LABELS } from "@/lib/constants";
 import { addHealthLog, deleteHealthLog } from "@/lib/actions/wellness";
 import { MoodCheckIn, MoodTrend, type MoodEntryView } from "@/components/wellness-widgets";
@@ -29,6 +30,11 @@ export function HealthTrackPanel({
   const [severity, setSeverity] = useState(3);
   const [note, setNote] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [companion, setCompanion] = useState<{
+    href: string;
+    tipHref: string;
+    message: string;
+  } | null>(null);
   const [pending, startTransition] = useTransition();
 
   function saveLog() {
@@ -46,6 +52,7 @@ export function HealthTrackPanel({
       if (result?.entry) {
         setLogs((prev) => [result.entry!, ...prev]);
       }
+      setCompanion(result?.companion ?? null);
       setNote("");
     });
   }
@@ -158,6 +165,20 @@ export function HealthTrackPanel({
           <p className="text-sm text-rose-600" role="alert">
             {error}
           </p>
+        )}
+
+        {companion && (
+          <div className="rounded-2xl border border-brand-200/70 bg-brand-50/80 p-4 dark:border-brand-500/30 dark:bg-brand-500/10">
+            <p className="text-sm font-medium text-sage-800 dark:text-sage-100">{companion.message}</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Link href={companion.tipHref} className="btn-secondary text-sm">
+                <HeartPulse className="h-4 w-4" /> Recovery tips
+              </Link>
+              <Link href={companion.href} className="btn-primary text-sm">
+                <MessageCircle className="h-4 w-4" /> Talk it out
+              </Link>
+            </div>
+          </div>
         )}
 
         <div className="border-t border-sage-200/60 pt-4 dark:border-white/10">
