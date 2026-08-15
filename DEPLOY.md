@@ -1,56 +1,89 @@
-# Deploy Safely (ship today)
+# Deploy Safely to safelyceliac.com
 
-Safely runs on **Next.js 15** + **PostgreSQL**.
+Safely runs on **Next.js 15** + **PostgreSQL**, hosted on **Vercel**, with DNS at **Namecheap**.
 
 ## 1. Create a Postgres database
 
-Use [Neon](https://neon.tech), [Supabase](https://supabase.com), [Railway](https://railway.app), or Vercel Postgres. Copy the connection string.
+Use [Neon](https://neon.tech) (recommended), Supabase, Railway, or Vercel Postgres.
 
-## 2. Deploy to Vercel
+1. Create a project / database
+2. Copy the connection string (include `?sslmode=require`)
 
-1. Push / merge to `main`
-2. Import the repo in [Vercel](https://vercel.com)
-3. Set environment variables:
+## 2. Deploy the GitHub repo to Vercel
+
+1. Open [vercel.com/new](https://vercel.com/new) and import `ltdrifter1/gf_app`
+2. Framework: Next.js (auto). Build command is set in `vercel.json` → `npm run ship:build`
+3. Add environment variables (Production + Preview):
 
 | Name | Value |
 |------|--------|
-| `DATABASE_URL` | Your Postgres URL (`?sslmode=require` for hosted) |
-| `AUTH_SECRET` | `openssl rand -base64 48` output (**required**) |
+| `DATABASE_URL` | Your Postgres URL (`?sslmode=require`) |
+| `AUTH_SECRET` | Strong secret — `openssl rand -base64 48` |
+| `NEXT_PUBLIC_APP_URL` | `https://safelyceliac.com` |
 
-4. Build is locked via `vercel.json` → `npm run ship:build`  
-   (`prisma generate && prisma db push && next build`)
+4. Deploy. Confirm the `*.vercel.app` URL loads.
 
-5. Optional one-shot catalog bootstrap (also runs automatically on first page load / signup):
+### Build failed: `Environment variable not found: DATABASE_URL` (P1012)
+
+Vercel ran `prisma db push` without `DATABASE_URL`. Fix:
+
+1. **Settings → Environment Variables**
+2. Add `DATABASE_URL` = Neon URL (`?sslmode=require`) for **Production** and **Preview**
+3. Add `AUTH_SECRET` and `NEXT_PUBLIC_APP_URL=https://safelyceliac.com`
+4. **Deployments → … → Redeploy** (env vars are not applied to an already-failed build until redeploy)
+
+5. Optional catalog bootstrap (also auto-runs on first request):
 
 ```bash
 DATABASE_URL="…" npx tsx prisma/seed-prod.ts
 ```
 
-**Do not run `prisma/seed.ts` on a public production site** — that creates demo logins (`maya@safely.app` / `password123`). Use `seed-prod.ts` only.
+**Do not run `prisma/seed.ts` in production** — that creates demo logins.
 
-## 3. Local development
+## 3. Attach safelyceliac.com in Vercel
 
-Postgres is required locally too:
+1. Vercel project → **Settings → Domains**
+2. Add `safelyceliac.com` and `www.safelyceliac.com`
+3. Prefer redirect: `www` → apex (or the reverse — pick one canonical)
+
+Vercel will show the exact DNS targets. Typical Namecheap records:
+
+| Type | Host | Value | TTL |
+|------|------|--------|-----|
+| **A** | `@` | `76.76.21.21` | Automatic |
+| **CNAME** | `www` | `cname.vercel-dns.com.` | Automatic |
+
+## 4. Namecheap DNS
+
+1. Namecheap → **Domain List** → `safelyceliac.com` → **Manage**
+2. **Advanced DNS**
+3. Remove the Namecheap **Parking Page** / URL Redirect records (the ones pointing at `parkingpage.namecheap.com` / `192.64.119.254`)
+4. Add the A + CNAME rows from the table above (or whatever Vercel shows)
+5. Save. Propagation is often minutes; can take up to ~30–60 minutes
+
+Leave **Nameservers** on Namecheap BasicDNS (`dns1/dns2.registrar-servers.com`) unless you intentionally switch to Vercel nameservers.
+
+## 5. Go-live checklist
+
+- [ ] `DATABASE_URL` points at hosted Postgres
+- [ ] Strong unique `AUTH_SECRET` (not the example string)
+- [ ] `NEXT_PUBLIC_APP_URL=https://safelyceliac.com`
+- [ ] Vercel build uses `ship:build`
+- [ ] Catalog present (`ensureLaunchCatalog` or `db:seed:prod`)
+- [ ] No demo credentials on the login page
+- [ ] HTTPS works on https://safelyceliac.com
+- [ ] First admin: register, then set `role = "ADMIN"` in the DB
+- [ ] Smoke test: register → Messenger → post → restaurants → recipes → health
+
+## Local development
 
 ```bash
-# example after creating role/db `safely`
 cp .env.example .env
 # DATABASE_URL=postgresql://safely:safely@localhost:5432/safely
 npx prisma db push
 npx prisma db seed          # local demo users only
 npm run dev
 ```
-
-## 4. Go-live checklist
-
-- [ ] `DATABASE_URL` points at Postgres
-- [ ] Strong unique `AUTH_SECRET` (not the example string)
-- [ ] Vercel build uses `ship:build` (default via `vercel.json`)
-- [ ] Catalog present (auto via `ensureLaunchCatalog`, or `npm run db:seed:prod`)
-- [ ] No demo credentials on the login page
-- [ ] HTTPS via Vercel
-- [ ] First admin: register, then set `role = "ADMIN"` in the DB for your user
-- [ ] Smoke test: register → Messenger room → post → restaurant map → recipe → health
 
 ## Security notes
 

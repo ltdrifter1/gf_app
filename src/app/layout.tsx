@@ -16,9 +16,23 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL ?? "https://safelyceliac.com"
+  ),
   title: "Safely — Your gluten-free companion",
   description:
     "Safely — Your gluten-free companion. Find your people. Messenger, community pages, safe dining, and recipes for celiac and gluten intolerance.",
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: "Safely — Your gluten-free companion",
+    description:
+      "Messenger, community, safe dining, and recipes for celiac and gluten intolerance. Find your people.",
+    url: "https://safelyceliac.com",
+    siteName: "Safely",
+    type: "website",
+  },
 };
 
 const themeScript = `
