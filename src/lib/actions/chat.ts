@@ -66,7 +66,20 @@ export async function getOnlineBuddies(excludeUserId?: string) {
   });
 }
 
-/** Classic MSN contact list: Online + Offline (DM peers & follows). */
+export type ContactListEntry = {
+  id: string;
+  name: string;
+  username: string;
+  avatarUrl: string | null;
+  presence: "online" | "away" | "offline";
+  statusMessage: string | null;
+  /** Existing DM room slug, if any */
+  dmSlug: string | null;
+  unreadCount: number;
+  lastMessage: { text: string; sender: string; at: string } | null;
+};
+
+/** Classic MSN contact list: Online + Offline (DM peers & follows) — one row per person. */
 export async function getContactList(userId: string) {
   const since = new Date(Date.now() - 60_000);
 
@@ -127,6 +140,11 @@ export async function getContactList(userId: string) {
                 },
               },
             },
+            messages: {
+              orderBy: { createdAt: "desc" },
+              take: 1,
+              include: { sender: { select: { name: true } } },
+            },
           },
         },
       },
@@ -151,32 +169,66 @@ export async function getContactList(userId: string) {
     if (peer) byId.set(peer.id, peer);
   }
 
-  const online: {
-    id: string;
-    name: string;
-    username: string;
-    avatarUrl: string | null;
-    presence: "online" | "away" | "offline";
-    statusMessage: string | null;
-  }[] = [];
-  const offline: typeof online = [];
+  type DmMeta = {
+    dmSlug: string;
+    unreadCount: number;
+    lastMessage: { text: string; sender: string; at: string } | null;
+  };
+  const dmByPeer = new Map<string, DmMeta>();
+  await Promise.all(
+    dmMemberships.map(async (m) => {
+      const peer = m.room.members[0]?.user;
+      if (!peer) return;
+      const last = m.room.messages[0];
+      const unreadCount = await prisma.message.count({
+        where: {
+          roomId: m.room.id,
+          senderId: { not: userId },
+          createdAt: { gt: m.lastReadAt },
+        },
+      });
+      dmByPeer.set(peer.id, {
+        dmSlug: m.room.slug,
+        unreadCount,
+        lastMessage: last
+          ? {
+              text: isNudgeMessage(last.content) ? "sent a nudge!" : last.content,
+              sender: last.sender.name,
+              at: last.createdAt.toISOString(),
+            }
+          : null,
+      });
+    })
+  );
+
+  const online: ContactListEntry[] = [];
+  const offline: ContactListEntry[] = [];
 
   for (const u of byId.values()) {
     const presence = effectivePresence(u.presence, u.lastSeen);
-    const row = {
+    const dm = dmByPeer.get(u.id);
+    const row: ContactListEntry = {
       id: u.id,
       name: u.name,
       username: u.username,
       avatarUrl: u.avatarUrl,
       presence,
       statusMessage: u.profile?.mood?.trim() || null,
+      dmSlug: dm?.dmSlug ?? null,
+      unreadCount: dm?.unreadCount ?? 0,
+      lastMessage: dm?.lastMessage ?? null,
     };
     if (presence === "online" || presence === "away") online.push(row);
     else offline.push(row);
   }
 
-  online.sort((a, b) => a.name.localeCompare(b.name));
-  offline.sort((a, b) => a.name.localeCompare(b.name));
+  // Unread first, then name — still one row per person
+  const rank = (a: ContactListEntry, b: ContactListEntry) => {
+    if ((b.unreadCount > 0) !== (a.unreadCount > 0)) return b.unreadCount > 0 ? 1 : -1;
+    return a.name.localeCompare(b.name);
+  };
+  online.sort(rank);
+  offline.sort(rank);
 
   return { online, offline, onlineCount: online.filter((c) => c.presence === "online").length + 1 };
 }
