@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useFormStatus } from "react-dom";
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -31,36 +32,24 @@ export function AuthShell({
         <ThemeToggle />
       </div>
 
-      <div className="relative hidden flex-col justify-between overflow-hidden p-12 lg:flex">
-        <div className="absolute inset-0 bg-safely-gradient" />
-        <div className="absolute -left-20 top-20 h-72 w-72 animate-float rounded-full bg-white/10 blur-3xl" />
-        <div className="absolute bottom-10 right-10 h-80 w-80 rounded-full bg-white/10 blur-3xl" />
-        <Link href="/" className="relative z-10 brightness-0 invert">
-          <Logo />
+      <div className="relative hidden flex-col justify-between overflow-hidden bg-[#0b0f0e] p-12 lg:flex">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_30%_20%,rgba(13,148,136,0.25),transparent_55%)]" />
+        <Link href="/" className="relative z-10">
+          <Logo className="[&_span]:text-white" />
         </Link>
-        <div className="relative z-10 max-w-md">
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-white/70">
-            Your gluten-free companion
-          </p>
-          <h1 className="mt-3 font-display text-5xl font-bold leading-tight text-white">
-            Safely
-          </h1>
-          <p className="mt-3 font-display text-2xl font-semibold text-white/95">
-            Find your people.
-          </p>
-          <p className="mt-4 text-lg text-white/80">
-            Messenger, community pages, safe dining, and recipes — a companion
-            for gluten-free life.
-          </p>
-          <div className="mt-8 flex items-center gap-6 text-white/90">
-            <Stat n="Feed" l="Share & connect" />
-            <Stat n="Chat" l="Live presence" />
-            <Stat n="Safe" l="Dining & recipes" />
-          </div>
+        <div className="relative z-10 mx-auto max-w-sm text-center">
+          <Image
+            src="/logo.webp"
+            alt="Safely"
+            width={120}
+            height={120}
+            className="mx-auto rounded-[28%] shadow-glow"
+            priority
+          />
+          <h1 className="mt-8 font-display text-5xl font-bold text-white">Safely</h1>
+          <p className="mt-3 font-display text-xl text-white/75">Find your people.</p>
         </div>
-        <p className="relative z-10 text-sm text-white/60">
-          Community · Messenger · Health
-        </p>
+        <p className="relative z-10 text-sm text-white/40">safelyceliac.com</p>
       </div>
 
       <div className="flex min-h-screen items-center justify-center p-6">
@@ -77,15 +66,6 @@ export function AuthShell({
           </div>
         </div>
       </div>
-    </div>
-  );
-}
-
-function Stat({ n, l }: { n: string; l: string }) {
-  return (
-    <div>
-      <p className="font-display text-2xl font-bold">{n}</p>
-      <p className="text-sm text-white/70">{l}</p>
     </div>
   );
 }

@@ -13,7 +13,7 @@ export default function LoginPage() {
   return (
     <AuthShell
       title="Welcome back"
-      subtitle="Your gluten-free companion is right where you left it."
+      subtitle="Sign in to continue."
     >
       <form action={formAction} className="space-y-4">
         {state?.error && (

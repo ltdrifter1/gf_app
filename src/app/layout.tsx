@@ -16,9 +16,23 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: "Safely — Your gluten-free companion",
-  description:
-    "Safely — Your gluten-free companion. Find your people. Messenger, community pages, safe dining, and recipes for celiac and gluten intolerance.",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL ?? "https://safelyceliac.com"
+  ),
+  title: "Safely",
+  description: "Find your people. Your gluten-free companion.",
+  icons: {
+    icon: [{ url: "/logo.png", type: "image/png" }],
+    apple: [{ url: "/apple-touch-icon.png" }],
+  },
+  openGraph: {
+    title: "Safely",
+    description: "Find your people.",
+    url: "https://safelyceliac.com",
+    siteName: "Safely",
+    images: [{ url: "/og-logo.png", width: 512, height: 512, alt: "Safely" }],
+    type: "website",
+  },
 };
 
 const themeScript = `
