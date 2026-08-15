@@ -59,7 +59,7 @@ export default async function ChatRoomPage({
   const displayEmoji = isDm && peer ? null : ROOM_EMOJI[room.slug] ?? "💬";
 
   const [rooms, contacts, dms] = await Promise.all([
-    getRoomsWithStats(),
+    getRoomsWithStats(user.id),
     getContactList(user.id),
     getDirectMessageRooms(user.id),
   ]);

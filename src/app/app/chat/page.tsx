@@ -7,7 +7,7 @@ import { MsnPresenceIcon } from "@/components/msn-presence-icon";
 export default async function ChatHome() {
   const user = await requireUser();
   const [rooms, contacts, dms] = await Promise.all([
-    getRoomsWithStats(),
+    getRoomsWithStats(user.id),
     getContactList(user.id),
     getDirectMessageRooms(user.id),
   ]);
@@ -26,7 +26,7 @@ export default async function ChatHome() {
         <div className="msn-titlebar">
           <MsnPresenceIcon status="online" size={14} />
           <span className="min-w-0 flex-1 truncate text-[12px] font-semibold tracking-wide">
-            Amity Messenger
+            Safely Messenger
           </span>
           <span className="msn-titlebar-btn" aria-hidden>
             _

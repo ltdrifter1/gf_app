@@ -10,7 +10,7 @@ export const ROOM_EMOJI: Record<string, string> = {
   teens: "🎧",
 };
 
-export async function getRoomsWithStats() {
+export async function getRoomsWithStats(userId?: string) {
   await ensureLaunchCatalog();
   const rooms = await prisma.chatRoom.findMany({
     where: { isCommunity: true },
@@ -25,6 +25,17 @@ export async function getRoomsWithStats() {
     },
   });
 
+  const membershipByRoom = new Map<string, Date>();
+  if (userId) {
+    const memberships = await prisma.chatRoomMember.findMany({
+      where: { userId, roomId: { in: rooms.map((r) => r.id) } },
+      select: { roomId: true, lastReadAt: true },
+    });
+    for (const m of memberships) {
+      membershipByRoom.set(m.roomId, m.lastReadAt);
+    }
+  }
+
   const onlineSince = new Date(Date.now() - 60000);
   return Promise.all(
     rooms.map(async (r) => {
@@ -35,6 +46,17 @@ export async function getRoomsWithStats() {
         },
       });
       const last = r.messages[0];
+      let unreadCount = 0;
+      const lastReadAt = membershipByRoom.get(r.id);
+      if (userId && lastReadAt) {
+        unreadCount = await prisma.message.count({
+          where: {
+            roomId: r.id,
+            senderId: { not: userId },
+            createdAt: { gt: lastReadAt },
+          },
+        });
+      }
       return {
         id: r.id,
         name: r.name,
@@ -44,6 +66,7 @@ export async function getRoomsWithStats() {
         members: r._count.members,
         messageCount: r._count.messages,
         online,
+        unreadCount,
         lastMessage: last
           ? {
               text: isNudgeMessage(last.content) ? "sent a nudge!" : last.content,

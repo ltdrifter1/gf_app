@@ -37,7 +37,7 @@ export function HeroMessenger({
         <div className="msn-titlebar">
           <MsnPresenceIcon status="online" size={14} />
           <span className="min-w-0 flex-1 truncate text-[12px] font-semibold tracking-wide">
-            Amity Messenger — Instant Message
+            Safely Messenger — Instant Message
           </span>
           <span className="text-[10px] text-white/80">General Support</span>
           <span className="msn-titlebar-btn" aria-hidden>

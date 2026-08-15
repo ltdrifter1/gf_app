@@ -1,4 +1,4 @@
-# Amity
+# Safely
 
 **Your gluten-free companion. Find your people.**
 
@@ -17,7 +17,7 @@ npx prisma db seed     # local demo users only
 npm run dev            # http://localhost:3000
 ```
 
-Local demo login (dev only): `maya@amity.app` / `password123`
+Local demo login (dev only): `maya@safely.app` / `password123`
 
 ## Ship to production
 

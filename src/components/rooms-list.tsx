@@ -9,6 +9,7 @@ type Room = {
   emoji: string;
   members: number;
   online: number;
+  unreadCount?: number;
   lastMessage: { text: string; sender: string; at: string } | null;
 };
 
@@ -31,6 +32,11 @@ export function RoomsList({ rooms, activeSlug }: { rooms: Room[]; activeSlug?: s
                 {r.name}
                 {r.online > 0 ? (
                   <span className="ml-1 font-normal opacity-80">({r.online} online)</span>
+                ) : null}
+                {(r.unreadCount ?? 0) > 0 ? (
+                  <span className="ml-1.5 inline-flex min-w-[1.1rem] justify-center rounded-sm bg-[#316ac5] px-1 text-[10px] font-bold text-white">
+                    {r.unreadCount! > 99 ? "99+" : r.unreadCount}
+                  </span>
                 ) : null}
               </span>
               <span className="block truncate text-[11px] opacity-80">

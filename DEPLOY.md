@@ -1,6 +1,6 @@
-# Deploy Amity (ship today)
+# Deploy Safely (ship today)
 
-Amity runs on **Next.js 15** + **PostgreSQL**.
+Safely runs on **Next.js 15** + **PostgreSQL**.
 
 ## 1. Create a Postgres database
 
@@ -26,16 +26,16 @@ Use [Neon](https://neon.tech), [Supabase](https://supabase.com), [Railway](https
 DATABASE_URL="…" npx tsx prisma/seed-prod.ts
 ```
 
-**Do not run `prisma/seed.ts` on a public production site** — that creates demo logins (`maya@amity.app` / `password123`). Use `seed-prod.ts` only.
+**Do not run `prisma/seed.ts` on a public production site** — that creates demo logins (`maya@safely.app` / `password123`). Use `seed-prod.ts` only.
 
 ## 3. Local development
 
 Postgres is required locally too:
 
 ```bash
-# example after creating role/db `amity`
+# example after creating role/db `safely`
 cp .env.example .env
-# DATABASE_URL=postgresql://amity:amity@localhost:5432/amity
+# DATABASE_URL=postgresql://safely:safely@localhost:5432/safely
 npx prisma db push
 npx prisma db seed          # local demo users only
 npm run dev
@@ -54,7 +54,7 @@ npm run dev
 
 ## Security notes
 
-- Session cookie is httpOnly + Secure in production (`amity_session`)
+- Session cookie is httpOnly + Secure in production (`safely_session`)
 - DMs are membership-gated (no auto-join via URL)
 - Security headers set in `next.config.mjs`
 - Rate limits: register 5/hr/IP, login 10/15min/IP, chat send 30/min/user
