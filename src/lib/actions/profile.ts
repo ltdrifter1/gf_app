@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
+import { JOURNEY_STAGES } from "@/lib/constants";
 
 export async function updateProfile(formData: FormData) {
   const user = await requireUser();
@@ -10,6 +11,10 @@ export async function updateProfile(formData: FormData) {
   const bio = String(formData.get("bio") || "").trim();
   const location = String(formData.get("location") || "").trim();
   const diagnosis = String(formData.get("diagnosis") || "unspecified").trim();
+  const journeyRaw = String(formData.get("journeyStage") || "").trim();
+  const journeyStage = JOURNEY_STAGES.some((s) => s.slug === journeyRaw)
+    ? journeyRaw
+    : "newly-diagnosed";
   const avatarUrl = String(formData.get("avatarUrl") || "").trim() || null;
   const mood = String(formData.get("mood") || "").trim().slice(0, 80);
   const likeToMeet = String(formData.get("likeToMeet") || "").trim().slice(0, 500);
@@ -28,12 +33,14 @@ export async function updateProfile(formData: FormData) {
         upsert: {
           create: {
             diagnosis,
+            journeyStage,
             mood: mood || null,
             likeToMeet: likeToMeet || null,
             interests: interests || null,
           },
           update: {
             diagnosis,
+            journeyStage,
             mood: mood || null,
             likeToMeet: likeToMeet || null,
             interests: interests || null,
@@ -45,6 +52,7 @@ export async function updateProfile(formData: FormData) {
 
   revalidatePath("/app/profile");
   revalidatePath(`/app/u/${user.username}`);
+  revalidatePath("/app/health");
   revalidatePath("/app");
   return { ok: true };
 }

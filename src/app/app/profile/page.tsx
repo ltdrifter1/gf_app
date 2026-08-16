@@ -96,6 +96,7 @@ export default async function ProfilePage() {
               bio: user.bio || "",
               location: user.location || "",
               diagnosis: fullUser?.profile?.diagnosis || "unspecified",
+              journeyStage: fullUser?.profile?.journeyStage || "newly-diagnosed",
               avatarUrl: user.avatarUrl || "",
               presence: user.presence,
               mood: fullUser?.profile?.mood || "",

@@ -4,6 +4,7 @@ import { requireUser } from "@/lib/auth";
 import {
   MENTAL_HEALTH_CATEGORIES,
   PHYSICAL_HEALTH_CATEGORIES,
+  inferJourneyStageFromGoals,
 } from "@/lib/constants";
 import { JournalStudio } from "@/components/wellness-widgets";
 import { HealthTrackPanel } from "@/components/health-track";
@@ -27,7 +28,7 @@ export default async function HealthPage({
           : "journal";
   const user = await requireUser();
 
-  const [resources, journalEntries, moodEntries, healthLogs, supportPosts] =
+  const [resources, journalEntries, moodEntries, healthLogs, supportPosts, profile] =
     await Promise.all([
       prisma.healthResource.findMany({ orderBy: { title: "asc" } }),
       prisma.journalEntry.findMany({
@@ -51,7 +52,13 @@ export default async function HealthPage({
         take: 3,
         include: { author: { select: { name: true, username: true, avatarUrl: true } } },
       }),
+      prisma.profile.findUnique({ where: { userId: user.id } }),
     ]);
+
+  const journeyStage =
+    profile?.journeyStage ||
+    inferJourneyStageFromGoals(profile?.goals) ||
+    "newly-diagnosed";
 
   const mental = resources.filter((r) => r.pillar === "mental");
   const physical = resources.filter((r) => r.pillar === "physical");
@@ -146,7 +153,9 @@ export default async function HealthPage({
         })}
       </nav>
 
-      {active === "journal" && <JournalStudio initialEntries={initialEntries} />}
+      {active === "journal" && (
+        <JournalStudio initialEntries={initialEntries} journeyStage={journeyStage} />
+      )}
 
       {active === "track" && (
         <HealthTrackPanel initialMoods={initialMoods} initialLogs={initialLogs} />

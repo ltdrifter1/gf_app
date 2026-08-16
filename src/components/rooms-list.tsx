@@ -57,7 +57,7 @@ export function RoomsList({
                   <span className="ml-1 font-normal opacity-80">({r.online} online)</span>
                 ) : null}
                 {(r.unreadCount ?? 0) > 0 ? (
-                  <span className="ml-1.5 inline-flex min-w-[1.1rem] justify-center rounded-sm bg-[#316ac5] px-1 text-[10px] font-bold text-white">
+                  <span className="ml-1.5 inline-flex min-w-[1.1rem] justify-center rounded-full bg-brand-600 px-1.5 text-[10px] font-bold text-white">
                     {r.unreadCount! > 99 ? "99+" : r.unreadCount}
                   </span>
                 ) : null}

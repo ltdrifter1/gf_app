@@ -65,112 +65,78 @@
     @apply bg-safely-gradient bg-clip-text text-transparent;
   }
 
-  /* —— Early-2000s MSN / XP chrome —— */
-  .msn-window {
-    @apply flex flex-col overflow-hidden border border-[#0a246a]/40 bg-[#ece9d8] text-[#1a1a1a] shadow-[4px_6px_24px_-6px_rgba(10,36,106,0.45)];
-    border-radius: 3px 3px 2px 2px;
+  /* —— Modern Messenger shell (single window) —— */
+  .messenger-shell {
+    @apply glass-strong flex overflow-hidden rounded-[1.75rem] text-sage-900 dark:text-sage-100;
   }
-  .msn-window-fill {
+  .messenger-fill {
     /* Shared AppShell: sticky search header + padding + mobile bottom dock */
     height: calc(100svh - 9.5rem);
   }
   @media (min-width: 1024px) {
-    .msn-window-fill {
+    .messenger-fill {
       height: calc(100svh - 6.25rem);
     }
   }
+  /* Legacy aliases — keep older class names working during transition */
+  .msn-window {
+    @apply flex flex-col overflow-hidden rounded-[1.75rem] border border-white/50 bg-gradient-to-b from-white/85 to-white/65 text-sage-900 shadow-glass dark:border-white/[0.14] dark:from-white/[0.10] dark:to-white/[0.04] dark:bg-[#1a2436] dark:text-sage-100;
+  }
+  .msn-window-fill,
   .msn-window-fill-with-dock {
-    /* legacy alias — same as fill now that Messenger uses shared shell */
     height: calc(100svh - 9.5rem);
   }
   @media (min-width: 1024px) {
+    .msn-window-fill,
     .msn-window-fill-with-dock {
       height: calc(100svh - 6.25rem);
     }
   }
-  .dark .msn-window {
-    @apply border-[#1e3a5f] bg-[#1a2433] text-sage-100;
-  }
   .msn-titlebar {
-    @apply flex items-center gap-2 px-2 py-1.5 text-white select-none;
-    background: linear-gradient(180deg, #0a9aef 0%, #0268c8 48%, #014a9c 100%);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+    @apply flex items-center gap-2 border-b border-sage-200/60 bg-white/40 px-4 py-3 text-sage-800 select-none dark:border-white/10 dark:bg-white/[0.04] dark:text-sage-100;
   }
   .msn-titlebar-btn {
-    @apply grid h-4 w-4 place-items-center rounded-[2px] border border-white/40 text-[9px] leading-none text-white/95;
-    background: linear-gradient(180deg, #3db0f5, #0a6ec4);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+    @apply hidden;
   }
   .msn-menubar {
-    @apply flex gap-3 border-b border-[#a0a0a0] bg-[#ece9d8] px-2 py-0.5 text-[11px] text-[#1a1a1a];
-  }
-  .dark .msn-menubar {
-    @apply border-white/15 bg-[#243044] text-sage-200;
+    @apply flex gap-1 border-b border-sage-200/50 bg-transparent px-3 py-1.5 text-xs text-sage-600 dark:border-white/10 dark:text-sage-300;
   }
   .msn-menubar a,
   .msn-menubar button {
-    @apply rounded-sm px-1 py-0.5 hover:bg-[#316ac5] hover:text-white;
+    @apply rounded-full px-2.5 py-1 hover:bg-brand-50 hover:text-brand-700 dark:hover:bg-brand-500/15 dark:hover:text-brand-200;
   }
   .msn-inset {
-    border: 2px solid;
-    border-color: #808080 #fff #fff #808080;
-    background: #fff;
-  }
-  .dark .msn-inset {
-    border-color: #0a1220 #3a4a60 #3a4a60 #0a1220;
-    background: #121a28;
+    @apply rounded-2xl border border-sage-200/50 bg-white/70 dark:border-white/10 dark:bg-black/20;
   }
   .msn-statusbar {
-    @apply flex items-center gap-2 border-t border-[#a0a0a0] bg-[#ece9d8] px-2 py-1 text-[11px] text-[#333];
-  }
-  .dark .msn-statusbar {
-    @apply border-white/15 bg-[#243044] text-sage-300;
+    @apply flex items-center gap-2 border-t border-sage-200/50 bg-white/30 px-3 py-2 text-xs text-sage-500 dark:border-white/10 dark:bg-white/[0.03] dark:text-sage-400;
   }
   .msn-group-header {
-    @apply flex w-full items-center gap-1 px-1 py-0.5 text-left text-[11px] font-bold text-[#1a1a1a] hover:bg-[#316ac5] hover:text-white;
-  }
-  .dark .msn-group-header {
-    @apply text-sage-100;
+    @apply flex w-full items-center gap-1.5 rounded-xl px-2 py-1.5 text-left text-[11px] font-semibold uppercase tracking-wider text-sage-500 hover:bg-white/70 dark:text-sage-400 dark:hover:bg-white/5;
   }
   .msn-contact {
-    @apply flex w-full items-start gap-2 px-1 py-1 text-left text-[12px] hover:bg-[#316ac5] hover:text-white;
+    @apply flex w-full items-start gap-2.5 rounded-xl px-2.5 py-2 text-left text-[13px] text-sage-800 transition hover:bg-brand-50/80 dark:text-sage-100 dark:hover:bg-brand-500/15;
   }
   .msn-contact-active {
-    @apply bg-[#316ac5] text-white;
+    @apply bg-brand-50 text-brand-800 ring-1 ring-brand-300/40 dark:bg-brand-500/20 dark:text-brand-100 dark:ring-brand-400/30;
   }
   .msn-says {
-    @apply text-[13px] leading-snug;
+    @apply text-[13px] leading-relaxed;
   }
   .msn-says-name {
-    @apply font-bold;
+    @apply font-semibold text-brand-700 dark:text-brand-300;
   }
   .msn-composer {
-    @apply flex items-stretch gap-1 border-t border-[#a0a0a0] bg-[#ece9d8] p-1.5;
-  }
-  .dark .msn-composer {
-    @apply border-white/15 bg-[#243044];
+    @apply flex items-stretch gap-2 border-t border-sage-200/50 bg-white/40 p-3 dark:border-white/10 dark:bg-white/[0.04];
   }
   .msn-input {
-    @apply w-full border border-[#7f9db9] bg-white px-2 py-1.5 text-[13px] text-[#1a1a1a] outline-none focus:border-[#0268c8];
-  }
-  .dark .msn-input {
-    @apply border-white/20 bg-[#121a28] text-sage-100;
+    @apply w-full rounded-2xl border border-sage-200/70 bg-white/90 px-3.5 py-2.5 text-[13px] text-sage-900 outline-none transition focus:border-brand-400/50 focus:ring-2 focus:ring-brand-400/20 dark:border-white/15 dark:bg-black/25 dark:text-sage-100;
   }
   .msn-send {
-    @apply shrink-0 border border-[#003c74] px-3 text-[12px] font-semibold text-white;
-    background: linear-gradient(180deg, #5eb1ef, #1a6dbf 55%, #0d5aa8);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
-  }
-  .msn-send:disabled {
-    @apply opacity-50;
+    @apply shrink-0 rounded-full bg-safely-gradient px-4 text-[13px] font-semibold text-white shadow-glow transition hover:brightness-105 disabled:opacity-50;
   }
   .msn-nudge-btn {
-    @apply shrink-0 border border-[#8a6a20] px-2.5 text-[11px] font-semibold text-[#3a2a00];
-    background: linear-gradient(180deg, #ffe08a, #e8b84a 55%, #c99220);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
-  }
-  .msn-nudge-btn:disabled {
-    @apply opacity-50;
+    @apply shrink-0 rounded-full border border-amber-300/60 bg-amber-50 px-3 text-[12px] font-semibold text-amber-900 transition hover:bg-amber-100 disabled:opacity-50 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-100 dark:hover:bg-amber-500/20;
   }
 }
 

@@ -76,7 +76,7 @@ export default function RegisterPage() {
         </div>
         <div>
           <label className="mb-1.5 block text-sm font-medium text-sage-700 dark:text-sage-200">
-            Where are you in your journey?
+            Diagnosis (optional)
           </label>
           <select name="diagnosis" className="input" defaultValue="celiac">
             {DIAGNOSES.map((d) => (
@@ -85,6 +85,9 @@ export default function RegisterPage() {
               </option>
             ))}
           </select>
+          <p className="mt-1 text-xs text-sage-400">
+            You&apos;ll set where you are in your journey during a short setup after signup.
+          </p>
         </div>
         <SubmitButton>Create my account</SubmitButton>
       </form>

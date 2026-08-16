@@ -3,7 +3,13 @@
 import { useMemo, useState, useTransition, useCallback } from "react";
 import { format } from "date-fns";
 import { Shuffle, Feather, Lock, Check, Pencil, Trash2, X } from "lucide-react";
-import { JOURNAL_PROMPTS, MOOD_OPTIONS } from "@/lib/constants";
+import {
+  JOURNEY_STAGES,
+  MOOD_OPTIONS,
+  journeyStageLabel,
+  promptsForJourneyStage,
+  type JourneyStageSlug,
+} from "@/lib/constants";
 import { addJournal, deleteJournal, logMood, updateJournal } from "@/lib/actions/wellness";
 import { cn, timeAgo } from "@/lib/utils";
 
@@ -202,11 +208,19 @@ export function MoodTrend({ entries }: { entries: MoodEntryView[] }) {
 
 export function JournalStudio({
   initialEntries,
+  journeyStage = "newly-diagnosed",
 }: {
   initialEntries: JournalEntryView[];
+  journeyStage?: string | null;
 }) {
+  const stage = (
+    JOURNEY_STAGES.some((s) => s.slug === journeyStage)
+      ? journeyStage
+      : "newly-diagnosed"
+  ) as JourneyStageSlug;
+  const prompts = useMemo(() => promptsForJourneyStage(stage), [stage]);
   const [prompt, setPrompt] = useState(
-    () => JOURNAL_PROMPTS[Math.floor(Math.random() * JOURNAL_PROMPTS.length)]
+    () => prompts[Math.floor(Math.random() * prompts.length)]
   );
   const [content, setContent] = useState("");
   const [entryMood, setEntryMood] = useState<number | null>(null);
@@ -238,13 +252,13 @@ export function JournalStudio({
 
   const shufflePrompt = useCallback(() => {
     let next = prompt;
-    if (JOURNAL_PROMPTS.length > 1) {
+    if (prompts.length > 1) {
       while (next === prompt) {
-        next = JOURNAL_PROMPTS[Math.floor(Math.random() * JOURNAL_PROMPTS.length)];
+        next = prompts[Math.floor(Math.random() * prompts.length)];
       }
     }
     setPrompt(next);
-  }, [prompt]);
+  }, [prompt, prompts]);
 
   function save() {
     const body = content.trim();
@@ -341,6 +355,13 @@ export function JournalStudio({
 
         <div className="relative space-y-5 px-6 py-6 sm:px-8 sm:py-8">
           <div>
+            <p className="mb-2 text-xs font-medium text-sage-500">
+              Prompts for{" "}
+              <span className="font-semibold text-brand-700 dark:text-brand-300">
+                {journeyStageLabel(stage)}
+              </span>
+              <LinkHint />
+            </p>
             <div className="mb-3 flex items-start justify-between gap-3">
               <p className="font-display text-2xl font-semibold leading-snug tracking-tight text-sage-900 dark:text-white sm:text-[1.75rem]">
                 {prompt}
@@ -356,7 +377,7 @@ export function JournalStudio({
               </button>
             </div>
             <div className="flex flex-wrap gap-2">
-              {JOURNAL_PROMPTS.slice(0, 3).map((p) => (
+              {prompts.slice(0, 3).map((p) => (
                 <button
                   key={p}
                   type="button"
@@ -568,6 +589,18 @@ export function JournalStudio({
         </div>
       </aside>
     </div>
+  );
+}
+
+function LinkHint() {
+  return (
+    <span className="text-sage-400">
+      {" "}
+      ·{" "}
+      <a href="/app/profile" className="underline hover:text-brand-600">
+        change in profile
+      </a>
+    </span>
   );
 }
 

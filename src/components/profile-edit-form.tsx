@@ -5,6 +5,7 @@ import { Loader2, Check, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { updateProfile, setPresence } from "@/lib/actions/profile";
 import { Avatar } from "@/components/ui/avatar";
+import { JOURNEY_STAGES } from "@/lib/constants";
 
 export function ProfileEditForm({
   initial,
@@ -15,6 +16,7 @@ export function ProfileEditForm({
     bio: string;
     location: string;
     diagnosis: string;
+    journeyStage: string;
     avatarUrl: string;
     presence: string;
     mood: string;
@@ -120,6 +122,23 @@ export function ProfileEditForm({
       <div>
         <label className="text-xs font-medium text-sage-500">Location</label>
         <input name="location" defaultValue={initial.location} className="input mt-1" />
+      </div>
+      <div>
+        <label className="text-xs font-medium text-sage-500">Where you are in your journey</label>
+        <select
+          name="journeyStage"
+          defaultValue={initial.journeyStage || "newly-diagnosed"}
+          className="input mt-1"
+        >
+          {JOURNEY_STAGES.map((s) => (
+            <option key={s.slug} value={s.slug}>
+              {s.label}
+            </option>
+          ))}
+        </select>
+        <p className="mt-1 text-[11px] text-sage-400">
+          Tailors private journal prompts on Health.
+        </p>
       </div>
       <div>
         <label className="text-xs font-medium text-sage-500">Diagnosis</label>

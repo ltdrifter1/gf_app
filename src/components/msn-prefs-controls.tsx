@@ -23,8 +23,8 @@ export function MsnPrefsControls() {
   }, []);
 
   return (
-    <div className="flex flex-wrap items-center gap-2 px-2 py-1 text-[11px] text-[#333] dark:text-sage-300">
-      <label className="inline-flex cursor-pointer items-center gap-1">
+    <div className="flex flex-wrap items-center gap-3 px-2 py-1 text-xs text-sage-500">
+      <label className="inline-flex cursor-pointer items-center gap-1.5">
         <input
           type="checkbox"
           checked={prefs.sounds}
@@ -33,10 +33,11 @@ export function MsnPrefsControls() {
             setPrefs(next);
             if (next.sounds) playMessageSound();
           }}
+          className="rounded border-sage-300"
         />
         Sounds
       </label>
-      <label className="inline-flex cursor-pointer items-center gap-1">
+      <label className="inline-flex cursor-pointer items-center gap-1.5">
         <input
           type="checkbox"
           checked={prefs.notifications}
@@ -50,6 +51,7 @@ export function MsnPrefsControls() {
               setPrefs(setMsnPrefs({ notifications: false }));
             }
           }}
+          className="rounded border-sage-300"
         />
         Alerts
       </label>

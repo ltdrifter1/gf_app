@@ -3,6 +3,7 @@ import { getRoomsWithStats } from "@/lib/chat";
 import { getContactList } from "@/lib/actions/chat";
 import { ContactListPane } from "@/components/contact-list-pane";
 import { MessengerHomePane } from "@/components/messenger-home-pane";
+import { MessengerShell } from "@/components/messenger-shell";
 import { effectivePresence } from "@/lib/presence";
 
 export default async function ChatHome() {
@@ -21,20 +22,26 @@ export default async function ChatHome() {
   };
 
   return (
-    <div className="mx-auto grid h-full min-h-0 w-full max-w-6xl gap-3 lg:grid-cols-[320px_1fr]">
-      <ContactListPane
-        onlineCount={contacts.onlineCount}
-        online={contacts.online}
-        offline={contacts.offline}
-        rooms={rooms}
-        me={me}
-      />
-      <MessengerHomePane
-        me={me}
-        onlineCount={contacts.onlineCount}
-        online={contacts.online}
-        rooms={rooms}
-      />
-    </div>
+    <MessengerShell
+      sidebar={
+        <ContactListPane
+          embedded
+          onlineCount={contacts.onlineCount}
+          online={contacts.online}
+          offline={contacts.offline}
+          rooms={rooms}
+          me={me}
+        />
+      }
+      main={
+        <MessengerHomePane
+          embedded
+          me={me}
+          onlineCount={contacts.onlineCount}
+          online={contacts.online}
+          rooms={rooms}
+        />
+      }
+    />
   );
 }
