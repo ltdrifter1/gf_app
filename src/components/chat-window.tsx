@@ -3,6 +3,10 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Avatar } from "./ui/avatar";
 import { MsnPresenceIcon } from "./msn-presence-icon";
+import {
+  ChannelSurfingTicker,
+  type SurfRoom,
+} from "@/components/channel-surfing-ticker";
 import { timeAgo, cn } from "@/lib/utils";
 import { presenceLabel } from "@/lib/presence";
 import { isNudgeMessage, nudgeSystemLine } from "@/lib/msn";
@@ -24,21 +28,25 @@ export function ChatWindow({
   roomId,
   roomName,
   roomEmoji,
+  roomSlug,
   description,
   isDm,
   peerAvatar,
   peerPresence: initialPeerPresence,
   peerStatusMessage,
+  rooms = [],
   embedded = false,
 }: {
   roomId: string;
   roomName: string;
   roomEmoji: string;
+  roomSlug?: string;
   description?: string | null;
   isDm?: boolean;
   peerAvatar?: string | null;
   peerPresence?: string | null;
   peerStatusMessage?: string | null;
+  rooms?: SurfRoom[];
   embedded?: boolean;
 }) {
   const [messages, setMessages] = useState<Msg[]>([]);
@@ -402,33 +410,46 @@ export function ChatWindow({
         shake && "msn-nudge-shake"
       )}
     >
-      <div className="flex items-center gap-3 border-b border-sage-200/60 px-4 py-3 dark:border-white/10">
+      {rooms.length > 0 && (
+        <ChannelSurfingTicker rooms={rooms} activeSlug={roomSlug} />
+      )}
+
+      <div className="relative flex items-center gap-3.5 overflow-hidden border-b border-sage-200/50 px-4 py-3.5 dark:border-white/10">
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-brand-500/[0.05] via-transparent to-accent-400/[0.06]" />
         {isDm ? (
           <Avatar
             name={roomName}
             src={peerAvatar ?? null}
             size={48}
             presence={status}
-            className="rounded-2xl"
+            className="relative rounded-2xl"
           />
         ) : (
-          <div className="grid h-12 w-12 place-items-center rounded-2xl bg-safely-gradient text-xl text-white shadow-glow">
+          <div className="relative grid h-12 w-12 place-items-center rounded-2xl bg-safely-gradient text-xl text-white shadow-glow">
             {roomEmoji}
           </div>
         )}
-        <div className="min-w-0 flex-1">
+        <div className="relative min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <p className="truncate font-display text-base font-bold text-sage-900 dark:text-white">
+            <p className="truncate font-display text-[1.05rem] font-bold tracking-tight text-sage-900 dark:text-white">
               {roomName}
             </p>
             <span
               className={cn(
-                "shrink-0 text-[10px] font-semibold uppercase tracking-wide",
-                live ? "text-emerald-600 dark:text-emerald-400" : "text-sage-400"
+                "inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
+                live
+                  ? "bg-emerald-500/15 text-emerald-700 dark:bg-emerald-400/15 dark:text-emerald-300"
+                  : "bg-sage-500/10 text-sage-400"
               )}
               title={live ? "Live" : "Reconnecting…"}
             >
-              {live ? "Live" : "…"}
+              {live && (
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-60" />
+                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                </span>
+              )}
+              {live ? "Live" : "Syncing"}
             </span>
           </div>
           <p className="mt-0.5 flex items-center gap-1.5 text-xs text-sage-500">
@@ -455,7 +476,7 @@ export function ChatWindow({
         </div>
         <button
           type="button"
-          className="btn-ghost rounded-full px-3 py-1.5 text-xs"
+          className="relative btn-ghost rounded-full px-3 py-1.5 text-xs"
           onClick={sendNudge}
           disabled={nudging}
         >
@@ -466,7 +487,7 @@ export function ChatWindow({
       <div
         ref={scrollRef}
         onScroll={onScroll}
-        className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-4"
+        className="min-h-0 flex-1 space-y-3 overflow-y-auto bg-[radial-gradient(ellipse_at_top,rgba(13,148,136,0.06),transparent_55%)] px-4 py-4 dark:bg-[radial-gradient(ellipse_at_top,rgba(13,148,136,0.08),transparent_55%)]"
       >
         {hasMore && (
           <p className="text-center text-xs text-sage-400">
@@ -509,10 +530,10 @@ export function ChatWindow({
             >
               <div
                 className={cn(
-                  "max-w-[85%] rounded-2xl px-3.5 py-2.5",
+                  "max-w-[85%] rounded-2xl px-3.5 py-2.5 shadow-soft",
                   m.mine
-                    ? "bg-brand-500/15 text-sage-900 dark:bg-brand-500/25 dark:text-sage-50"
-                    : "bg-white/70 text-sage-900 dark:bg-white/[0.06] dark:text-sage-100"
+                    ? "bg-gradient-to-br from-brand-500/20 to-accent-400/15 text-sage-900 ring-1 ring-brand-400/20 dark:from-brand-500/30 dark:to-accent-500/15 dark:text-sage-50 dark:ring-brand-400/25"
+                    : "bg-white/80 text-sage-900 ring-1 ring-sage-200/50 dark:bg-white/[0.07] dark:text-sage-100 dark:ring-white/10"
                 )}
               >
                 {!m.mine && (
@@ -543,10 +564,11 @@ export function ChatWindow({
         </p>
       )}
 
-      <div className="msn-composer">
+      <div className="msn-composer relative">
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-brand-500/[0.04] to-transparent" />
         <button
           type="button"
-          className="msn-nudge-btn"
+          className="msn-nudge-btn relative"
           onClick={sendNudge}
           disabled={nudging || sending}
           title="Nudge"
@@ -564,21 +586,21 @@ export function ChatWindow({
           }}
           maxLength={2000}
           placeholder="Type a message…"
-          className="msn-input flex-1"
+          className="msn-input relative flex-1"
         />
         <button
           type="button"
           onClick={send}
           disabled={sending || !input.trim()}
-          className="msn-send"
+          className="msn-send relative"
         >
           Send
         </button>
       </div>
 
-      <div className="min-h-[1.75rem] border-t border-sage-200/40 px-4 py-1.5 text-xs text-sage-500 dark:border-white/10">
+      <div className="min-h-[1.75rem] border-t border-sage-200/40 bg-white/20 px-4 py-1.5 text-xs text-sage-500 dark:border-white/10 dark:bg-white/[0.02]">
         {typingLine ? (
-          <span className="italic">{typingLine}</span>
+          <span className="italic text-brand-700 dark:text-brand-300">{typingLine}</span>
         ) : (
           <span>
             {isDm
