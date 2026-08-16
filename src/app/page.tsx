@@ -22,7 +22,7 @@ export default async function LandingPage() {
 
       <header className="absolute inset-x-0 top-0 z-30 px-4 pt-4">
         <div className="mx-auto flex max-w-5xl items-center justify-between">
-          <Logo className="[&_span]:text-white" />
+          <Logo size={40} />
           <div className="flex items-center gap-2">
             <ThemeToggle />
             {user ? (
@@ -47,23 +47,19 @@ export default async function LandingPage() {
         <div className="animate-fade-in">
           <Image
             src="/logo.webp"
-            alt="Safely"
+            alt="Safely Celiac Community"
             width={160}
             height={160}
             priority
-            className="mx-auto rounded-[28%] shadow-[0_24px_80px_-20px_rgba(0,0,0,0.65)]"
+            className="mx-auto rounded-[28%] shadow-[0_24px_80px_-20px_rgba(0,0,0,0.45)]"
           />
         </div>
 
-        <h1 className="mt-8 font-display text-5xl font-bold tracking-tight text-white animate-fade-in sm:text-6xl lg:text-7xl [animation-delay:80ms]">
-          Safely
-        </h1>
-
-        <p className="mt-4 max-w-sm font-display text-xl font-medium text-white/75 animate-fade-in sm:text-2xl [animation-delay:140ms]">
+        <p className="mt-8 max-w-sm font-display text-xl font-medium text-white/75 animate-fade-in sm:text-2xl [animation-delay:80ms]">
           Find your people.
         </p>
 
-        <div className="mt-10 animate-fade-in [animation-delay:200ms]">
+        <div className="mt-10 animate-fade-in [animation-delay:140ms]">
           <Link href={primaryHref} className="btn-primary px-8 py-3.5 text-base">
             {user ? "Open Messenger" : "Join free"}
             <ArrowRight className="h-4 w-4" />
