@@ -57,7 +57,7 @@ export function PostCard({ post }: { post: PostCardData }) {
   }
 
   return (
-    <article className="card p-5 animate-fade-in">
+    <article className="rounded-[1.5rem] bg-white p-5 shadow-[0_2px_16px_-6px_rgba(15,118,110,0.14)] ring-1 ring-black/[0.04] animate-fade-in dark:bg-white/[0.05] dark:ring-white/10">
       <div className="flex items-center gap-3">
         <Link href={`/app/u/${post.author.username}`}>
           <Avatar

@@ -9,9 +9,11 @@ type Msg = { name: string; text: string };
 export function HeroMessenger({
   onlineCount,
   messages,
+  className,
 }: {
   onlineCount: number;
   messages: Msg[];
+  className?: string;
 }) {
   const [visible, setVisible] = useState(0);
   const [typing, setTyping] = useState(true);
@@ -32,8 +34,12 @@ export function HeroMessenger({
   }, [messages]);
 
   return (
-    <div className="w-full max-w-lg animate-fade-in [animation-delay:120ms] lg:ml-auto">
-      <div className="overflow-hidden rounded-[1.75rem] border border-white/50 bg-gradient-to-b from-white/90 to-white/70 shadow-glass-lg backdrop-blur-xl dark:border-white/15 dark:from-white/[0.10] dark:to-white/[0.04]">
+    <div
+      className={cn(
+        "w-full max-w-lg animate-fade-in [animation-delay:120ms] lg:ml-auto",
+        className
+      )}
+    >      <div className="overflow-hidden rounded-[1.75rem] border border-white/50 bg-gradient-to-b from-white/90 to-white/70 shadow-glass-lg backdrop-blur-xl dark:border-white/15 dark:from-white/[0.10] dark:to-white/[0.04]">
         <div className="flex items-center gap-2 border-b border-sage-200/60 px-4 py-3 dark:border-white/10">
           <div className="grid h-9 w-9 place-items-center rounded-xl bg-safely-gradient text-sm text-white">
             💬

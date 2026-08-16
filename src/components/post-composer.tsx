@@ -31,13 +31,13 @@ export function PostComposer({ user }: { user: { name: string; avatarUrl: string
   }
 
   return (
-    <div className="card p-4">
+    <div className="rounded-[1.5rem] bg-white p-4 shadow-[0_2px_16px_-6px_rgba(15,118,110,0.14)] ring-1 ring-black/[0.04] dark:bg-white/[0.05] dark:ring-white/10">
       <div className="flex items-center gap-3">
         <Avatar name={user.name} src={user.avatarUrl} size={42} />
         {!open ? (
           <button
             onClick={() => setOpen(true)}
-            className="flex-1 rounded-2xl bg-white/60 dark:bg-white/5 px-4 py-3 text-left text-sage-500 dark:text-sage-400 hover:bg-white/80 dark:hover:bg-white/10 transition"
+            className="flex-1 rounded-full bg-[#F2F4F3] px-4 py-3 text-left text-sage-500 transition hover:bg-[#E8EEEC] dark:bg-white/5 dark:text-sage-400 dark:hover:bg-white/10"
           >
             Share an experience, ask a question…
           </button>

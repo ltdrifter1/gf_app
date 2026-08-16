@@ -4,6 +4,7 @@ import { requireUser } from "@/lib/auth";
 import { POST_CATEGORIES, categoryBySlug } from "@/lib/constants";
 import { PostComposer } from "@/components/post-composer";
 import { PostCard, type PostCardData } from "@/components/post-card";
+import { cn } from "@/lib/utils";
 
 export default async function FeedPage({
   searchParams,
@@ -71,56 +72,73 @@ export default async function FeedPage({
     return s ? `/app?${s}` : "/app";
   }
 
-  return (
-    <div className="mx-auto max-w-2xl space-y-4">
-      <div>
-        <h1 className="font-display text-2xl font-bold text-sage-900 dark:text-white">
-          {activeCat
-            ? `${activeCat.emoji} ${activeCat.label}`
-            : followingOnly
-              ? "Following"
-              : "Community"}
-        </h1>
-        <p className="text-sage-500 dark:text-sage-400">
-          {activeCat
-            ? "Posts in this topic"
-            : followingOnly
-              ? "Posts from people you follow"
-              : "Share and find your people"}
-        </p>
-      </div>
+  const title = activeCat
+    ? activeCat.label
+    : followingOnly
+      ? "Following"
+      : "Community";
 
-      <div className="flex gap-2">
+  const subtitle = activeCat
+    ? "Posts in this topic"
+    : followingOnly
+      ? "From people you follow"
+      : "Share and find your people";
+
+  return (
+    <div className="mx-auto max-w-2xl space-y-6">
+      <header className="space-y-1 pt-1">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-sage-500">
+          Today
+        </p>
+        <h1 className="font-display text-3xl font-bold tracking-tight text-sage-900 dark:text-white sm:text-4xl">
+          {activeCat ? (
+            <span className="inline-flex items-center gap-2">
+              <span aria-hidden>{activeCat.emoji}</span>
+              {title}
+            </span>
+          ) : (
+            title
+          )}
+        </h1>
+        <p className="text-[15px] text-sage-500 dark:text-sage-400">{subtitle}</p>
+      </header>
+
+      {/* iOS segmented control */}
+      <div className="inline-flex rounded-full bg-black/[0.05] p-1 dark:bg-white/10">
         <Link
           href={feedHref({ scope: null })}
-          className={`chip border ${
+          className={cn(
+            "rounded-full px-4 py-1.5 text-sm font-semibold transition",
             !followingOnly
-              ? "border-brand-300 bg-brand-50 text-brand-700 dark:bg-brand-500/15 dark:text-brand-200"
-              : "border-transparent bg-white/60 text-sage-600 dark:bg-white/5 dark:text-sage-300"
-          }`}
+              ? "bg-white text-sage-900 shadow-soft dark:bg-white/20 dark:text-white"
+              : "text-sage-500 hover:text-sage-700 dark:text-sage-400 dark:hover:text-sage-200"
+          )}
         >
           All
         </Link>
         <Link
           href={feedHref({ scope: "following" })}
-          className={`chip border ${
+          className={cn(
+            "rounded-full px-4 py-1.5 text-sm font-semibold transition",
             followingOnly
-              ? "border-brand-300 bg-brand-50 text-brand-700 dark:bg-brand-500/15 dark:text-brand-200"
-              : "border-transparent bg-white/60 text-sage-600 dark:bg-white/5 dark:text-sage-300"
-          }`}
+              ? "bg-white text-sage-900 shadow-soft dark:bg-white/20 dark:text-white"
+              : "text-sage-500 hover:text-sage-700 dark:text-sage-400 dark:hover:text-sage-200"
+          )}
         >
           Following
         </Link>
       </div>
 
-      <div className="flex gap-2 overflow-x-auto pb-1">
+      {/* Topic shelf */}
+      <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <Link
           href={feedHref({ category: null })}
-          className={`chip shrink-0 border ${
+          className={cn(
+            "snap-start shrink-0 rounded-full px-3.5 py-1.5 text-sm font-medium transition",
             !category
-              ? "border-brand-300 bg-brand-50 text-brand-700 dark:bg-brand-500/15 dark:text-brand-200"
-              : "border-transparent bg-white/60 text-sage-600 dark:bg-white/5 dark:text-sage-300"
-          }`}
+              ? "bg-sage-900 text-white dark:bg-white dark:text-sage-900"
+              : "bg-white/80 text-sage-600 ring-1 ring-black/[0.06] hover:bg-white dark:bg-white/[0.06] dark:text-sage-300 dark:ring-white/10"
+          )}
         >
           All topics
         </Link>
@@ -128,13 +146,17 @@ export default async function FeedPage({
           <Link
             key={c.slug}
             href={feedHref({ category: c.slug })}
-            className={`chip shrink-0 border ${
+            className={cn(
+              "snap-start shrink-0 rounded-full px-3.5 py-1.5 text-sm font-medium transition",
               category === c.slug
-                ? "border-brand-300 bg-brand-50 text-brand-700 dark:bg-brand-500/15 dark:text-brand-200"
-                : "border-transparent bg-white/60 text-sage-600 dark:bg-white/5 dark:text-sage-300"
-            }`}
+                ? "bg-sage-900 text-white dark:bg-white dark:text-sage-900"
+                : "bg-white/80 text-sage-600 ring-1 ring-black/[0.06] hover:bg-white dark:bg-white/[0.06] dark:text-sage-300 dark:ring-white/10"
+            )}
           >
-            <span>{c.emoji}</span> {c.label}
+            <span className="mr-1" aria-hidden>
+              {c.emoji}
+            </span>
+            {c.label}
           </Link>
         ))}
       </div>
@@ -142,20 +164,24 @@ export default async function FeedPage({
       <PostComposer user={{ name: user.name, avatarUrl: user.avatarUrl }} />
 
       {data.length === 0 ? (
-        <div className="card space-y-3 p-10 text-center text-sage-500 dark:text-sage-400">
-          <p>
+        <div className="rounded-[1.5rem] bg-white px-8 py-14 text-center shadow-[0_2px_16px_-6px_rgba(15,118,110,0.14)] ring-1 ring-black/[0.04] dark:bg-white/[0.05] dark:ring-white/10">
+          <p className="text-[15px] text-sage-500 dark:text-sage-400">
             {followingOnly
               ? "No posts from people you follow yet. Find someone in Messenger."
               : "No posts yet here. Be the first to share something."}
           </p>
           {followingOnly && (
-            <Link href="/app/chat" className="btn-secondary inline-flex">
+            <Link href="/app/chat" className="btn-secondary mt-5 inline-flex">
               Open Messenger
             </Link>
           )}
         </div>
       ) : (
-        data.map((p) => <PostCard key={p.id} post={p} />)
+        <div className="space-y-4">
+          {data.map((p) => (
+            <PostCard key={p.id} post={p} />
+          ))}
+        </div>
       )}
     </div>
   );
