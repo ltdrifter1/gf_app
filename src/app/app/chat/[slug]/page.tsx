@@ -95,6 +95,7 @@ export default async function ChatRoomPage({
             roomId={room.id}
             roomName={displayName}
             roomEmoji={displayEmoji ?? "💬"}
+            roomSlug={room.slug}
             description={isDm && peer ? `@${peer.username}` : room.description}
             isDm={isDm}
             peerAvatar={isDm && peer ? peer.avatarUrl : null}
@@ -102,6 +103,7 @@ export default async function ChatRoomPage({
               isDm && peer ? effectivePresence(peer.presence, peer.lastSeen) : null
             }
             peerStatusMessage={isDm && peer ? peer.profile?.mood ?? null : null}
+            rooms={rooms}
           />
         }
       />
