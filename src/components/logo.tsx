@@ -14,7 +14,7 @@ export function Logo({
     <div className={cn("flex items-center gap-2.5", className)}>
       <Image
         src="/logo.webp"
-        alt="Safely"
+        alt="Safely Celiac Community"
         width={size}
         height={size}
         className="rounded-[22%] shadow-soft"
