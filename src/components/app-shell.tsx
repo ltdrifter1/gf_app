@@ -93,7 +93,7 @@ export function AppShell({
         <div className="glass-strong m-3 flex h-[calc(100vh-1.5rem)] flex-col rounded-3xl p-4">
           <div className="flex items-center justify-between px-1">
             <Link href="/app/chat" onClick={() => setOpen(false)}>
-              <Logo />
+              <Logo size={42} />
             </Link>
             <button className="btn-ghost p-2 lg:hidden" onClick={() => setOpen(false)}>
               <X className="h-5 w-5" />

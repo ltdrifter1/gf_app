@@ -35,19 +35,18 @@ export function AuthShell({
       <div className="relative hidden flex-col justify-between overflow-hidden bg-[#0b0f0e] p-12 lg:flex">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_30%_20%,rgba(13,148,136,0.25),transparent_55%)]" />
         <Link href="/" className="relative z-10">
-          <Logo className="[&_span]:text-white" />
+          <Logo size={40} />
         </Link>
         <div className="relative z-10 mx-auto max-w-sm text-center">
           <Image
             src="/logo.webp"
             alt="Safely Celiac Community"
-            width={120}
-            height={120}
+            width={140}
+            height={140}
             className="mx-auto rounded-[28%] shadow-soft"
             priority
           />
-          <h1 className="mt-8 font-display text-5xl font-bold text-white">Safely</h1>
-          <p className="mt-3 font-display text-xl text-white/75">Find your people.</p>
+          <p className="mt-8 font-display text-xl text-white/75">Find your people.</p>
         </div>
         <p className="relative z-10 text-sm text-white/40">safelyceliac.com</p>
       </div>
@@ -55,7 +54,7 @@ export function AuthShell({
       <div className="flex min-h-screen items-center justify-center p-6">
         <div className="w-full max-w-md">
           <div className="mb-8 lg:hidden">
-            <Logo />
+            <Logo size={44} />
           </div>
           <div className="card p-8">
             <h2 className="font-display text-2xl font-bold text-sage-900 dark:text-white">
