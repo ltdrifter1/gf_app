@@ -20,6 +20,7 @@ export default async function OnboardingPage() {
       </div>
       <OnboardingForm
         defaultDiagnosis={user.profile?.diagnosis || "celiac"}
+        defaultJourneyStage={user.profile?.journeyStage || "newly-diagnosed"}
         defaultLocation={user.location || ""}
         goals={[...COMPANION_GOALS]}
       />

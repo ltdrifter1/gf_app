@@ -29,6 +29,7 @@ export function ChatWindow({
   peerAvatar,
   peerPresence: initialPeerPresence,
   peerStatusMessage,
+  embedded = false,
 }: {
   roomId: string;
   roomName: string;
@@ -38,6 +39,7 @@ export function ChatWindow({
   peerAvatar?: string | null;
   peerPresence?: string | null;
   peerStatusMessage?: string | null;
+  embedded?: boolean;
 }) {
   const [messages, setMessages] = useState<Msg[]>([]);
   const [typing, setTyping] = useState<string[]>([]);
@@ -393,65 +395,55 @@ export function ChatWindow({
         : `${typing.slice(0, 2).join(" and ")} are typing a message…`;
 
   return (
-    <div className={cn("msn-window msn-window-fill", shake && "msn-nudge-shake")}>
-      <div className="msn-titlebar">
-        <MsnPresenceIcon status={isDm ? status : online > 0 ? "online" : "offline"} size={14} />
-        <span className="min-w-0 flex-1 truncate text-[12px] font-semibold tracking-wide">
-          {roomName} — Instant Message
-        </span>
-        <span
-          className={cn(
-            "mr-1 text-[10px]",
-            live ? "text-emerald-200" : "text-white/70"
-          )}
-          title={live ? "Live" : "Reconnecting…"}
-        >
-          {live ? "● Live" : "○ …"}
-        </span>
-        <span className="msn-titlebar-btn" aria-hidden>
-          _
-        </span>
-        <span className="msn-titlebar-btn" aria-hidden>
-          □
-        </span>
-        <span className="msn-titlebar-btn" aria-hidden>
-          ×
-        </span>
-      </div>
-
-      <div className="msn-menubar">
-        <button type="button" onClick={sendNudge} disabled={nudging}>
-          Nudge
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            const el = document.querySelector<HTMLInputElement>(".msn-composer .msn-input");
-            el?.focus();
-          }}
-        >
-          Message
-        </button>
-      </div>
-
-      <div className="flex items-center gap-3 border-b border-[#a0a0a0] bg-[#f5f4ec] px-3 py-2 dark:border-white/15 dark:bg-[#1e2a3c]">
+    <div
+      className={cn(
+        "flex h-full min-h-0 flex-col",
+        !embedded && "msn-window msn-window-fill",
+        shake && "msn-nudge-shake"
+      )}
+    >
+      <div className="flex items-center gap-3 border-b border-sage-200/60 px-4 py-3 dark:border-white/10">
         {isDm ? (
-          <Avatar name={roomName} src={peerAvatar ?? null} size={56} presence={status} className="rounded-sm" />
+          <Avatar
+            name={roomName}
+            src={peerAvatar ?? null}
+            size={48}
+            presence={status}
+            className="rounded-2xl"
+          />
         ) : (
-          <div className="grid h-14 w-14 place-items-center rounded-sm border border-[#7f9db9] bg-gradient-to-br from-[#5eb1ef] to-[#0d5aa8] text-2xl text-white">
+          <div className="grid h-12 w-12 place-items-center rounded-2xl bg-safely-gradient text-xl text-white shadow-glow">
             {roomEmoji}
           </div>
         )}
         <div className="min-w-0 flex-1">
-          <p className="truncate font-display text-[15px] font-bold text-[#0a246a] dark:text-white">
-            {roomName}
-          </p>
-          <p className="flex items-center gap-1.5 text-[11px] text-[#444] dark:text-sage-400">
-            <MsnPresenceIcon status={isDm ? status : online > 0 ? "online" : "offline"} size={12} />
+          <div className="flex items-center gap-2">
+            <p className="truncate font-display text-base font-bold text-sage-900 dark:text-white">
+              {roomName}
+            </p>
+            <span
+              className={cn(
+                "shrink-0 text-[10px] font-semibold uppercase tracking-wide",
+                live ? "text-emerald-600 dark:text-emerald-400" : "text-sage-400"
+              )}
+              title={live ? "Live" : "Reconnecting…"}
+            >
+              {live ? "Live" : "…"}
+            </span>
+          </div>
+          <p className="mt-0.5 flex items-center gap-1.5 text-xs text-sage-500">
+            <MsnPresenceIcon
+              status={isDm ? status : online > 0 ? "online" : "offline"}
+              size={12}
+            />
             {isDm ? (
               <>
                 {presenceLabel(status)}
-                {peerStatusMessage ? ` — ${peerStatusMessage}` : description ? ` · ${description}` : ""}
+                {peerStatusMessage
+                  ? ` — ${peerStatusMessage}`
+                  : description
+                    ? ` · ${description}`
+                    : ""}
               </>
             ) : (
               <>
@@ -461,20 +453,28 @@ export function ChatWindow({
             )}
           </p>
         </div>
+        <button
+          type="button"
+          className="btn-ghost rounded-full px-3 py-1.5 text-xs"
+          onClick={sendNudge}
+          disabled={nudging}
+        >
+          Nudge
+        </button>
       </div>
 
       <div
         ref={scrollRef}
         onScroll={onScroll}
-        className="msn-inset m-1.5 min-h-0 flex-1 space-y-2.5 overflow-y-auto p-3"
+        className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-4"
       >
         {hasMore && (
-          <p className="text-center text-[11px] text-[#666] dark:text-sage-400">
+          <p className="text-center text-xs text-sage-400">
             {loadingOlder ? "Loading earlier messages…" : "Scroll up for earlier messages"}
           </p>
         )}
         {messages.length === 0 && (
-          <p className="mt-8 text-center text-[12px] italic text-[#666] dark:text-sage-400">
+          <p className="mt-10 text-center text-sm text-sage-500">
             This is the beginning of your conversation. Say hello!
           </p>
         )}
@@ -485,48 +485,60 @@ export function ChatWindow({
               <p
                 key={m.id}
                 className={cn(
-                  "text-center text-[12px] italic text-[#6b4a00] dark:text-amber-200/90",
+                  "text-center text-xs italic text-amber-800 dark:text-amber-200/90",
                   m.failed && "text-rose-600"
                 )}
               >
                 * {nudgeSystemLine(m.mine ? roomName : m.sender.name, m.mine)}
-                <span className="ml-2 not-italic text-[10px] text-[#888]">
+                <span className="ml-2 not-italic text-[10px] text-sage-400">
                   {m.pending ? "Sending…" : m.failed ? "Failed" : timeAgo(m.createdAt)}
                 </span>
               </p>
             );
           }
 
-          const nameColor = m.mine ? "#0a5a9c" : "#8b1a1a";
           return (
-            <div key={m.id} className={cn("msn-says", m.pending && "opacity-70", m.failed && "opacity-90")}>
-              <p>
-                <span className="msn-says-name" style={{ color: nameColor }}>
-                  {m.mine ? "You" : m.sender.name}
-                </span>
-                <span className="msn-says-name" style={{ color: nameColor }}>
-                  {" "}
-                  says:
-                </span>
-              </p>
-              <p
+            <div
+              key={m.id}
+              className={cn(
+                "flex",
+                m.mine ? "justify-end" : "justify-start",
+                m.pending && "opacity-70",
+                m.failed && "opacity-90"
+              )}
+            >
+              <div
                 className={cn(
-                  "whitespace-pre-wrap break-words pl-1 text-[13px]",
-                  m.failed ? "text-rose-700 dark:text-rose-300" : "text-[#1a1a1a] dark:text-sage-100"
+                  "max-w-[85%] rounded-2xl px-3.5 py-2.5",
+                  m.mine
+                    ? "bg-brand-500/15 text-sage-900 dark:bg-brand-500/25 dark:text-sage-50"
+                    : "bg-white/70 text-sage-900 dark:bg-white/[0.06] dark:text-sage-100"
                 )}
               >
-                {m.content}
-              </p>
-              <p className="pl-1 text-[10px] text-[#888]">
-                {m.failed ? "Failed to send" : m.pending ? "Sending…" : timeAgo(m.createdAt)}
-              </p>
+                {!m.mine && (
+                  <p className="mb-0.5 text-xs font-semibold text-brand-700 dark:text-brand-300">
+                    {m.sender.name}
+                  </p>
+                )}
+                <p
+                  className={cn(
+                    "whitespace-pre-wrap break-words text-[13px] leading-relaxed",
+                    m.failed && "text-rose-700 dark:text-rose-300"
+                  )}
+                >
+                  {m.content}
+                </p>
+                <p className="mt-1 text-[10px] text-sage-400">
+                  {m.failed ? "Failed to send" : m.pending ? "Sending…" : timeAgo(m.createdAt)}
+                </p>
+              </div>
             </div>
           );
         })}
       </div>
 
       {sendError && (
-        <p className="px-2 text-[11px] text-rose-600" role="alert">
+        <p className="px-4 text-xs text-rose-600" role="alert">
           {sendError}
         </p>
       )}
@@ -539,7 +551,7 @@ export function ChatWindow({
           disabled={nudging || sending}
           title="Nudge"
         >
-          Nudge!
+          Nudge
         </button>
         <input
           value={input}
@@ -564,7 +576,7 @@ export function ChatWindow({
         </button>
       </div>
 
-      <div className="msn-statusbar min-h-[1.5rem]">
+      <div className="min-h-[1.75rem] border-t border-sage-200/40 px-4 py-1.5 text-xs text-sage-500 dark:border-white/10">
         {typingLine ? (
           <span className="italic">{typingLine}</span>
         ) : (

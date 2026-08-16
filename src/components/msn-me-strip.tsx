@@ -41,26 +41,26 @@ export function MsnMeStrip({ me }: { me: Me }) {
     | "offline";
 
   return (
-    <div className="flex items-start gap-2.5 border-b border-[#a0a0a0] bg-[#f5f4ec] px-2.5 py-2 dark:border-white/15 dark:bg-[#1e2a3c]">
+    <div className="flex items-start gap-3 border-b border-sage-200/60 bg-white/30 px-3 py-3 dark:border-white/10 dark:bg-white/[0.03]">
       <Avatar
         name={me.name}
         src={me.avatarUrl}
         size={48}
         presence={statusKey}
-        className="rounded-sm"
+        className="rounded-2xl"
       />
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-1.5">
           <MsnPresenceIcon status={statusKey} size={13} />
-          <p className="truncate text-[13px] font-bold text-[#0a246a] dark:text-white">{me.name}</p>
+          <p className="truncate text-sm font-semibold text-sage-900 dark:text-white">{me.name}</p>
         </div>
-        <label className="mt-0.5 flex items-center gap-1 text-[11px] text-[#444] dark:text-sage-400">
+        <label className="mt-1 flex items-center gap-1 text-xs text-sage-500">
           <span className="sr-only">Presence</span>
           <select
             value={statusKey}
             disabled={pending}
             onChange={(e) => changePresence(e.target.value as "online" | "away" | "offline")}
-            className="max-w-full rounded-sm border border-[#7f9db9] bg-white px-1 py-0.5 text-[11px] text-[#1a1a1a] outline-none focus:border-[#0268c8] dark:border-white/20 dark:bg-[#121a28] dark:text-sage-100"
+            className="max-w-full rounded-full border border-sage-200/70 bg-white/80 px-2 py-0.5 text-xs text-sage-800 outline-none focus:border-brand-400 dark:border-white/15 dark:bg-black/30 dark:text-sage-100"
             aria-label="Your presence"
           >
             <option value="online">{presenceLabel("online")}</option>
@@ -86,14 +86,14 @@ export function MsnMeStrip({ me }: { me: Me }) {
               }
             }}
             placeholder="What are you up to?"
-            className="mt-1 w-full border border-[#7f9db9] bg-white px-1.5 py-0.5 text-[11px] italic text-[#1a1a1a] outline-none focus:border-[#0268c8] dark:border-white/20 dark:bg-[#121a28] dark:text-sage-100"
+            className="mt-1.5 w-full rounded-xl border border-sage-200/70 bg-white/90 px-2 py-1 text-xs italic text-sage-800 outline-none focus:border-brand-400 dark:border-white/15 dark:bg-black/30 dark:text-sage-100"
             aria-label="Status message"
           />
         ) : (
           <button
             type="button"
             onClick={() => setEditing(true)}
-            className="mt-0.5 block w-full truncate text-left text-[11px] italic text-[#555] hover:text-[#316ac5] dark:text-sage-400 dark:hover:text-brand-300"
+            className="mt-1 block w-full truncate text-left text-xs italic text-sage-500 hover:text-brand-600 dark:hover:text-brand-300"
             title="Click to edit status"
           >
             {status.trim() || "Click to set a status message…"}
@@ -101,7 +101,7 @@ export function MsnMeStrip({ me }: { me: Me }) {
         )}
         <Link
           href={`/app/u/${me.username}`}
-          className="mt-0.5 inline-block text-[10px] text-[#316ac5] hover:underline dark:text-brand-300"
+          className="mt-0.5 inline-block text-[11px] font-medium text-brand-600 hover:underline dark:text-brand-300"
         >
           @{me.username}
         </Link>

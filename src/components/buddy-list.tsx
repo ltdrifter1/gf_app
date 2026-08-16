@@ -82,7 +82,7 @@ function Group({
                     {c.name}{" "}
                     <span className="font-normal opacity-80">({presenceLabel(status)})</span>
                     {unread > 0 ? (
-                      <span className="ml-1.5 inline-flex min-w-[1.1rem] justify-center rounded-sm bg-[#316ac5] px-1 text-[10px] font-bold text-white">
+                      <span className="ml-1.5 inline-flex min-w-[1.1rem] justify-center rounded-full bg-brand-600 px-1.5 text-[10px] font-bold text-white">
                         {unread > 99 ? "99+" : unread}
                       </span>
                     ) : null}
@@ -191,7 +191,7 @@ export function BuddyList({
       />
       <p className="mt-2 px-1 text-[10px] text-[#666] dark:text-sage-500">
         Find more people in{" "}
-        <Link href="/app/search" className="underline hover:text-[#316ac5]">
+        <Link href="/app/search" className="underline hover:text-brand-600">
           Search
         </Link>
         .

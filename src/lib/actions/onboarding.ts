@@ -10,12 +10,17 @@ import {
   primaryRoomForGoals,
   type CompanionGoalSlug,
 } from "@/lib/companion";
+import { JOURNEY_STAGES } from "@/lib/constants";
 import { createNotification } from "@/lib/actions/notifications";
 
 export async function completeOnboarding(formData: FormData) {
   const user = await requireUser();
 
   const diagnosis = String(formData.get("diagnosis") || "unspecified").trim();
+  const journeyRaw = String(formData.get("journeyStage") || "").trim();
+  const journeyStage = JOURNEY_STAGES.some((s) => s.slug === journeyRaw)
+    ? journeyRaw
+    : "newly-diagnosed";
   const location = String(formData.get("location") || "").trim().slice(0, 80);
   const goalsRaw = formData.getAll("goals").map(String);
   const allowed = new Set(COMPANION_GOALS.map((g) => g.slug));
@@ -38,10 +43,12 @@ export async function completeOnboarding(formData: FormData) {
         upsert: {
           create: {
             diagnosis,
+            journeyStage,
             goals: goals.join(","),
           },
           update: {
             diagnosis,
+            journeyStage,
             goals: goals.join(","),
           },
         },

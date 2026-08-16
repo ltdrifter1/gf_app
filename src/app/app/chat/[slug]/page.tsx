@@ -7,6 +7,7 @@ import { getRoomsWithStats, ROOM_EMOJI } from "@/lib/chat";
 import { getContactList } from "@/lib/actions/chat";
 import { ContactListPane } from "@/components/contact-list-pane";
 import { ChatWindow } from "@/components/chat-window";
+import { MessengerRoomShell } from "@/components/messenger-shell";
 import { effectivePresence } from "@/lib/presence";
 
 export default async function ChatRoomPage({
@@ -72,34 +73,38 @@ export default async function ChatRoomPage({
   };
 
   return (
-    <div className="mx-auto grid h-full min-h-0 w-full max-w-6xl gap-3 lg:grid-cols-[320px_1fr]">
-      <div className="hidden min-h-0 lg:block">
-        <ContactListPane
-          onlineCount={contacts.onlineCount}
-          online={contacts.online}
-          offline={contacts.offline}
-          rooms={rooms}
-          activeSlug={slug}
-          me={me}
-        />
-      </div>
-      <div className="min-h-0 min-w-0">
-        <Link href="/app/chat" className="btn-ghost mb-2 w-fit lg:hidden">
-          <ArrowLeft className="h-4 w-4" /> Contact List
-        </Link>
-        <ChatWindow
-          roomId={room.id}
-          roomName={displayName}
-          roomEmoji={displayEmoji ?? "💬"}
-          description={isDm && peer ? `@${peer.username}` : room.description}
-          isDm={isDm}
-          peerAvatar={isDm && peer ? peer.avatarUrl : null}
-          peerPresence={
-            isDm && peer ? effectivePresence(peer.presence, peer.lastSeen) : null
-          }
-          peerStatusMessage={isDm && peer ? peer.profile?.mood ?? null : null}
-        />
-      </div>
+    <div className="mx-auto flex h-full min-h-0 w-full max-w-6xl flex-col">
+      <Link href="/app/chat" className="btn-ghost mb-2 w-fit lg:hidden">
+        <ArrowLeft className="h-4 w-4" /> Back to Messenger
+      </Link>
+      <MessengerRoomShell
+        sidebar={
+          <ContactListPane
+            embedded
+            onlineCount={contacts.onlineCount}
+            online={contacts.online}
+            offline={contacts.offline}
+            rooms={rooms}
+            activeSlug={slug}
+            me={me}
+          />
+        }
+        main={
+          <ChatWindow
+            embedded
+            roomId={room.id}
+            roomName={displayName}
+            roomEmoji={displayEmoji ?? "💬"}
+            description={isDm && peer ? `@${peer.username}` : room.description}
+            isDm={isDm}
+            peerAvatar={isDm && peer ? peer.avatarUrl : null}
+            peerPresence={
+              isDm && peer ? effectivePresence(peer.presence, peer.lastSeen) : null
+            }
+            peerStatusMessage={isDm && peer ? peer.profile?.mood ?? null : null}
+          />
+        }
+      />
     </div>
   );
 }

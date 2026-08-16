@@ -61,6 +61,9 @@ model Profile {
   userId       String  @unique
   user         User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   diagnosis    String? // celiac | gluten-intolerance | supporter | unspecified
+  /// Experience stage for tailored journal prompts & matching
+  /// newly-diagnosed | intermediate | experienced | caregiver
+  journeyStage String?
   dietaryNotes String?
   /// Comma-separated goals: dining,support,parents,newly-diagnosed,recipes
   goals        String?
