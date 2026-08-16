@@ -40,10 +40,10 @@ export function AuthShell({
         <div className="relative z-10 mx-auto max-w-sm text-center">
           <Image
             src="/logo.webp"
-            alt="Safely"
+            alt="Safely Celiac Community"
             width={120}
             height={120}
-            className="mx-auto rounded-[28%] shadow-glow"
+            className="mx-auto rounded-[28%] shadow-soft"
             priority
           />
           <h1 className="mt-8 font-display text-5xl font-bold text-white">Safely</h1>

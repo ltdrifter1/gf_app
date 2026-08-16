@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     description: "Find your people.",
     url: "https://safelyceliac.com",
     siteName: "Safely",
-    images: [{ url: "/og-logo.png", width: 512, height: 512, alt: "Safely" }],
+    images: [{ url: "/og-logo.png", width: 512, height: 512, alt: "Safely Celiac Community" }],
     type: "website",
   },
 };

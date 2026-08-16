@@ -47,11 +47,11 @@ export default async function LandingPage() {
         <div className="animate-fade-in">
           <Image
             src="/logo.webp"
-            alt="Safely"
+            alt="Safely Celiac Community"
             width={160}
             height={160}
             priority
-            className="mx-auto rounded-[28%] shadow-[0_24px_80px_-20px_rgba(0,0,0,0.65)]"
+            className="mx-auto rounded-[28%] shadow-[0_24px_80px_-20px_rgba(0,0,0,0.45)]"
           />
         </div>
 
