@@ -1,6 +1,6 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight } from "lucide-react";
-import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { HeroMessenger } from "@/components/hero-messenger";
 import { getCurrentUser } from "@/lib/auth";
@@ -64,53 +64,55 @@ export default async function LandingPage() {
 
   return (
     <div className="relative min-h-[100svh] overflow-hidden">
-      {/* Atmosphere */}
       <div className="pointer-events-none absolute inset-0 bg-[#eef5f3] dark:bg-[#071210]" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_18%_12%,rgba(13,148,136,0.22),transparent_52%),radial-gradient(ellipse_at_88%_18%,rgba(2,132,200,0.16),transparent_48%),radial-gradient(ellipse_at_70%_90%,rgba(56,189,248,0.12),transparent_50%)] dark:bg-[radial-gradient(ellipse_at_18%_12%,rgba(13,148,136,0.18),transparent_52%),radial-gradient(ellipse_at_88%_18%,rgba(2,132,200,0.12),transparent_48%)]" />
       <div className="pointer-events-none absolute -left-24 top-1/4 h-80 w-80 animate-float rounded-full bg-brand-500/15 blur-3xl" />
       <div className="pointer-events-none absolute bottom-0 right-0 h-96 w-96 rounded-full bg-accent-500/12 blur-3xl" />
 
       <header className="absolute inset-x-0 top-0 z-30 px-4 pt-4">
-        <div className="mx-auto flex max-w-6xl items-center justify-between">
-          <Logo size={40} />
-          <div className="flex items-center gap-2">
-            <ThemeToggle />
-            {user ? (
-              <Link href="/app/chat" className="btn-primary">
-                Open Messenger
+        <div className="mx-auto flex max-w-6xl items-center justify-end gap-2">
+          <ThemeToggle />
+          {user ? (
+            <Link href="/app/chat" className="btn-primary">
+              Open Messenger
+            </Link>
+          ) : (
+            <>
+              <Link
+                href="/login"
+                className="btn-ghost hidden text-sage-700 hover:bg-white/50 sm:inline-flex dark:text-white/80 dark:hover:bg-white/10"
+              >
+                Sign in
               </Link>
-            ) : (
-              <>
-                <Link
-                  href="/login"
-                  className="btn-ghost hidden text-sage-700 hover:bg-white/50 sm:inline-flex dark:text-white/80 dark:hover:bg-white/10"
-                >
-                  Sign in
-                </Link>
-                <Link href="/register" className="btn-primary">
-                  Join
-                </Link>
-              </>
-            )}
-          </div>
+              <Link href="/register" className="btn-primary">
+                Join
+              </Link>
+            </>
+          )}
         </div>
       </header>
 
-      {/* Full-bleed hero: brand + MSN messenger plane */}
-      <main className="relative z-10 mx-auto grid min-h-[100svh] max-w-6xl overflow-x-clip xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.15fr)]">
+      <main className="relative z-10 mx-auto grid min-h-[100svh] max-w-6xl overflow-x-clip xl:grid-cols-[minmax(0,0.85fr)_minmax(0,1.2fr)]">
         <div className="flex min-w-0 flex-col justify-center px-6 pb-6 pt-28 sm:px-10 xl:px-12 xl:pb-20 xl:pt-24">
           <p className="flex items-center gap-2 text-sm font-medium text-sage-600 animate-fade-in dark:text-sage-300">
             <span className="h-2 w-2 animate-pulse-soft rounded-full bg-emerald-500 shadow-[0_0_8px_2px_rgba(16,185,129,0.55)]" />
             {presenceLabel}
           </p>
 
-          <h1 className="mt-5 font-display text-5xl font-semibold leading-[1.02] tracking-[-0.03em] text-sage-900 animate-fade-in dark:text-white sm:text-6xl xl:text-7xl [animation-delay:80ms]">
-            Safely
+          <h1 className="mt-7 animate-fade-in [animation-delay:80ms]">
+            <span className="sr-only">Safely</span>
+            <Image
+              src="/logo.webp"
+              alt="Safely Celiac Community"
+              width={168}
+              height={168}
+              priority
+              className="rounded-[28%] shadow-[0_24px_80px_-20px_rgba(13,148,136,0.55)]"
+            />
           </h1>
 
-          <p className="mt-4 max-w-md text-lg leading-relaxed text-sage-600 animate-fade-in dark:text-sage-300 sm:text-xl [animation-delay:140ms]">
-            Find your people — live MSN-style messenger for the gluten-free
-            community.
+          <p className="mt-6 max-w-sm text-lg leading-relaxed text-sage-600 animate-fade-in dark:text-sage-300 sm:text-xl [animation-delay:140ms]">
+            Find your people.
           </p>
 
           <div className="mt-9 animate-fade-in [animation-delay:200ms]">
@@ -122,11 +124,11 @@ export default async function LandingPage() {
         </div>
 
         <div className="relative flex min-w-0 items-start justify-center px-4 pb-20 pt-4 sm:px-8 sm:pb-24 xl:items-center xl:justify-end xl:px-6 xl:pb-12 xl:pt-24">
-          <div className="pointer-events-none absolute inset-y-12 inset-x-4 hidden rounded-[2rem] bg-safely-gradient opacity-90 blur-[1px] xl:block" />
-          <div className="pointer-events-none absolute inset-y-8 inset-x-8 hidden rounded-[2.5rem] bg-gradient-to-br from-brand-600 via-brand-500 to-accent-400 opacity-80 xl:block" />
-          <div className="pointer-events-none absolute left-0 top-1/3 hidden h-64 w-64 rounded-full bg-white/20 blur-3xl xl:block" />
+          <div className="pointer-events-none absolute inset-y-10 inset-x-3 hidden rounded-[1.75rem] bg-safely-gradient opacity-90 xl:block" />
+          <div className="pointer-events-none absolute inset-y-6 inset-x-8 hidden rounded-[2rem] bg-gradient-to-br from-brand-700/40 via-transparent to-accent-400/30 xl:block" />
+          <div className="pointer-events-none absolute left-4 top-1/4 hidden h-56 w-56 rounded-full bg-white/25 blur-3xl xl:block" />
 
-          <div className="relative w-full max-w-lg">
+          <div className="relative w-full max-w-lg xl:translate-x-1">
             <HeroMessenger
               onlineCount={messengerOnline}
               messages={bubbles.length > 0 ? bubbles : FALLBACK_MESSAGES}
