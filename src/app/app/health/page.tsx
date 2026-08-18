@@ -101,15 +101,15 @@ export default async function HealthPage({
     },
     track: {
       title: "Track",
-      blurb: "Mood trends and glutening logs — private unless you share status.",
+      blurb: "Mood and glutening notes — private unless you choose to share status.",
     },
     mental: {
       title: "Mental care",
-      blurb: "Gentle guidance for gluten-free life. Not a substitute for your doctor.",
+      blurb: "Peer-minded guidance for gluten-free life. Not a substitute for your doctor.",
     },
     physical: {
       title: "Physical care",
-      blurb: "Healing notes and checklists. Educational only — ask your care team.",
+      blurb: "Healing notes and checklists — educational, then ask your care team.",
     },
   } as const;
 

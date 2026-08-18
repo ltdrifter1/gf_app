@@ -38,7 +38,9 @@ export async function completeOnboarding(formData: FormData) {
     data: {
       location,
       onboardingComplete: true,
-      bio: user.bio === "New to Safely" ? "Just joined Safely" : user.bio,
+      bio: user.bio === "New to Safely" || user.bio === "New here — still unpacking the snack aisle."
+        ? "Just joined — say hi in Messenger"
+        : user.bio,
       profile: {
         upsert: {
           create: {
@@ -97,8 +99,8 @@ export async function completeOnboarding(formData: FormData) {
   await createNotification({
     userId: user.id,
     type: "companion",
-    title: "You're set",
-    body: `We matched you to ${room?.name ?? "community"} and a few people nearby. Say hi.`,
+    title: "You’re in",
+    body: `We matched you to ${room?.name ?? "community"} and a few people nearby. Go say hi when you’re ready.`,
     href: `/app/chat/${roomSlug}`,
   }).catch(() => {});
 

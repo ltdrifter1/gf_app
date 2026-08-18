@@ -155,14 +155,14 @@ export async function addHealthLog(formData: FormData) {
   if (kind === "glutening" || (kind === "flare" && severity >= 4)) {
     const tip =
       kind === "glutening"
-        ? "Rest, hydrate, and skip the blame spiral. Recovery tips + a gentle room are ready."
-        : "Hard flares deserve soft landings — check recovery resources or talk it out.";
+        ? "Rest, hydrate, and be kinder to yourself than the internet would. Recovery tips + a gentle room are ready when you are."
+        : "Rough flares deserve soft landings — recovery tips or company in Messenger, your call.";
     await prisma.notification
       .create({
         data: {
           userId: user.id,
           type: "companion",
-          title: kind === "glutening" ? "You're not alone after a glutening" : "Flare support",
+          title: kind === "glutening" ? "Hey — you’re not alone after a glutening" : "Flare care, whenever you’re ready",
           body: tip,
           href: "/app/health/r/after-glutening",
         },
@@ -187,8 +187,8 @@ export async function addHealthLog(formData: FormData) {
             tipHref: "/app/health/r/after-glutening",
             message:
               kind === "glutening"
-                ? "Want company? The Mental Health room gets it — or read recovery tips."
-                : "Open Mental Health room or recovery tips when you're ready.",
+                ? "Want company? The Mental Health room gets it — or peek at recovery tips first."
+                : "Mental Health room or recovery tips — whichever feels lighter right now.",
           }
         : null,
   };

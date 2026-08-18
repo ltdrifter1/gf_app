@@ -17,8 +17,8 @@ const TOOLS: Record<
   }
 > = {
   "eating-out-spiral": {
-    title: "Eating-out grounding",
-    intro: "Move through each step slowly. You can stop anytime.",
+    title: "Eating-out reset",
+    intro: "Move through each step slowly. You can stop anytime — no gold stars required.",
     steps: [
       {
         title: "Breathe",
@@ -35,18 +35,18 @@ const TOOLS: Record<
       },
       {
         title: "Soften",
-        detail: "One careful meal is enough. Leaving is allowed if it doesn't feel right.",
+        detail: "One careful meal is enough. Leaving is allowed if it doesn’t feel right.",
       },
     ],
   },
   "anxiety-toolkit": {
     title: "Anxiety toolkit",
-    intro: "Pick one tool for the next few minutes — not all of them.",
+    intro: "Pick one tool for the next few minutes — not homework for the whole day.",
     breathing: true,
     steps: [
       {
         title: "Worry window",
-        detail: "Park food fears for a 10-minute slot later. Outside that window, gently redirect.",
+        detail: "Give food fears a 10-minute appointment later. Outside that window, gently redirect.",
       },
       {
         title: "Safe-foods anchor",
@@ -56,7 +56,7 @@ const TOOLS: Record<
   },
   "glutening-checklist": {
     title: "After glutening",
-    intro: "Check off what you’ve done. Shame optional — rest required.",
+    intro: "Check off what you’ve done. Self-roast optional — rest required.",
     checklist: [
       "Stopped further exposure",
       "Hydrated and rested",
@@ -68,7 +68,7 @@ const TOOLS: Record<
   },
   "labs-checklist": {
     title: "Labs to discuss",
-    intro: "Educational only — your clinician decides what’s right for you.",
+    intro: "A friendly checklist for your visit — your clinician decides what’s right.",
     checklist: [
       "tTG-IgA (and total IgA)",
       "CBC",

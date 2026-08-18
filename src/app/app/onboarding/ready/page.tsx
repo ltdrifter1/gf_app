@@ -37,7 +37,7 @@ export default async function OnboardingReadyPage({
         <p className="mt-1 text-sage-500">
           {match.city
             ? `Matched around ${match.city} — jump in when you're ready.`
-            : "Here's a soft landing based on what you shared."}
+            : "Here’s a friendly start based on what you shared."}
         </p>
       </div>
 
@@ -51,7 +51,7 @@ export default async function OnboardingReadyPage({
               Start in {match.room?.name ?? "General Support"}
             </h2>
             <p className="text-sm text-sage-500">
-              {match.room?.description ?? "The main lounge — everyone welcome."}
+              {match.room?.description ?? "The living room of Safely — wins, questions, and mid-week pep talks."}
             </p>
             <Link href={`/app/chat/${roomSlug}`} className="btn-primary mt-3 inline-flex">
               Open room <ArrowRight className="h-4 w-4" />

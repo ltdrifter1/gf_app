@@ -4,14 +4,14 @@ export const COMPANION_GOALS = [
   {
     slug: "dining",
     label: "Safe dining near me",
-    hint: "Find celiac-safe restaurants",
+    hint: "Find spots where you can exhale",
     roomSlug: "general-support",
     category: "restaurants",
   },
   {
     slug: "newly-diagnosed",
     label: "I'm newly diagnosed",
-    hint: "Starter tips & soft landings",
+    hint: "Starter tips & friendly company",
     roomSlug: "newly-diagnosed",
     category: "newly-diagnosed",
   },
@@ -25,14 +25,14 @@ export const COMPANION_GOALS = [
   {
     slug: "parents",
     label: "Raising a celiac kid",
-    hint: "Parents & caregivers",
+    hint: "Parents & caregivers, unite",
     roomSlug: "parents",
     category: "newly-diagnosed",
   },
   {
     slug: "recipes",
     label: "GF recipes & cooking",
-    hint: "Kitchen wins at home",
+    hint: "Kitchen wins that actually taste good",
     roomSlug: "general-support",
     category: "recipes",
   },
