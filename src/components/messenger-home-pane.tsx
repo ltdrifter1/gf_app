@@ -1,20 +1,7 @@
 import Link from "next/link";
 import { MsnPresenceIcon } from "@/components/msn-presence-icon";
-import { ChannelSurfingTicker } from "@/components/channel-surfing-ticker";
 import { presenceLabel } from "@/lib/presence";
 import type { MsnContact } from "@/components/buddy-list";
-
-type Room = {
-  id: string;
-  name: string;
-  slug: string;
-  description: string | null;
-  emoji: string;
-  members: number;
-  online: number;
-  unreadCount?: number;
-  lastMessage: { text: string; sender: string; at: string } | null;
-};
 
 type Me = {
   name: string;
@@ -26,13 +13,11 @@ export function MessengerHomePane({
   me,
   onlineCount,
   online,
-  rooms,
   embedded = false,
 }: {
   me: Me;
   onlineCount: number;
   online: MsnContact[];
-  rooms: Room[];
   embedded?: boolean;
 }) {
   const liveBuddies = online.slice(0, 8);
@@ -41,8 +26,6 @@ export function MessengerHomePane({
 
   return (
     <div className={embedded ? "flex h-full min-h-0 flex-col" : "msn-window msn-window-fill hidden lg:flex"}>
-      <ChannelSurfingTicker rooms={rooms} />
-
       <div className="relative overflow-hidden border-b border-sage-200/50 px-6 py-6 dark:border-white/10">
         <div className="pointer-events-none absolute -right-16 -top-20 h-48 w-48 rounded-full bg-brand-400/15 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-24 left-1/3 h-40 w-40 rounded-full bg-accent-400/10 blur-3xl" />
@@ -58,7 +41,7 @@ export function MessengerHomePane({
           {me.statusMessage ? ` — ${me.statusMessage}` : ""}
         </p>
         <p className="mt-3 max-w-md text-sm leading-relaxed text-sage-600 dark:text-sage-300">
-          {onlineCount} online now. Surf a channel above, or open a contact to start chatting.
+          {onlineCount} online now. Open a contact or room to start chatting.
         </p>
       </div>
 
@@ -93,7 +76,7 @@ export function MessengerHomePane({
       </div>
 
       <div className="border-t border-sage-200/50 px-4 py-2.5 text-xs text-sage-500 dark:border-white/10">
-        Select a contact or surf a channel to start chatting
+        Select a contact or room to start chatting
       </div>
     </div>
   );
