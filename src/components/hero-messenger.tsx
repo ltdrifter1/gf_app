@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import { MsnPresenceIcon } from "@/components/msn-presence-icon";
 import { cn } from "@/lib/utils";
 
@@ -44,7 +45,6 @@ export function HeroMessenger({
       );
     });
     return () => timers.forEach(clearTimeout);
-    // Restart only when the message content actually changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [linesKey]);
 
@@ -62,17 +62,16 @@ export function HeroMessenger({
         <div className="msn-titlebar">
           <MsnPresenceIcon status="online" size={14} />
           <span className="min-w-0 flex-1 truncate text-[12px] font-semibold tracking-wide">
-            Safely Messenger — Instant Message
+            Safely Messenger
           </span>
-          <span className="hidden text-[10px] text-white/80 sm:inline">
+          <span className="hidden text-[10px] font-medium text-white/75 sm:inline">
             General Support
           </span>
-          <span className="msn-titlebar-btn" aria-hidden>
-            _
-          </span>
-          <span className="msn-titlebar-btn" aria-hidden>
-            ×
-          </span>
+          <div className="msn-titlebar-controls" aria-hidden>
+            <span className="msn-titlebar-btn">–</span>
+            <span className="msn-titlebar-btn">□</span>
+            <span className="msn-titlebar-btn msn-titlebar-btn-close">×</span>
+          </div>
         </div>
 
         <div className="msn-menubar">
@@ -93,22 +92,28 @@ export function HeroMessenger({
           </button>
         </div>
 
-        <div className="flex items-center gap-3 border-b border-[#c5c2b2]/80 bg-gradient-to-b from-[#faf9f4] to-[#f0efe6] px-3 py-2.5 dark:border-white/10 dark:from-[#243044] dark:to-[#1c2636]">
-          <div className="grid h-12 w-12 place-items-center rounded-md border border-[#7f9db9]/70 bg-gradient-to-br from-[#5eb1ef] via-[#1a7fd4] to-[#0d5aa8] text-xl text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.45),0_4px_12px_-4px_rgba(13,90,168,0.55)]">
-            💬
+        <div className="msn-hero-peer">
+          <div className="msn-hero-avatar">
+            <Image
+              src="/logo.webp"
+              alt=""
+              width={44}
+              height={44}
+              className="h-full w-full object-cover"
+            />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="font-display text-[15px] font-semibold tracking-tight text-[#0a246a] dark:text-white">
+            <p className="font-display text-[15px] font-semibold tracking-tight text-[#0a3a6e] dark:text-white">
               General Support
             </p>
-            <p className="mt-0.5 flex items-center gap-1.5 text-[11px] text-[#555] dark:text-sage-400">
+            <p className="mt-0.5 flex items-center gap-1.5 text-[11px] text-[#4a5568] dark:text-sage-400">
               <MsnPresenceIcon status="online" size={11} />
-              {onlineCount} online · Safely Lounge
+              {onlineCount} online · Lounge
             </p>
           </div>
         </div>
 
-        <div className="msn-inset m-2 flex min-h-[260px] flex-col gap-3 p-3.5 sm:min-h-[300px]">
+        <div className="msn-inset m-2.5 flex min-h-[260px] flex-col gap-3 p-3.5 sm:min-h-[300px]">
           {shown.map((m, i) => {
             const mine = m.name === "You";
             return (
@@ -119,7 +124,7 @@ export function HeroMessenger({
                 <p>
                   <span
                     className="msn-says-name"
-                    style={{ color: mine ? "#0a5a9c" : "#8b1a1a" }}
+                    style={{ color: mine ? "#0a6ebd" : "#b42318" }}
                   >
                     {m.name} says:
                   </span>
@@ -132,7 +137,7 @@ export function HeroMessenger({
           })}
 
           {awaitingMore && (
-            <p className="text-[11px] italic text-[#666] dark:text-sage-400">
+            <p className="text-[11px] italic text-[#64748b] dark:text-sage-400">
               Someone is typing a message…
             </p>
           )}
@@ -142,7 +147,7 @@ export function HeroMessenger({
           <button type="button" className="msn-nudge-btn" tabIndex={-1}>
             Nudge!
           </button>
-          <div className="msn-input flex-1 text-[#888]">
+          <div className="msn-input flex-1 text-[#94a3b8]">
             Message General Support…
           </div>
           <button type="button" className="msn-send" tabIndex={-1}>
