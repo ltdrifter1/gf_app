@@ -137,7 +137,7 @@ export function ProfileEditForm({
           ))}
         </select>
         <p className="mt-1 text-[11px] text-sage-400">
-          Tailors private journal prompts on Health.
+          Tailors private journal prompts on Journal.
         </p>
       </div>
       <div>

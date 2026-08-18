@@ -70,10 +70,10 @@ export default async function HealthResourcePage({
             Open Mental Health chat
           </Link>
         )}
-        <Link href="/app/health?tab=track" className="btn-secondary">
+        <Link href="/app/journal?tab=track" className="btn-secondary">
           Log on Track
         </Link>
-        <Link href="/app/health" className="btn-ghost">
+        <Link href="/app/journal" className="btn-ghost">
           Journal
         </Link>
       </div>

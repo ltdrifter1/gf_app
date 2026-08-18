@@ -16,9 +16,10 @@ Design: glassmorphism with MSN gloss. Brand gradient: `bg-safely-gradient`.
 | Community feed | `/app` (`?scope=following`) |
 | Public profiles | `/app/u/[username]` |
 | Messenger | `/app/chat`, `/app/chat/[slug]` |
+| Journal / Track | `/app/journal`, `/app/journal?tab=track` |
 | Restaurants | `/app/restaurants` |
 | Recipes | `/app/recipes` |
-| Health | `/app/health` |
+| Health | `/app/health` (`?tab=mental` \| `physical`) |
 | Saved / Search / Profile | `/app/saved`, `/app/search`, `/app/profile` |
 | Admin | `/app/admin` |
 

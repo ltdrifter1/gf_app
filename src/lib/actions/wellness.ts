@@ -9,6 +9,7 @@ const HEALTH_LOG_KINDS = new Set(["glutening", "symptom", "flare"]);
 
 function revalidateHealth() {
   revalidatePath("/app/health");
+  revalidatePath("/app/journal");
 }
 
 export async function logMood(formData: FormData) {

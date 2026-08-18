@@ -16,6 +16,7 @@ import {
   HeartPulse,
   Bookmark,
   Shield,
+  Feather,
 } from "lucide-react";
 import { Logo } from "./logo";
 import { Avatar } from "./ui/avatar";
@@ -35,6 +36,7 @@ type NavUser = {
 const SIDEBAR_NAV = [
   { href: "/app/chat", label: "Messenger", icon: MessageCircle },
   { href: "/app", label: "Community", icon: Users, exact: true },
+  { href: "/app/journal", label: "Journal", icon: Feather },
   { href: "/app/health", label: "Health", icon: HeartPulse },
   { href: "/app/restaurants", label: "Dining", icon: UtensilsCrossed },
   { href: "/app/recipes", label: "Recipes", icon: BookOpen },
@@ -46,7 +48,7 @@ const SIDEBAR_NAV = [
 const MOBILE_NAV = [
   { href: "/app/chat", label: "Messenger", icon: MessageCircle },
   { href: "/app", label: "Community", icon: Users, exact: true },
-  { href: "/app/restaurants", label: "Dining", icon: UtensilsCrossed },
+  { href: "/app/journal", label: "Journal", icon: Feather },
   { href: "/app/profile", label: "You", icon: UserRound },
 ] as const;
 
