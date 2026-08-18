@@ -3,10 +3,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Avatar } from "./ui/avatar";
 import { MsnPresenceIcon } from "./msn-presence-icon";
-import {
-  ChannelSurfingTicker,
-  type SurfRoom,
-} from "@/components/channel-surfing-ticker";
 import { timeAgo, cn } from "@/lib/utils";
 import { presenceLabel } from "@/lib/presence";
 import { isNudgeMessage, nudgeSystemLine } from "@/lib/msn";
@@ -28,25 +24,21 @@ export function ChatWindow({
   roomId,
   roomName,
   roomEmoji,
-  roomSlug,
   description,
   isDm,
   peerAvatar,
   peerPresence: initialPeerPresence,
   peerStatusMessage,
-  rooms = [],
   embedded = false,
 }: {
   roomId: string;
   roomName: string;
   roomEmoji: string;
-  roomSlug?: string;
   description?: string | null;
   isDm?: boolean;
   peerAvatar?: string | null;
   peerPresence?: string | null;
   peerStatusMessage?: string | null;
-  rooms?: SurfRoom[];
   embedded?: boolean;
 }) {
   const [messages, setMessages] = useState<Msg[]>([]);
@@ -410,10 +402,6 @@ export function ChatWindow({
         shake && "msn-nudge-shake"
       )}
     >
-      {rooms.length > 0 && (
-        <ChannelSurfingTicker rooms={rooms} activeSlug={roomSlug} />
-      )}
-
       <div className="relative flex items-center gap-3.5 overflow-hidden border-b border-sage-200/50 px-4 py-3.5 dark:border-white/10">
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-brand-500/[0.05] via-transparent to-accent-400/[0.06]" />
         {isDm ? (
