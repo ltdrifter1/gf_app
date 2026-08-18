@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { MsnPresenceIcon } from "@/components/msn-presence-icon";
 import { cn } from "@/lib/utils";
 
@@ -18,20 +18,38 @@ export function HeroMessenger({
   const [visible, setVisible] = useState(0);
   const [typing, setTyping] = useState(true);
 
+  const lines = useMemo(
+    () => messages.filter((m) => m.name.trim() && m.text.trim()),
+    [messages]
+  );
+  const linesKey = useMemo(
+    () => lines.map((m) => `${m.name}:${m.text}`).join("|"),
+    [lines]
+  );
+
   useEffect(() => {
     setVisible(0);
     setTyping(true);
+    if (lines.length === 0) {
+      setTyping(false);
+      return;
+    }
     const timers: ReturnType<typeof setTimeout>[] = [];
-    messages.forEach((_, i) => {
+    lines.forEach((_, i) => {
       timers.push(
         setTimeout(() => {
           setVisible(i + 1);
-          if (i === messages.length - 1) setTyping(false);
-        }, 600 + i * 900)
+          if (i === lines.length - 1) setTyping(false);
+        }, 700 + i * 950)
       );
     });
     return () => timers.forEach(clearTimeout);
-  }, [messages]);
+    // Restart only when the message content actually changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [linesKey]);
+
+  const shown = lines.slice(0, visible);
+  const awaitingMore = typing && visible < lines.length;
 
   return (
     <div
@@ -91,10 +109,13 @@ export function HeroMessenger({
         </div>
 
         <div className="msn-inset m-2 flex min-h-[260px] flex-col gap-3 p-3.5 sm:min-h-[300px]">
-          {messages.slice(0, visible).map((m, i) => {
+          {shown.map((m, i) => {
             const mine = m.name === "You";
             return (
-              <div key={`${m.name}-${i}`} className="msn-says animate-fade-in">
+              <div
+                key={`${m.name}-${m.text.slice(0, 24)}-${i}`}
+                className="msn-says animate-fade-in"
+              >
                 <p>
                   <span
                     className="msn-says-name"
@@ -110,7 +131,7 @@ export function HeroMessenger({
             );
           })}
 
-          {typing && visible < messages.length && (
+          {awaitingMore && (
             <p className="text-[11px] italic text-[#666] dark:text-sage-400">
               Someone is typing a message…
             </p>
@@ -130,7 +151,7 @@ export function HeroMessenger({
         </div>
 
         <div className="msn-statusbar">
-          {typing && visible < messages.length ? (
+          {awaitingMore ? (
             <span className="italic">Someone is typing a message…</span>
           ) : (
             <span>{onlineCount} people online</span>
