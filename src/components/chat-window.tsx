@@ -498,6 +498,7 @@ export function ChatWindow({
           }
 
           const displayName = m.mine ? "You" : m.sender.name;
+          const saysLabel = m.mine ? "You say:" : `${m.sender.name} says:`;
           return (
             <div
               key={m.id}
@@ -512,7 +513,7 @@ export function ChatWindow({
                   className="msn-says-name"
                   style={{ color: msnSaysColor(displayName, m.mine) }}
                 >
-                  {displayName} says:
+                  {saysLabel}
                 </span>
               </p>
               <p
