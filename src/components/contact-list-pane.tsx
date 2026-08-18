@@ -52,19 +52,25 @@ export function ContactListPane({
   const [query, setQuery] = useState("");
 
   return (
-    <div className={cn("flex h-full min-h-0 flex-col", !embedded && "msn-window msn-window-fill", className)}>
-      <div className="flex items-center justify-between gap-2 border-b border-sage-200/60 px-4 py-3 dark:border-white/10">
+    <div
+      className={cn(
+        "flex h-full min-h-0 flex-col bg-gradient-to-b from-white/50 to-transparent dark:from-white/[0.03]",
+        !embedded && "msn-window msn-window-hero msn-window-fill",
+        className
+      )}
+    >
+      <div className="flex items-center justify-between gap-2 border-b border-[#94a3b8]/40 px-3 py-2.5 dark:border-white/10">
         <div className="min-w-0">
-          <p className="font-display text-base font-semibold text-sage-900 dark:text-white">
-            Messenger
+          <p className="text-[13px] font-semibold text-[#0a3a6e] dark:text-white">
+            Contacts
           </p>
-          <p className="text-xs text-sage-500">
+          <p className="text-[11px] text-[#64748b] dark:text-sage-400">
             {onlineCount} online
           </p>
         </div>
         <Link
           href="/app/search"
-          className="btn-ghost rounded-full p-2"
+          className="grid h-8 w-8 place-items-center rounded-lg border border-[#94a3b8]/45 bg-white/70 text-[#0a3a6e] transition hover:bg-white dark:border-white/15 dark:bg-white/5 dark:text-sage-100"
           title="Find people"
           aria-label="Find people"
         >
@@ -74,32 +80,32 @@ export function ContactListPane({
 
       <MsnMeStrip me={me} />
 
-      <div className="px-3 py-2">
+      <div className="px-2.5 py-2">
         <label className="relative block">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-sage-400" />
+          <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#94a3b8]" />
           <input
             id="msn-contact-search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search contacts & rooms…"
-            className="msn-input w-full py-2 pl-9 text-[13px]"
+            className="msn-input w-full py-2 pl-8 text-[12.5px]"
             aria-label="Search contacts and rooms"
           />
         </label>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto px-2 pb-2">
+      <div className="min-h-0 flex-1 overflow-y-auto px-1.5 pb-2">
         <BuddyList online={online} offline={offline} activeSlug={activeSlug} query={query} />
 
-        <div className="mt-3 border-t border-sage-200/50 pt-2 dark:border-white/10">
-          <p className="mb-1 px-2 text-[11px] font-semibold uppercase tracking-wider text-sage-500">
+        <div className="mt-3 border-t border-[#94a3b8]/35 pt-2 dark:border-white/10">
+          <p className="mb-1 px-2 text-[10px] font-semibold uppercase tracking-wider text-[#64748b]">
             Community rooms
           </p>
           <RoomsList rooms={rooms} activeSlug={activeSlug} query={query} />
         </div>
       </div>
 
-      <div className="border-t border-sage-200/50 px-2 py-1.5 dark:border-white/10">
+      <div className="border-t border-[#94a3b8]/35 px-2 py-1.5 dark:border-white/10">
         <MsnPrefsControls />
       </div>
     </div>

@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
+import Image from "next/image";
 import { Avatar } from "./ui/avatar";
 import { MsnPresenceIcon } from "./msn-presence-icon";
+import { msnSaysColor } from "./msn-window-chrome";
 import { timeAgo, cn } from "@/lib/utils";
 import { presenceLabel } from "@/lib/presence";
 import { isNudgeMessage, nudgeSystemLine } from "@/lib/msn";
@@ -394,96 +396,85 @@ export function ChatWindow({
         ? `${typing[0]} is typing a message…`
         : `${typing.slice(0, 2).join(" and ")} are typing a message…`;
 
+  const subtitleLine = isDm
+    ? peerStatusMessage
+      ? `${presenceLabel(status)} — ${peerStatusMessage}`
+      : presenceLabel(status)
+    : `${online} online · Lounge`;
+
   return (
     <div
       className={cn(
         "flex h-full min-h-0 flex-col",
-        !embedded && "msn-window msn-window-fill",
+        !embedded && "msn-window msn-window-hero msn-window-fill",
         shake && "msn-nudge-shake"
       )}
     >
-      <div className="relative flex items-center gap-3.5 overflow-hidden border-b border-sage-200/50 px-4 py-3.5 dark:border-white/10">
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-brand-500/[0.05] via-transparent to-accent-400/[0.06]" />
+      <div className="msn-hero-peer shrink-0">
         {isDm ? (
-          <Avatar
-            name={roomName}
-            src={peerAvatar ?? null}
-            size={48}
-            presence={status}
-            className="relative rounded-2xl"
-          />
+          <div className="msn-hero-avatar">
+            <Avatar
+              name={roomName}
+              src={peerAvatar ?? null}
+              size={44}
+              presence={status}
+              className="h-full w-full rounded-[0.55rem]"
+            />
+          </div>
         ) : (
-          <div className="relative grid h-12 w-12 place-items-center rounded-2xl bg-safely-gradient text-xl text-white shadow-glow">
-            {roomEmoji}
+          <div className="msn-hero-avatar grid place-items-center bg-white text-lg">
+            {roomEmoji ? (
+              <span aria-hidden>{roomEmoji}</span>
+            ) : (
+              <Image
+                src="/logo.webp"
+                alt=""
+                width={44}
+                height={44}
+                className="h-full w-full object-cover"
+              />
+            )}
           </div>
         )}
-        <div className="relative min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <p className="truncate font-display text-[1.05rem] font-bold tracking-tight text-sage-900 dark:text-white">
-              {roomName}
-            </p>
-            <span
-              className={cn(
-                "inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
-                live
-                  ? "bg-emerald-500/15 text-emerald-700 dark:bg-emerald-400/15 dark:text-emerald-300"
-                  : "bg-sage-500/10 text-sage-400"
-              )}
-              title={live ? "Live" : "Reconnecting…"}
-            >
-              {live && (
-                <span className="relative flex h-1.5 w-1.5">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-60" />
-                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                </span>
-              )}
-              {live ? "Live" : "Syncing"}
-            </span>
-          </div>
-          <p className="mt-0.5 flex items-center gap-1.5 text-xs text-sage-500">
+        <div className="min-w-0 flex-1">
+          <p className="truncate font-display text-[15px] font-semibold tracking-tight text-[#0a3a6e] dark:text-white">
+            {roomName}
+          </p>
+          <p className="mt-0.5 flex items-center gap-1.5 text-[11px] text-[#4a5568] dark:text-sage-400">
             <MsnPresenceIcon
               status={isDm ? status : online > 0 ? "online" : "offline"}
-              size={12}
+              size={11}
             />
-            {isDm ? (
-              <>
-                {presenceLabel(status)}
-                {peerStatusMessage
-                  ? ` — ${peerStatusMessage}`
-                  : description
-                    ? ` · ${description}`
-                    : ""}
-              </>
-            ) : (
-              <>
-                {online} online · {memberCount} members
-                {description ? ` · ${description}` : ""}
-              </>
-            )}
+            <span className="truncate">{subtitleLine}</span>
+            {!live ? (
+              <span className="shrink-0 text-[10px] text-[#94a3b8]">· syncing</span>
+            ) : null}
           </p>
+          {description && !isDm ? (
+            <p className="mt-0.5 truncate text-[11px] text-[#64748b] dark:text-sage-500">
+              {description}
+            </p>
+          ) : null}
         </div>
-        <button
-          type="button"
-          className="relative btn-ghost rounded-full px-3 py-1.5 text-xs"
-          onClick={sendNudge}
-          disabled={nudging}
-        >
-          Nudge
-        </button>
+        {memberCount > 0 && !isDm ? (
+          <p className="hidden shrink-0 text-[10px] tabular-nums text-[#64748b] sm:block">
+            {memberCount} members
+          </p>
+        ) : null}
       </div>
 
       <div
         ref={scrollRef}
         onScroll={onScroll}
-        className="min-h-0 flex-1 space-y-3 overflow-y-auto bg-[radial-gradient(ellipse_at_top,rgba(13,148,136,0.06),transparent_55%)] px-4 py-4 dark:bg-[radial-gradient(ellipse_at_top,rgba(13,148,136,0.08),transparent_55%)]"
+        className="msn-inset m-2.5 min-h-0 flex-1 space-y-3 overflow-y-auto p-3.5"
       >
         {hasMore && (
-          <p className="text-center text-xs text-sage-400">
+          <p className="text-center text-[11px] text-[#94a3b8]">
             {loadingOlder ? "Loading earlier messages…" : "Scroll up for earlier messages"}
           </p>
         )}
         {messages.length === 0 && (
-          <p className="mt-10 text-center text-sm text-sage-500">
+          <p className="mt-8 text-center text-[13px] text-[#64748b]">
             This is the beginning of your conversation. Say hello!
           </p>
         )}
@@ -494,74 +485,67 @@ export function ChatWindow({
               <p
                 key={m.id}
                 className={cn(
-                  "text-center text-xs italic text-amber-800 dark:text-amber-200/90",
+                  "text-center text-[12px] italic text-[#92400e] dark:text-amber-200/90",
                   m.failed && "text-rose-600"
                 )}
               >
                 * {nudgeSystemLine(m.mine ? roomName : m.sender.name, m.mine)}
-                <span className="ml-2 not-italic text-[10px] text-sage-400">
+                <span className="ml-2 not-italic text-[10px] text-[#94a3b8]">
                   {m.pending ? "Sending…" : m.failed ? "Failed" : timeAgo(m.createdAt)}
                 </span>
               </p>
             );
           }
 
+          const displayName = m.mine ? "You" : m.sender.name;
           return (
             <div
               key={m.id}
               className={cn(
-                "flex",
-                m.mine ? "justify-end" : "justify-start",
+                "msn-says",
                 m.pending && "opacity-70",
                 m.failed && "opacity-90"
               )}
             >
-              <div
+              <p>
+                <span
+                  className="msn-says-name"
+                  style={{ color: msnSaysColor(displayName, m.mine) }}
+                >
+                  {displayName} says:
+                </span>
+              </p>
+              <p
                 className={cn(
-                  "max-w-[85%] rounded-2xl px-3.5 py-2.5 shadow-soft",
-                  m.mine
-                    ? "bg-gradient-to-br from-brand-500/20 to-accent-400/15 text-sage-900 ring-1 ring-brand-400/20 dark:from-brand-500/30 dark:to-accent-500/15 dark:text-sage-50 dark:ring-brand-400/25"
-                    : "bg-white/80 text-sage-900 ring-1 ring-sage-200/50 dark:bg-white/[0.07] dark:text-sage-100 dark:ring-white/10"
+                  "whitespace-pre-wrap break-words pl-0.5 text-[13.5px] leading-relaxed text-[#1a1a1a] dark:text-sage-100",
+                  m.failed && "text-rose-700 dark:text-rose-300"
                 )}
               >
-                {!m.mine && (
-                  <p className="mb-0.5 text-xs font-semibold text-brand-700 dark:text-brand-300">
-                    {m.sender.name}
-                  </p>
-                )}
-                <p
-                  className={cn(
-                    "whitespace-pre-wrap break-words text-[13px] leading-relaxed",
-                    m.failed && "text-rose-700 dark:text-rose-300"
-                  )}
-                >
-                  {m.content}
-                </p>
-                <p className="mt-1 text-[10px] text-sage-400">
-                  {m.failed ? "Failed to send" : m.pending ? "Sending…" : timeAgo(m.createdAt)}
-                </p>
-              </div>
+                {m.content}
+              </p>
+              <p className="mt-0.5 pl-0.5 text-[10px] text-[#94a3b8]">
+                {m.failed ? "Failed to send" : m.pending ? "Sending…" : timeAgo(m.createdAt)}
+              </p>
             </div>
           );
         })}
       </div>
 
       {sendError && (
-        <p className="px-4 text-xs text-rose-600" role="alert">
+        <p className="px-3 pb-1 text-[11px] text-rose-600" role="alert">
           {sendError}
         </p>
       )}
 
-      <div className="msn-composer relative">
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-brand-500/[0.04] to-transparent" />
+      <div className="msn-composer shrink-0">
         <button
           type="button"
-          className="msn-nudge-btn relative"
+          className="msn-nudge-btn"
           onClick={sendNudge}
           disabled={nudging || sending}
           title="Nudge"
         >
-          Nudge
+          Nudge!
         </button>
         <input
           value={input}
@@ -573,27 +557,27 @@ export function ChatWindow({
             }
           }}
           maxLength={2000}
-          placeholder="Type a message…"
-          className="msn-input relative flex-1"
+          placeholder={`Message ${roomName}…`}
+          className="msn-input flex-1"
         />
         <button
           type="button"
           onClick={send}
           disabled={sending || !input.trim()}
-          className="msn-send relative"
+          className="msn-send"
         >
           Send
         </button>
       </div>
 
-      <div className="min-h-[1.75rem] border-t border-sage-200/40 bg-white/20 px-4 py-1.5 text-xs text-sage-500 dark:border-white/10 dark:bg-white/[0.02]">
+      <div className="msn-statusbar shrink-0">
         {typingLine ? (
-          <span className="italic text-brand-700 dark:text-brand-300">{typingLine}</span>
+          <span className="italic">{typingLine}</span>
         ) : (
           <span>
             {isDm
               ? `${roomName} is ${presenceLabel(status).toLowerCase()}`
-              : `${online} people online in this room`}
+              : `${online} people online`}
           </span>
         )}
       </div>
