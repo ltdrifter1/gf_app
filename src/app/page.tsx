@@ -10,15 +10,15 @@ import { prisma } from "@/lib/prisma";
 const FALLBACK_MESSAGES = [
   {
     name: "Maya",
-    text: "Found a dedicated GF kitchen today — crying happy tears.",
+    text: "Dedicated GF bakery downtown — I may have teared up over a croissant. Worth it.",
   },
   {
     name: "Priya",
-    text: "Two weeks post diagnosis. Glad I'm not alone here.",
+    text: "Two weeks in and still side-eyeing soy sauce. Glad I’m not figuring this out alone.",
   },
   {
     name: "Leo",
-    text: "You've got this. Ask us anything.",
+    text: "You’ve got this. Ask anything — even the “is this silly?” questions.",
   },
 ];
 

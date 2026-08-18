@@ -12,12 +12,12 @@ async function main() {
   const passwordHash = await bcrypt.hash("password123", 10);
 
   const usersData = [
-    { email: "maya@safely.app", username: "maya", name: "Maya Patel", role: "USER", bio: "Diagnosed 2021. Sharing my safe-eating wins 🔵", location: "Austin, TX", diagnosis: "celiac", journeyStage: "experienced", mood: "grateful for dedicated kitchens", likeToMeet: "Anyone who gets cross-contamination anxiety", interests: "Safe dining · GF baking · late-night Messenger" },
-    { email: "leo@safely.app", username: "leo", name: "Leo Martins", role: "USER", bio: "Dad of a celiac kiddo. Here for the community.", location: "Portland, OR", diagnosis: "supporter", journeyStage: "caregiver", mood: "packing school lunches", likeToMeet: "Other GF parents & school advocates", interests: "Kid-friendly recipes · school IEPs · meal prep" },
-    { email: "sara@safely.app", username: "sara", name: "Sara Kim", role: "USER", bio: "Gluten intolerance + lots of opinions on bread.", location: "Brooklyn, NY", diagnosis: "gluten-intolerance", journeyStage: "intermediate", mood: "hunting the perfect GF loaf", likeToMeet: "Bakers, New Yorkers, sauce detectives", interests: "Bread rankings · restaurants · hot takes" },
-    { email: "admin@safely.app", username: "admin", name: "Safely Admin", role: "ADMIN", bio: "Keeping the community safe & kind.", location: "Remote", diagnosis: "supporter", journeyStage: "experienced", mood: "online & watching the rooms", likeToMeet: "Kind community members", interests: "Moderation · community health" },
-    { email: "theo@safely.app", username: "theo", name: "Theo Nguyen", role: "USER", bio: "Travel + gluten-free = my whole personality ✈️", location: "Austin, TX", diagnosis: "celiac", journeyStage: "experienced", mood: "planning the next GF trip", likeToMeet: "Travelers who share phrase cards", interests: "Travel · AIC spots · street food" },
-    { email: "priya@safely.app", username: "priya", name: "Priya Shah", role: "USER", bio: "Newly diagnosed and figuring it out.", location: "Brooklyn, NY", diagnosis: "celiac", journeyStage: "newly-diagnosed", mood: "two weeks in, still learning", likeToMeet: "Newly diagnosed friends who get it", interests: "Starter tips · mental health · labeling" },
+    { email: "maya@safely.app", username: "maya", name: "Maya Patel", role: "USER", bio: "Diagnosed 2021. Still gets weirdly emotional about good tortillas.", location: "Austin, TX", diagnosis: "celiac", journeyStage: "experienced", mood: "found a bakery that gets it", likeToMeet: "Anyone who rehearses the allergen question in the car", interests: "Safe dining · GF baking · late-night Messenger" },
+    { email: "leo@safely.app", username: "leo", name: "Leo Martins", role: "USER", bio: "Dad of a celiac kiddo. Professional lunchbox diplomat.", location: "Portland, OR", diagnosis: "supporter", journeyStage: "caregiver", mood: "packing school snacks like a spy", likeToMeet: "Other GF parents & patient school advocates", interests: "Kid-friendly recipes · school IEPs · meal prep" },
+    { email: "sara@safely.app", username: "sara", name: "Sara Kim", role: "USER", bio: "Gluten intolerance + strong opinions about toast. You’ve been warned.", location: "Brooklyn, NY", diagnosis: "gluten-intolerance", journeyStage: "intermediate", mood: "on a quest for the perfect loaf", likeToMeet: "Bakers, New Yorkers, fellow sauce detectives", interests: "Bread rankings · restaurants · hot takes" },
+    { email: "admin@safely.app", username: "admin", name: "Safely Admin", role: "ADMIN", bio: "Keeping the rooms kind, weird, and welcoming.", location: "Remote", diagnosis: "supporter", journeyStage: "experienced", mood: "online if you need a hand", likeToMeet: "Kind community members", interests: "Moderation · community health" },
+    { email: "theo@safely.app", username: "theo", name: "Theo Nguyen", role: "USER", bio: "Travel + gluten-free = my personality, my packing list, and half my photos.", location: "Austin, TX", diagnosis: "celiac", journeyStage: "experienced", mood: "plotting the next safe trip", likeToMeet: "Travelers who share phrase cards without judgment", interests: "Travel · AIC spots · street food" },
+    { email: "priya@safely.app", username: "priya", name: "Priya Shah", role: "USER", bio: "Two weeks in. Learning labels like it’s a second language — because it kind of is.", location: "Brooklyn, NY", diagnosis: "celiac", journeyStage: "newly-diagnosed", mood: "still figuring out soy sauce", likeToMeet: "Newly diagnosed friends who ask the “dumb” questions too", interests: "Starter tips · mental health · labeling" },
   ];
 
   const users: Record<string, { id: string }> = {};
@@ -73,11 +73,11 @@ async function main() {
   }
 
   const rooms = [
-    { slug: "general-support", name: "General Support", description: "The main lounge — everyone welcome." },
-    { slug: "newly-diagnosed", name: "Newly Diagnosed", description: "Just starting out? We've got you." },
-    { slug: "mental-health", name: "Mental Health", description: "A gentle space to talk feelings." },
-    { slug: "parents", name: "Parents", description: "Raising celiac kids together." },
-    { slug: "teens", name: "Teens", description: "For younger members navigating GF life." },
+    { slug: "general-support", name: "General Support", description: "The living room of Safely — wins, questions, and mid-week pep talks." },
+    { slug: "newly-diagnosed", name: "Newly Diagnosed", description: "Fresh labels, weird sauces, and people who just got here too." },
+    { slug: "mental-health", name: "Mental Health", description: "Soft landings for hard days — judgment stays outside." },
+    { slug: "parents", name: "Parents", description: "Lunchbox diplomacy, school emails, and high-fives that count." },
+    { slug: "teens", name: "Teens", description: "GF life without the grown-up lecture energy." },
   ];
   const roomIds: Record<string, string> = {};
   for (const r of rooms) {
@@ -99,15 +99,17 @@ async function main() {
     }
   }
 
-  if ((await prisma.message.count()) === 0) {
+  // Refresh demo lounge chat so local seed always matches the warm voice
+  {
     const general = roomIds["general-support"];
+    await prisma.message.deleteMany({ where: { roomId: general } });
     const convo: [string, string][] = [
-      ["maya", "Morning everyone ☀️ Found a bakery with a dedicated GF kitchen yesterday — crying happy tears"],
-      ["sara", "No way! Drop it in Safe Dining please 🙏"],
-      ["theo", "This is why I love this place lol"],
-      ["priya", "Hi all — 2 weeks post diagnosis and a little overwhelmed honestly"],
-      ["maya", "Welcome Priya 💙 it gets so much easier, promise. Ask us anything"],
-      ["leo", "The newly-diagnosed room has a great starter vibe too!"],
+      ["maya", "Okay but the dedicated GF bakery downtown? I may have teared up over a croissant. No regrets."],
+      ["sara", "Name. Location. Immediately. Don’t leave us hanging."],
+      ["theo", "This is why I stick around — the snack intel is elite."],
+      ["priya", "Hi friends — two weeks post diagnosis and still side-eyeing soy sauce. Any starter tips?"],
+      ["maya", "Welcome, Priya. We’ve all been the new person. Ask anything — even the “is this silly?” stuff."],
+      ["leo", "Newly Diagnosed room is cozy for that. Also: you are doing better than you think."],
     ];
     let t = Date.now() - convo.length * 60000;
     for (const [uname, content] of convo) {
@@ -118,14 +120,91 @@ async function main() {
     }
   }
 
-  if ((await prisma.post.count()) === 0) {
-    const posts = [
-      { author: "maya", category: "restaurants", title: "Mariposa Kitchen is 100% celiac safe!", content: "Dedicated fryer, separate prep area, and the staff actually understood cross-contamination. First time in months I ate out without anxiety. Highly recommend 🌮", image: "post-mariposa" },
-      { author: "priya", category: "newly-diagnosed", title: "Two weeks in — what do you wish you knew?", content: "Just diagnosed and my head is spinning. What are the non-obvious things I should watch out for? Sauces? Medications? Sending hugs to everyone here.", image: null },
-      { author: "leo", category: "kids-with-celiac", title: "School lunch wins for celiac kids", content: "After a rough start, here's our rotation that my 7yo actually eats. Happy to share the full meal plan if anyone wants it!", image: "post-lunch" },
-      { author: "sara", category: "recipes", title: "Best GF bread I've found (not even close)", content: "Tried 11 brands. This one toasts like real bread and doesn't crumble. Full ranking in the comments.", image: "post-bread" },
-      { author: "theo", category: "travel", title: "Ate my way through Rome 100% gluten-free", content: "Italy is shockingly celiac-friendly thanks to AIC certification. Here's my list of certified spots and the phrase card I used.", image: "post-rome" },
-      { author: "maya", category: "mental-health", title: "The grief of diagnosis is real", content: "Nobody warned me about the emotional side. Mourning spontaneity and 'just grabbing something' is valid. You're not being dramatic. 💙", image: null },
+  // Refresh demo feed posts (local seed only)
+  {
+    await prisma.comment.deleteMany({});
+    await prisma.like.deleteMany({});
+    await prisma.post.deleteMany({});
+    const posts: {
+      author: string;
+      category: string;
+      title: string;
+      content: string;
+      image: string | null;
+      comment: { author: string; content: string };
+    }[] = [
+      {
+        author: "maya",
+        category: "restaurants",
+        title: "Mariposa let me order without giving a TED Talk",
+        content:
+          "Dedicated fryer, separate prep, and the server finished my sentence about cross-contact. I ate tacos like a civilian. If you’re in Austin and tired of negotiating dinner — go. Tell them Maya sent you (they won’t know me, but it feels nice).",
+        image: "post-mariposa",
+        comment: {
+          author: "theo",
+          content: "Saving this for my next trip through town. Civilian tacos are a human right.",
+        },
+      },
+      {
+        author: "priya",
+        category: "newly-diagnosed",
+        title: "Two weeks in — what blindsided you?",
+        content:
+          "Just diagnosed and my kitchen looks like a crime scene of discarded sauces. What’s the non-obvious stuff — meds, spices, “natural flavors”? Sending hugs to anyone else still reading labels in the parking lot.",
+        image: null,
+        comment: {
+          author: "maya",
+          content: "Lipstick and playdough got me once. You’re not behind — you’re thorough. Ask away anytime.",
+        },
+      },
+      {
+        author: "leo",
+        category: "kids-with-celiac",
+        title: "School lunch wins (the rotation that finally stuck)",
+        content:
+          "After a month of sad sandwiches, here’s what my 7yo actually eats: tenders + fruit + a joke note. Happy to share the weekly grid if anyone wants it — parents, we are in this casserole together.",
+        image: "post-lunch",
+        comment: {
+          author: "sara",
+          content: "Please share the grid. My fridge needs a personality transplant.",
+        },
+      },
+      {
+        author: "sara",
+        category: "recipes",
+        title: "I ranked 11 GF breads so you don’t have to",
+        content:
+          "Most of them crumbled like sad sandcastles. One toasts like it pays rent. Full spicy ranking in the comments — bring opinions, leave crumb trauma at the door.",
+        image: "post-bread",
+        comment: {
+          author: "leo",
+          content: "As a toast-dependent household: bless you for your service.",
+        },
+      },
+      {
+        author: "theo",
+        category: "travel",
+        title: "Rome was shockingly celiac-friendly (AIC for the win)",
+        content:
+          "Phrase card + certified spots = I ate pasta without a backup plan for once. Dropping my list + the exact card wording if anyone’s Italy-bound. Travel is still a puzzle — just a prettier one.",
+        image: "post-rome",
+        comment: {
+          author: "priya",
+          content: "This gives me hope that vacations aren’t canceled forever. Phrase card please!",
+        },
+      },
+      {
+        author: "maya",
+        category: "mental-health",
+        title: "Missing “just grabbing something” is allowed",
+        content:
+          "Nobody warned me about mourning spontaneity. You’re not dramatic for missing shared plates. Be gentle with yourself — and if you need company, the Mental Health room is weirdly cozy for hard days.",
+        image: null,
+        comment: {
+          author: "leo",
+          content: "Needed this today. Softness counts as a strategy.",
+        },
+      },
     ];
     for (const [i, p] of posts.entries()) {
       const post = await prisma.post.create({
@@ -150,8 +229,8 @@ async function main() {
       await prisma.comment.create({
         data: {
           postId: post.id,
-          authorId: users["sara"].id,
-          content: "This is so helpful, thank you for sharing 💛",
+          authorId: users[p.comment.author].id,
+          content: p.comment.content,
         },
       });
     }
@@ -159,12 +238,12 @@ async function main() {
 
   if ((await prisma.restaurant.count()) === 0) {
     const restaurants = [
-      { name: "Mariposa Kitchen", city: "Austin", address: "1200 S Congress Ave", lat: 30.249, lng: -97.749, cuisine: "Mexican", priceLevel: 2, dedicatedFryer: true, separatePrepArea: true, dedicatedKitchen: true, certified: true, glutenFreeMenu: true, celiacSafe: true, delivery: true, staffTrainingLevel: "expert", communityConfidence: 92, img: "rest-mariposa", desc: "100% gluten-free kitchen with a dedicated fryer. A celiac safe haven." },
-      { name: "Hearth & Sage", city: "Portland", address: "88 NW 23rd Ave", lat: 45.529, lng: -122.698, cuisine: "American", priceLevel: 3, dedicatedFryer: false, separatePrepArea: true, dedicatedKitchen: false, certified: false, glutenFreeMenu: true, celiacSafe: true, delivery: false, staffTrainingLevel: "trained", communityConfidence: 78, img: "rest-hearth", desc: "Farm-to-table with a thoughtful GF menu and trained staff." },
-      { name: "Nonna's GF Trattoria", city: "Brooklyn", address: "455 Court St", lat: 40.678, lng: -73.999, cuisine: "Italian", priceLevel: 2, dedicatedFryer: true, separatePrepArea: true, dedicatedKitchen: true, certified: true, glutenFreeMenu: true, celiacSafe: true, delivery: true, staffTrainingLevel: "expert", communityConfidence: 95, img: "rest-nonna", desc: "Entirely gluten-free Italian. The pasta will make you cry." },
-      { name: "Blue Lotus Thai", city: "San Francisco", address: "21 Valencia St", lat: 37.769, lng: -122.422, cuisine: "Thai", priceLevel: 2, dedicatedFryer: false, separatePrepArea: true, dedicatedKitchen: false, certified: false, glutenFreeMenu: true, celiacSafe: false, delivery: true, staffTrainingLevel: "basic", communityConfidence: 61, img: "rest-thai", desc: "Lots of GF options; ask about soy sauce and shared woks." },
-      { name: "Coastline Poke", city: "Austin", address: "500 W 2nd St", lat: 30.266, lng: -97.752, cuisine: "Hawaiian", priceLevel: 2, dedicatedFryer: false, separatePrepArea: true, dedicatedKitchen: false, certified: false, glutenFreeMenu: true, celiacSafe: true, delivery: true, staffTrainingLevel: "trained", communityConfidence: 81, img: "rest-poke", desc: "Naturally GF-friendly bowls with clearly marked allergens." },
-      { name: "The Daily Grind", city: "Chicago", address: "900 W Randolph", lat: 41.884, lng: -87.651, cuisine: "Cafe", priceLevel: 1, dedicatedFryer: false, separatePrepArea: false, dedicatedKitchen: false, certified: false, glutenFreeMenu: false, celiacSafe: false, delivery: true, staffTrainingLevel: "none", communityConfidence: 38, img: "rest-cafe", desc: "Limited GF; cross-contamination risk is real here." },
+      { name: "Mariposa Kitchen", city: "Austin", address: "1200 S Congress Ave", lat: 30.249, lng: -97.749, cuisine: "Mexican", priceLevel: 2, dedicatedFryer: true, separatePrepArea: true, dedicatedKitchen: true, certified: true, glutenFreeMenu: true, celiacSafe: true, delivery: true, staffTrainingLevel: "expert", communityConfidence: 92, img: "rest-mariposa", desc: "100% GF kitchen with a dedicated fryer — the rare place where you can order without a TED Talk first." },
+      { name: "Hearth & Sage", city: "Portland", address: "88 NW 23rd Ave", lat: 45.529, lng: -122.698, cuisine: "American", priceLevel: 3, dedicatedFryer: false, separatePrepArea: true, dedicatedKitchen: false, certified: false, glutenFreeMenu: true, celiacSafe: true, delivery: false, staffTrainingLevel: "trained", communityConfidence: 78, img: "rest-hearth", desc: "Seasonal plates and a crew that actually knows what cross-contact means. Cozy, not precious." },
+      { name: "Nonna's GF Trattoria", city: "Brooklyn", address: "455 Court St", lat: 40.678, lng: -73.999, cuisine: "Italian", priceLevel: 2, dedicatedFryer: true, separatePrepArea: true, dedicatedKitchen: true, certified: true, glutenFreeMenu: true, celiacSafe: true, delivery: true, staffTrainingLevel: "expert", communityConfidence: 95, img: "rest-nonna", desc: "Entirely gluten-free Italian. Bring tissues for the cacio e pepe — happy tears only." },
+      { name: "Blue Lotus Thai", city: "San Francisco", address: "21 Valencia St", lat: 37.769, lng: -122.422, cuisine: "Thai", priceLevel: 2, dedicatedFryer: false, separatePrepArea: true, dedicatedKitchen: false, certified: false, glutenFreeMenu: true, celiacSafe: false, delivery: true, staffTrainingLevel: "basic", communityConfidence: 61, img: "rest-thai", desc: "Plenty of GF-friendly dishes if you ask about soy sauce and shared woks. Worth the careful order." },
+      { name: "Coastline Poke", city: "Austin", address: "500 W 2nd St", lat: 30.266, lng: -97.752, cuisine: "Hawaiian", priceLevel: 2, dedicatedFryer: false, separatePrepArea: true, dedicatedKitchen: false, certified: false, glutenFreeMenu: true, celiacSafe: true, delivery: true, staffTrainingLevel: "trained", communityConfidence: 81, img: "rest-poke", desc: "Build-a-bowl heaven with allergens marked like they mean it. Fast, bright, low drama." },
+      { name: "The Daily Grind", city: "Chicago", address: "900 W Randolph", lat: 41.884, lng: -87.651, cuisine: "Cafe", priceLevel: 1, dedicatedFryer: false, separatePrepArea: false, dedicatedKitchen: false, certified: false, glutenFreeMenu: false, celiacSafe: false, delivery: true, staffTrainingLevel: "none", communityConfidence: 38, img: "rest-cafe", desc: "Cute coffee, tricky kitchen. Fine for sealed drinks — skip the pastry case if you’re celiac-careful." },
     ];
     for (const r of restaurants) {
       const created = await prisma.restaurant.create({
@@ -197,8 +276,8 @@ async function main() {
           rating: Math.min(5, Math.round(r.communityConfidence / 20)),
           safetyRating: Math.min(5, Math.round(r.communityConfidence / 20)),
           content: r.celiacSafe
-            ? "Felt safe the whole time, staff knew their stuff."
-            : "Okay but I'd be careful — ask lots of questions.",
+            ? "Felt taken care of the whole meal — staff knew their stuff and I could actually taste my food instead of my anxiety."
+            : "Cute spot, but I’d ask a lot of questions. Sealed drinks yes; shared fryer vibes no.",
         },
       });
     }
@@ -206,12 +285,12 @@ async function main() {
 
   if ((await prisma.recipe.count()) === 0) {
     const recipes = [
-      { author: "maya", title: "5-Minute Banana Oat Pancakes", category: "Quick Meals", desc: "Fluffy, naturally gluten-free pancakes with just a few ingredients.", prep: 5, cook: 10, servings: 2, cal: 320, protein: 11, carbs: 52, fat: 7, img: "rec-pancakes", ingredients: ["2 ripe bananas", "2 eggs", "1 cup certified GF oats", "1 tsp baking powder", "Pinch of cinnamon"], steps: ["Blend all ingredients until smooth.", "Heat a non-stick pan over medium.", "Pour small rounds and cook 2 min per side.", "Serve with berries and maple syrup."] },
-      { author: "sara", title: "No-Knead GF Sandwich Bread", category: "Baking", desc: "Soft, sliceable bread that actually tastes like bread.", prep: 20, cook: 50, servings: 10, cal: 180, protein: 4, carbs: 30, fat: 5, img: "rec-bread", ingredients: ["3 cups GF flour blend", "1 packet yeast", "2 tbsp psyllium husk", "1.5 cups warm water", "2 tbsp olive oil"], steps: ["Mix dry, then wet ingredients.", "Let rise 45 min in a loaf pan.", "Bake at 375°F for 50 min.", "Cool fully before slicing."] },
-      { author: "leo", title: "Kid-Friendly GF Chicken Tenders", category: "Kids", desc: "Crispy tenders the whole family will fight over.", prep: 15, cook: 18, servings: 4, cal: 410, protein: 32, carbs: 22, fat: 19, img: "rec-tenders", ingredients: ["1 lb chicken tenders", "1 cup GF breadcrumbs", "2 eggs", "Paprika & garlic powder", "Olive oil spray"], steps: ["Set up egg and breadcrumb stations.", "Coat tenders, then spray with oil.", "Bake at 425°F for 18 min, flipping once.", "Serve with GF dipping sauce."] },
-      { author: "theo", title: "15-Minute Veggie Pad Thai", category: "Vegan", desc: "Rice noodles, crunchy veg, and a tangy tamarind sauce.", prep: 10, cook: 10, servings: 3, cal: 390, protein: 12, carbs: 60, fat: 10, img: "rec-padthai", ingredients: ["8 oz rice noodles", "Tamarind paste", "Tamari (GF)", "Tofu", "Bean sprouts & peanuts"], steps: ["Soak noodles in hot water.", "Stir-fry tofu and veg.", "Add sauce and noodles, toss.", "Top with peanuts and lime."] },
-      { author: "maya", title: "Budget GF Lentil Soup", category: "Budget", desc: "Hearty, cheap, and freezer-friendly.", prep: 10, cook: 30, servings: 6, cal: 260, protein: 15, carbs: 38, fat: 4, img: "rec-soup", ingredients: ["2 cups red lentils", "1 onion", "2 carrots", "GF veg stock", "Cumin & smoked paprika"], steps: ["Sauté onion and carrot.", "Add lentils, spices, and stock.", "Simmer 30 min.", "Blend half for creaminess."] },
-      { author: "sara", title: "High-Protein Quinoa Power Bowl", category: "High Protein", desc: "A satisfying, balanced bowl that meal-preps beautifully.", prep: 15, cook: 20, servings: 4, cal: 480, protein: 28, carbs: 45, fat: 18, img: "rec-quinoa", ingredients: ["1 cup quinoa", "1 can chickpeas", "2 cups spinach", "1 avocado", "Tahini-lemon dressing"], steps: ["Cook quinoa per package.", "Roast chickpeas at 400°F for 20 min.", "Assemble bowls with greens and avocado.", "Drizzle dressing and serve."] },
+      { author: "maya", title: "Banana Oat Pancakes (No Fancy Flour Required)", category: "Quick Meals", desc: "Weekend energy on a Tuesday. Blender, pan, maple — done before the coffee cools.", prep: 5, cook: 10, servings: 2, cal: 320, protein: 11, carbs: 52, fat: 7, img: "rec-pancakes", ingredients: ["2 ripe bananas", "2 eggs", "1 cup certified GF oats", "1 tsp baking powder", "Pinch of cinnamon"], steps: ["Blend everything until mostly smooth (a few oat flecks are charming).", "Warm a non-stick pan over medium — not screaming hot.", "Pour small rounds; flip when bubbles look confident, about 2 min a side.", "Stack with berries and maple. Pretend you planned brunch."] },
+      { author: "sara", title: "Sandwich Bread That Doesn't Crumble Mid-Bite", category: "Baking", desc: "Soft, sliceable, toast-friendly. The loaf that makes school lunches feel normal again.", prep: 20, cook: 50, servings: 10, cal: 180, protein: 4, carbs: 30, fat: 5, img: "rec-bread", ingredients: ["3 cups GF flour blend", "1 packet yeast", "2 tbsp psyllium husk", "1.5 cups warm water", "2 tbsp olive oil"], steps: ["Mix dry, then wet — batter will look sticky, that’s the deal.", "Scoop into a greased loaf pan and let it rise 45 min.", "Bake at 375°F for about 50 min until the top sounds hollow.", "Cool completely before slicing (patience = cleaner sandwiches)."] },
+      { author: "leo", title: "Crispy Chicken Tenders Kids Actually Finish", category: "Kids", desc: "Oven-crispy, dunkable, and suspiciously popular with adults who “just want one.”", prep: 15, cook: 18, servings: 4, cal: 410, protein: 32, carbs: 22, fat: 19, img: "rec-tenders", ingredients: ["1 lb chicken tenders", "1 cup GF breadcrumbs", "2 eggs", "Paprika & garlic powder", "Olive oil spray"], steps: ["Egg wash station + seasoned crumb station — classic assembly line.", "Coat tenders, give them a light oil mist.", "Bake at 425°F for 18 min, flipping once for even crunch.", "Serve with a GF dip and zero negotiations required."] },
+      { author: "theo", title: "Weeknight Veggie Pad Thai", category: "Vegan", desc: "Tangy, crunchy, ready before delivery would even leave the restaurant.", prep: 10, cook: 10, servings: 3, cal: 390, protein: 12, carbs: 60, fat: 10, img: "rec-padthai", ingredients: ["8 oz rice noodles", "Tamarind paste", "Tamari (GF)", "Tofu", "Bean sprouts & peanuts"], steps: ["Soak noodles in hot water until bendy, not mushy.", "Stir-fry tofu and veg until they smell like a good decision.", "Toss in sauce and noodles — work fast, keep it glossy.", "Finish with peanuts, lime, and whatever herbs you have left."] },
+      { author: "maya", title: "Big Pot Lentil Soup (Freezer Hero)", category: "Budget", desc: "Cheap, cozy, and future-you will thank present-you on a tired Thursday.", prep: 10, cook: 30, servings: 6, cal: 260, protein: 15, carbs: 38, fat: 4, img: "rec-soup", ingredients: ["2 cups red lentils", "1 onion", "2 carrots", "GF veg stock", "Cumin & smoked paprika"], steps: ["Sauté onion and carrot until soft and sweet.", "Add lentils, spices, and stock; bring to a friendly simmer.", "Cook about 30 min until lentils melt into the broth.", "Blend half if you want creaminess without cream."] },
+      { author: "sara", title: "Quinoa Bowl That Meal-Preps Nicely", category: "High Protein", desc: "Chickpeas, greens, tahini — pack four lunches and feel briefly unstoppable.", prep: 15, cook: 20, servings: 4, cal: 480, protein: 28, carbs: 45, fat: 18, img: "rec-quinoa", ingredients: ["1 cup quinoa", "1 can chickpeas", "2 cups spinach", "1 avocado", "Tahini-lemon dressing"], steps: ["Cook quinoa like the package says (you’ve got this).", "Roast chickpeas at 400°F for 20 min for crunch.", "Build bowls with greens, quinoa, chickpeas, avocado.", "Drizzle dressing; keep avocado separate if packing ahead."] },
     ];
     for (const r of recipes) {
       const created = await prisma.recipe.create({
@@ -234,8 +313,8 @@ async function main() {
       });
       await prisma.recipeRating.upsert({
         where: { recipeId_userId: { recipeId: created.id, userId: users["sara"].id } },
-        update: {},
-        create: { recipeId: created.id, userId: users["sara"].id, rating: 5, review: "Made this twice already!" },
+        update: { review: "Made this twice already — house favorite." },
+        create: { recipeId: created.id, userId: users["sara"].id, rating: 5, review: "Made this twice already — house favorite." },
       });
     }
   }
@@ -244,10 +323,10 @@ async function main() {
 
   if ((await prisma.moodEntry.count({ where: { userId: users["maya"].id } })) === 0) {
     for (const [d, mood, note] of [
-      [6, 3, "Tough day, glutened by accident."],
-      [4, 4, "Cooked a great dinner at home."],
-      [2, 5, "Found a safe restaurant!"],
-      [0, 4, "Feeling hopeful."],
+      [6, 3, "Accidental glutening — resting, not self-roasting."],
+      [4, 4, "Cooked something great at home. Felt proud."],
+      [2, 5, "Found a restaurant that actually gets it!"],
+      [0, 4, "Hopeful day. Small wins count."],
     ] as [number, number, string][]) {
       await prisma.moodEntry.create({
         data: {
@@ -261,8 +340,8 @@ async function main() {
     await prisma.journalEntry.create({
       data: {
         userId: users["maya"].id,
-        prompt: "What is one thing that went well today?",
-        content: "I finally ate out without a stomachache. Small win, big feeling.",
+        prompt: "What is one tiny win from today?",
+        content: "I ate out and felt fine after. Small win, big exhale.",
       },
     });
   }

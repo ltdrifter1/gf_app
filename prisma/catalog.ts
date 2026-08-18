@@ -9,27 +9,27 @@ export const COMMUNITY_ROOMS = [
   {
     slug: "general-support",
     name: "General Support",
-    description: "The main lounge — everyone welcome.",
+    description: "The living room of Safely — wins, questions, and mid-week pep talks.",
   },
   {
     slug: "newly-diagnosed",
     name: "Newly Diagnosed",
-    description: "Just starting out? We've got you.",
+    description: "Fresh labels, weird sauces, and people who just got here too.",
   },
   {
     slug: "mental-health",
     name: "Mental Health",
-    description: "A gentle space to talk feelings.",
+    description: "Soft landings for hard days — judgment stays outside.",
   },
   {
     slug: "parents",
     name: "Parents",
-    description: "Raising celiac kids together.",
+    description: "Lunchbox diplomacy, school emails, and high-fives that count.",
   },
   {
     slug: "teens",
     name: "Teens",
-    description: "For younger members navigating GF life.",
+    description: "GF life without the grown-up lecture energy.",
   },
 ] as const;
 
@@ -52,7 +52,7 @@ export const LAUNCH_RESTAURANTS = [
     staffTrainingLevel: "expert",
     communityConfidence: 92,
     img: "rest-mariposa",
-    desc: "100% gluten-free kitchen with a dedicated fryer. A celiac safe haven.",
+    desc: "100% GF kitchen with a dedicated fryer — the rare place where you can order without a TED Talk first.",
   },
   {
     name: "Hearth & Sage",
@@ -72,7 +72,7 @@ export const LAUNCH_RESTAURANTS = [
     staffTrainingLevel: "trained",
     communityConfidence: 78,
     img: "rest-hearth",
-    desc: "Farm-to-table with a thoughtful GF menu and trained staff.",
+    desc: "Seasonal plates and a crew that actually knows what cross-contact means. Cozy, not precious.",
   },
   {
     name: "Nonna's GF Trattoria",
@@ -92,7 +92,7 @@ export const LAUNCH_RESTAURANTS = [
     staffTrainingLevel: "expert",
     communityConfidence: 95,
     img: "rest-nonna",
-    desc: "Entirely gluten-free Italian. The pasta will make you cry.",
+    desc: "Entirely gluten-free Italian. Bring tissues for the cacio e pepe — happy tears only.",
   },
   {
     name: "Blue Lotus Thai",
@@ -112,7 +112,7 @@ export const LAUNCH_RESTAURANTS = [
     staffTrainingLevel: "basic",
     communityConfidence: 61,
     img: "rest-thai",
-    desc: "Lots of GF options; ask about soy sauce and shared woks.",
+    desc: "Plenty of GF-friendly dishes if you ask about soy sauce and shared woks. Worth the careful order.",
   },
   {
     name: "Coastline Poke",
@@ -132,7 +132,7 @@ export const LAUNCH_RESTAURANTS = [
     staffTrainingLevel: "trained",
     communityConfidence: 81,
     img: "rest-poke",
-    desc: "Naturally GF-friendly bowls with clearly marked allergens.",
+    desc: "Build-a-bowl heaven with allergens marked like they mean it. Fast, bright, low drama.",
   },
   {
     name: "The Daily Grind",
@@ -152,7 +152,7 @@ export const LAUNCH_RESTAURANTS = [
     staffTrainingLevel: "none",
     communityConfidence: 38,
     img: "rest-cafe",
-    desc: "Limited GF; cross-contamination risk is real here.",
+    desc: "Cute coffee, tricky kitchen. Fine for sealed drinks — skip the pastry case if you’re celiac-careful.",
   },
   {
     name: "Verdant Bowl Co.",
@@ -172,7 +172,7 @@ export const LAUNCH_RESTAURANTS = [
     staffTrainingLevel: "trained",
     communityConfidence: 84,
     img: "rest-verdant",
-    desc: "Clearly marked allergens and a dedicated fryer for GF crunch.",
+    desc: "Colorful bowls, dedicated fryer for the crunchy bits, and a chalkboard that lists allergens without attitude.",
   },
   {
     name: "Nonna's Sister",
@@ -192,7 +192,7 @@ export const LAUNCH_RESTAURANTS = [
     staffTrainingLevel: "expert",
     communityConfidence: 93,
     img: "rest-nonna2",
-    desc: "Sister kitchen to Nonna's — 100% GF pasta and pizza.",
+    desc: "Same family, same 100% GF pasta energy — slightly smaller room, equally excellent garlic bread.",
   },
   {
     name: "Cascade Bakery",
@@ -212,7 +212,7 @@ export const LAUNCH_RESTAURANTS = [
     staffTrainingLevel: "expert",
     communityConfidence: 90,
     img: "rest-cascade",
-    desc: "Dedicated GF bakery — croissants that don't crumble under pressure.",
+    desc: "Dedicated GF bakery where croissants flake like they got the memo. Worth the line.",
   },
   {
     name: "Mission Tortilla Lab",
@@ -232,7 +232,7 @@ export const LAUNCH_RESTAURANTS = [
     staffTrainingLevel: "trained",
     communityConfidence: 76,
     img: "rest-mission",
-    desc: "Corn tortillas made in-house; staff will change gloves on request.",
+    desc: "House-made corn tortillas and staff who will change gloves mid-sentence if you ask. Neighborhood gem.",
   },
   {
     name: "Lakefront Grill",
@@ -252,15 +252,15 @@ export const LAUNCH_RESTAURANTS = [
     staffTrainingLevel: "trained",
     communityConfidence: 79,
     img: "rest-lake",
-    desc: "Downtown grill with a serious allergen protocol and GF bun option.",
+    desc: "Downtown steakhouse energy with a real allergen protocol and a GF bun that doesn’t taste like cardboard.",
   },
 ] as const;
 
 export const LAUNCH_RECIPES = [
   {
-    title: "5-Minute Banana Oat Pancakes",
+    title: "Banana Oat Pancakes (No Fancy Flour Required)",
     category: "Quick Meals",
-    desc: "Fluffy, naturally gluten-free pancakes with just a few ingredients.",
+    desc: "Weekend energy on a Tuesday. Blender, pan, maple — done before the coffee cools.",
     prep: 5,
     cook: 10,
     servings: 2,
@@ -277,16 +277,16 @@ export const LAUNCH_RECIPES = [
       "Pinch of cinnamon",
     ],
     steps: [
-      "Blend all ingredients until smooth.",
-      "Heat a non-stick pan over medium.",
-      "Pour small rounds and cook 2 min per side.",
-      "Serve with berries and maple syrup.",
+      "Blend everything until mostly smooth (a few oat flecks are charming).",
+      "Warm a non-stick pan over medium — not screaming hot.",
+      "Pour small rounds; flip when bubbles look confident, about 2 min a side.",
+      "Stack with berries and maple. Pretend you planned brunch.",
     ],
   },
   {
-    title: "No-Knead GF Sandwich Bread",
+    title: "Sandwich Bread That Doesn't Crumble Mid-Bite",
     category: "Baking",
-    desc: "Soft, sliceable bread that actually tastes like bread.",
+    desc: "Soft, sliceable, toast-friendly. The loaf that makes school lunches feel normal again.",
     prep: 20,
     cook: 50,
     servings: 10,
@@ -303,16 +303,16 @@ export const LAUNCH_RECIPES = [
       "2 tbsp olive oil",
     ],
     steps: [
-      "Mix dry, then wet ingredients.",
-      "Let rise 45 min in a loaf pan.",
-      "Bake at 375°F for 50 min.",
-      "Cool fully before slicing.",
+      "Mix dry, then wet — batter will look sticky, that’s the deal.",
+      "Scoop into a greased loaf pan and let it rise 45 min.",
+      "Bake at 375°F for about 50 min until the top sounds hollow.",
+      "Cool completely before slicing (patience = cleaner sandwiches).",
     ],
   },
   {
-    title: "Kid-Friendly GF Chicken Tenders",
+    title: "Crispy Chicken Tenders Kids Actually Finish",
     category: "Kids",
-    desc: "Crispy tenders the whole family will fight over.",
+    desc: "Oven-crispy, dunkable, and suspiciously popular with adults who “just want one.”",
     prep: 15,
     cook: 18,
     servings: 4,
@@ -329,16 +329,16 @@ export const LAUNCH_RECIPES = [
       "Olive oil spray",
     ],
     steps: [
-      "Set up egg and breadcrumb stations.",
-      "Coat tenders, then spray with oil.",
-      "Bake at 425°F for 18 min, flipping once.",
-      "Serve with GF dipping sauce.",
+      "Egg wash station + seasoned crumb station — classic assembly line.",
+      "Coat tenders, give them a light oil mist.",
+      "Bake at 425°F for 18 min, flipping once for even crunch.",
+      "Serve with a GF dip and zero negotiations required.",
     ],
   },
   {
-    title: "15-Minute Veggie Pad Thai",
+    title: "Weeknight Veggie Pad Thai",
     category: "Vegan",
-    desc: "Rice noodles, crunchy veg, and a tangy tamarind sauce.",
+    desc: "Tangy, crunchy, ready before delivery would even leave the restaurant.",
     prep: 10,
     cook: 10,
     servings: 3,
@@ -355,16 +355,16 @@ export const LAUNCH_RECIPES = [
       "Bean sprouts & peanuts",
     ],
     steps: [
-      "Soak noodles in hot water.",
-      "Stir-fry tofu and veg.",
-      "Add sauce and noodles, toss.",
-      "Top with peanuts and lime.",
+      "Soak noodles in hot water until bendy, not mushy.",
+      "Stir-fry tofu and veg until they smell like a good decision.",
+      "Toss in sauce and noodles — work fast, keep it glossy.",
+      "Finish with peanuts, lime, and whatever herbs you have left.",
     ],
   },
   {
-    title: "Budget GF Lentil Soup",
+    title: "Big Pot Lentil Soup (Freezer Hero)",
     category: "Budget",
-    desc: "Hearty, cheap, and freezer-friendly.",
+    desc: "Cheap, cozy, and future-you will thank present-you on a tired Thursday.",
     prep: 10,
     cook: 30,
     servings: 6,
@@ -381,16 +381,16 @@ export const LAUNCH_RECIPES = [
       "Cumin & smoked paprika",
     ],
     steps: [
-      "Sauté onion and carrot.",
-      "Add lentils, spices, and stock.",
-      "Simmer 30 min.",
-      "Blend half for creaminess.",
+      "Sauté onion and carrot until soft and sweet.",
+      "Add lentils, spices, and stock; bring to a friendly simmer.",
+      "Cook about 30 min until lentils melt into the broth.",
+      "Blend half if you want creaminess without cream.",
     ],
   },
   {
-    title: "High-Protein Quinoa Power Bowl",
+    title: "Quinoa Bowl That Meal-Preps Nicely",
     category: "High Protein",
-    desc: "A satisfying, balanced bowl that meal-preps beautifully.",
+    desc: "Chickpeas, greens, tahini — pack four lunches and feel briefly unstoppable.",
     prep: 15,
     cook: 20,
     servings: 4,
@@ -407,10 +407,10 @@ export const LAUNCH_RECIPES = [
       "Tahini-lemon dressing",
     ],
     steps: [
-      "Cook quinoa per package.",
-      "Roast chickpeas at 400°F for 20 min.",
-      "Assemble bowls with greens and avocado.",
-      "Drizzle dressing and serve.",
+      "Cook quinoa like the package says (you’ve got this).",
+      "Roast chickpeas at 400°F for 20 min for crunch.",
+      "Build bowls with greens, quinoa, chickpeas, avocado.",
+      "Drizzle dressing; keep avocado separate if packing ahead.",
     ],
   },
 ] as const;
@@ -418,164 +418,164 @@ export const LAUNCH_RECIPES = [
 export const LAUNCH_HEALTH = [
   {
     slug: "eating-out-spiral",
-    title: "Calming the Eating-Out Spiral",
+    title: "When Restaurant Anxiety Spins Out",
     pillar: "mental",
     category: "eating-out",
     type: "exercise",
     toolKey: "eating-out-spiral",
     content:
-      "A 4-step grounding exercise for when restaurant anxiety hits: breathe, plan, ask, and self-compassion.",
-    body: `Restaurant anxiety is common with celiac — your nervous system is trying to keep you safe.
+      "A friendly 4-step reset for the pre-menu freakout — breathe, pick one plan, ask clearly, be kind to yourself.",
+    body: `If your brain starts writing disaster novels before you even sit down — hi, you’re among friends.
 
-Use this when you're spinning before or during a meal out:
+Try this short loop:
 
-1. Breathe — four counts in, four out, three rounds.
-2. Plan — pick one known-safer spot or one dish you can verify.
-3. Ask — short script: "I have celiac. Can this be prepared without gluten cross-contact?"
-4. Soften — remind yourself: one careful meal is enough; you can leave if it doesn't feel right.
+1. Breathe — four in, four out, three rounds. Boring on purpose.
+2. Plan — one known-safer spot or one dish you can actually verify.
+3. Ask — short and clear: “I have celiac. Can this be made without gluten cross-contact?”
+4. Soften — one careful meal is enough. Leaving is allowed. You’re not high-maintenance; you’re informed.
 
-If panic keeps rising, step outside, message a friend, or open the Mental Health room in Messenger.`,
+Still buzzing? Step outside, text someone who gets it, or pop into the Mental Health room. We’re not grading your dinner performance.`,
   },
   {
     slug: "diagnosis-grief",
-    title: "When Diagnosis Feels Like Grief",
+    title: "Yeah, Diagnosis Can Feel Like Grief",
     pillar: "mental",
     category: "newly-diagnosed",
     type: "article",
     toolKey: null,
     content:
-      "Mourning your old relationship with food is normal. Naming the grief is the first step to moving through it.",
-    body: `A celiac diagnosis often brings grief — for foods, spontaneity, travel ease, or family traditions.
+      "Missing spontaneity and shared plates isn’t dramatic — it’s human. Here’s how people move through it without rushing the feelings.",
+    body: `Nobody hands you a pamphlet titled “Also you might mourn bagels.” But a lot of us do.
 
-Common waves: anger at "just one bite," sadness at missing shared plates, relief mixed with exhaustion.
+You might miss grab-and-go nights, family recipes, or the ease of saying yes to every invite. Anger at “just one bite” advice is valid. Relief and exhaustion can share a calendar invite.
 
-What helps many people:
-- Name what you miss without judging yourself for missing it.
-- Keep one ritual that still works (a tea, a walk, a favorite GF bakery).
-- Talk with people who live this — Community Support posts or Messenger rooms.
-- Give healing time a calendar: gut repair is measured in months, not weekends.
+What helps many of us:
+- Name what you miss without roasting yourself for missing it.
+- Keep one small ritual that still works — tea, a walk, that bakery that gets it.
+- Talk to people living this (feed posts, Messenger rooms) instead of white-knuckling alone.
+- Remember healing is measured in months, not “I should be fine by Monday.”
 
-Grief doesn't mean you're failing the diet. It means the change is real.`,
+Grief doesn’t mean you’re bad at gluten-free. It means the change is real — and you’re allowed to take care of the soft parts too.`,
   },
   {
     slug: "social-isolation",
-    title: "Beating Social Isolation",
+    title: "Staying Social When Every Invite Needs Logistics",
     pillar: "mental",
     category: "isolation",
     type: "article",
     toolKey: null,
     content:
-      "Practical scripts for navigating shared meals, plus how to find your people in Messenger.",
-    body: `Isolation sneaks in when every invite becomes a logistics problem.
+      "Scripts that lower the temperature at shared meals — plus easy ways to find your people here.",
+    body: `Isolation loves to dress up as “I’m just busy.” Sometimes you’re busy. Sometimes you’re tired of being the allergen detective at every table.
 
-Scripts that lower the temperature:
-- "I'd love to come — can we pick a place with a dedicated GF option, or I'll eat first and join for dessert/tea?"
-- "I'm bringing a dish I know is safe so I can relax and hang with everyone."
-- "Rain check on dinner, but I'm free for a walk / coffee with a sealed drink."
+Scripts that help:
+- “I’d love to come — can we pick somewhere with a dedicated GF option, or I’ll eat first and join for dessert/tea?”
+- “I’m bringing a dish I trust so I can actually hang out instead of hovering by the kitchen.”
+- “Rain check on dinner, but I’m free for a walk / coffee with something sealed.”
 
-On Safely: open Messenger community rooms, follow people who get it, and post in Support when you need a reality check — not alone-time disguised as strength.`,
+On Safely: open a room, follow folks who get it, and post when you need a reality check. Wanting company isn’t neediness — it’s how humans work.`,
   },
   {
     slug: "anxiety-toolkit",
-    title: "Anxiety Toolkit for Celiac Life",
+    title: "A Pocket Toolkit for Food Anxiety",
     pillar: "mental",
     category: "anxiety",
     type: "exercise",
     toolKey: "anxiety-toolkit",
     content:
-      "Box breathing, worry windows, and a 'safe foods' anchor list to reduce daily anxiety.",
-    body: `Daily vigilance is exhausting. Use small tools instead of white-knuckling all day.
+      "Box breathing, a tiny worry window, and a safe-foods list that proves dinner can still be calm.",
+    body: `All-day vigilance is a full-time job nobody applied for. Small tools beat toughing it out.
 
-Box breathing: inhale 4 · hold 4 · exhale 4 · hold 4. Repeat 4 cycles.
+Box breathing: inhale 4 · hold 4 · exhale 4 · hold 4. Four rounds. Phone timer optional, dramatic sighing encouraged.
 
-Worry window: pick a 10-minute slot to list food fears, then park them until then.
+Worry window: give food fears a 10-minute appointment, then park them until then. (Yes, your brain will try to renegotiate. That’s fine.)
 
-Safe-foods anchor: write 5 meals you trust at home. When anxiety spikes, glance at the list — proof that safety exists.
+Safe-foods anchor: list 5 meals you trust at home. When anxiety spikes, look at the list — proof that safety isn’t imaginary.
 
-Pair with a mood check-in on the Track tab so patterns aren't only in your head.`,
+Pair it with a mood check-in on Track so patterns live somewhere besides your 2 a.m. thoughts.`,
   },
   {
     slug: "low-mood-chronic",
-    title: "Low Mood & Chronic Illness",
+    title: "Low Mood & Living With a Chronic Thing",
     pillar: "mental",
     category: "depression",
     type: "article",
     toolKey: null,
     content:
-      "What to look for in support, and when to reach out to a clinician who understands chronic illness.",
-    body: `Living with a chronic condition can flatten mood — especially after repeated glutening, social friction, or slow healing.
+      "Peer support helps — and sometimes you need a clinician who understands chronic illness. Here’s how to tell the difference.",
+    body: `Repeated glutening, slow healing, and “can we just order pizza” culture can flatten a mood. You’re not imagining it.
 
-Watch for: sleep changes, losing interest in things you usually enjoy, hopelessness about food forever, withdrawing from people who help.
+Watch for: sleep that won’t cooperate, losing interest in things you usually like, hopelessness about food forever, pulling away from people who help.
 
-This space is peer support, not therapy. If low mood lasts most days for two weeks or more, or you have thoughts of harming yourself, contact a clinician or local crisis line.
+This space is peer support, not therapy. If low mood sticks around most days for two weeks or more — or you have thoughts of harming yourself — reach out to a clinician or a local crisis line.
 
-In the US, call or text 988. You're allowed to need more than an app.`,
+In the US, call or text 988. Needing more than an app doesn’t make you weak. It makes you someone who deserves care.`,
   },
   {
     slug: "gut-healing-basics",
-    title: "Gut Healing Basics After Diagnosis",
+    title: "Gut Healing Without the Miracle-Cure Energy",
     pillar: "physical",
     category: "gut",
     type: "article",
     toolKey: null,
     content:
-      "The small intestine needs time. Focus on nutrient-dense GF meals, hydration, and following your care team's timeline for follow-up.",
-    body: `Strict gluten-free eating is the treatment. Healing the lining still takes time — often months.
+      "Strict GF is the treatment; the lining still takes time. Nutrient-dense meals, rest, and your care team’s timeline win.",
+    body: `Strict gluten-free eating is the treatment. Healing the lining is… slower than Instagram implies. Often months. Annoying, but true.
 
 Practical basics:
-- Stay strictly GF; cross-contact counts.
-- Favor protein, iron-rich foods, and easy-to-digest meals while symptoms settle.
-- Hydrate; rest more than you think you "should."
-- Follow your GI's plan for repeat serology / biopsy timing.
+- Stay strictly GF — cross-contact counts, even when it’s inconvenient.
+- Lean on protein, iron-friendly foods, and simple meals while symptoms settle.
+- Hydrate. Rest more than productivity culture would allow.
+- Follow your GI’s plan for labs / follow-up timing.
 
-Track flares on the Track tab so you can show your care team a clearer picture than memory alone.`,
+Track flares on Track so you’re not reconstructing history from vibes at the appointment.`,
   },
   {
     slug: "nutrient-gaps",
-    title: "Common Nutrient Gaps",
+    title: "Nutrient Gaps (Without the Supplement Spiral)",
     pillar: "physical",
     category: "nutrition",
     type: "tip",
     toolKey: null,
     content:
-      "Iron, B12, vitamin D, calcium, and folate are commonly low. Ask about labs — don't self-supplement blindly.",
-    body: `Malabsorption and a limited diet can leave gaps. Common ones: iron, B12, vitamin D, calcium, folate, sometimes zinc.
+      "Iron, B12, D, calcium, and folate show up a lot. Ask about labs — skip the megadose internet shopping spree.",
+    body: `Malabsorption + a suddenly smaller menu can leave gaps. Common ones: iron, B12, vitamin D, calcium, folate, sometimes zinc.
 
-Don't megadose based on internet lists — some supplements interact or aren't absorbed well.
+Please don’t megadose because a thread said so — some supplements fight each other or just… don’t absorb.
 
-Ask your clinician which labs to run and whether a dietitian familiar with celiac can review your week of eating. Food-first where possible; targeted supplements when labs say so.`,
+Ask your clinician which labs make sense, and whether a celiac-aware dietitian can peek at a real week of eating. Food-first when you can; targeted supplements when labs say so.`,
   },
   {
     slug: "after-glutening",
-    title: "What To Do After Accidental Glutening",
+    title: "After Accidental Glutening",
     pillar: "physical",
     category: "recovery",
     type: "tip",
     toolKey: "glutening-checklist",
     content:
-      "Rest, hydrate, stick to known-safe foods, and track symptoms. Most flares ease in a few days — contact your doctor if severe.",
-    body: `Accidents happen even to careful people. A simple recovery checklist beats spiraling.
+      "Rest, hydrate, known-safe foods, track symptoms. Most flares ease in a few days — call your doctor if it’s severe.",
+    body: `Accidents happen to careful people. Recovery > self-roast.
 
-Immediate: stop exposure, hydrate, rest, stick to known-safe simple foods.
-Next 48–72h: log severity and symptoms on Track; sleep extra; skip tough workouts if depleted.
-Call your doctor for severe pain, persistent vomiting, dehydration, blood in stool, or symptoms that don't ease.
+Immediate: stop exposure, hydrate, rest, stick to simple foods you trust.
+Next 48–72h: log severity on Track, sleep extra, skip hero workouts if you’re wiped.
+Call your doctor for severe pain, persistent vomiting, dehydration, blood in stool, or symptoms that won’t ease.
 
-Shame doesn't heal the gut — rest and documentation do.`,
+Shame doesn’t heal anything. Rest and notes do. You’re still part of the club.`,
   },
   {
     slug: "fighting-fatigue",
-    title: "Fighting the Fatigue",
+    title: "When Fatigue Won’t Clock Out",
     pillar: "physical",
     category: "energy",
     type: "article",
     toolKey: null,
     content:
-      "Fatigue can linger while healing. Prioritize sleep, protein at meals, and gentle movement when you can.",
-    body: `Fatigue after diagnosis or glutening is common while iron stores and the intestine catch up.
+      "Healing is tiring. Sleep, protein, gentle daylight — and permission to not “push through.”",
+    body: `Fatigue after diagnosis or a glutening is extremely common while iron stores and your intestine catch up.
 
-Levers that often help: consistent sleep, protein at each meal, short daylight walks, and treating "push through" as optional.
+Levers that often help: consistent sleep, protein at meals, short daylight walks, and treating “push through” as optional.
 
-If fatigue is crushing or paired with dizziness, ask about anemia and vitamin D. Bring your Track log — patterns help clinicians take you seriously.`,
+If fatigue is crushing or comes with dizziness, ask about anemia and vitamin D. Bring your Track log — patterns help clinicians take you seriously (and save you from a fuzzy memory monologue).`,
   },
   {
     slug: "labs-checklist",
@@ -585,12 +585,12 @@ If fatigue is crushing or paired with dizziness, ask about anemia and vitamin D.
     type: "tip",
     toolKey: "labs-checklist",
     content:
-      "tTG-IgA (and total IgA), CBC, ferritin, vitamin D, B12, and bone density when indicated. Bring a list to your next visit.",
-    body: `Every care plan is individual — this is a conversation starter, not a prescription.
+      "tTG-IgA (and total IgA), CBC, ferritin, vitamin D, B12 — a conversation starter for your next visit, not a prescription.",
+    body: `Every care plan is individual — this is a friendly checklist, not medical orders.
 
 Often discussed: tTG-IgA (+ total IgA), CBC, ferritin, vitamin D, B12, folate; bone density when risk factors apply.
 
-Use the interactive checklist, then bring what you checked to your appointment. Educational only — your clinician decides what's appropriate.`,
+Use the interactive checklist, then bring what you checked to your appointment. Educational only — your clinician decides what’s right for you.`,
   },
 ] as const;
 
@@ -609,7 +609,7 @@ async function ensureCatalogAuthor(prisma: PrismaClient) {
       username: CATALOG_USERNAME,
       name: "Safely",
       role: "USER",
-      bio: "Official Safely recipe catalog",
+      bio: "Recipes from the Safely kitchen — tested by hungry friends, not robots.",
       passwordHash,
       presence: "offline",
       profile: { create: { diagnosis: "supporter" } },

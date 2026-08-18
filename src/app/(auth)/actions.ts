@@ -58,7 +58,7 @@ export async function registerAction(_prev: unknown, formData: FormData) {
       email,
       username,
       passwordHash: await hashPassword(password),
-      bio: "New to Safely",
+      bio: "New here — still unpacking the snack aisle.",
       onboardingComplete: false,
       profile: {
         create: {
