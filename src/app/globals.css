@@ -4,11 +4,11 @@
 
 @layer base {
   :root {
-    /* Apple Store / iOS — SF Pro on Apple, clean system stack elsewhere */
-    --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
-      "Helvetica Neue", Helvetica, Arial, sans-serif;
-    --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
-      "Helvetica Neue", Helvetica, Arial, sans-serif;
+    /* Apple Store / iOS feel — Geist (SF-adjacent) + Apple system stack */
+    --font-sans: var(--font-geist-sans), -apple-system, BlinkMacSystemFont,
+      "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --font-display: var(--font-geist-sans), -apple-system, BlinkMacSystemFont,
+      "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
   }
 
   html {

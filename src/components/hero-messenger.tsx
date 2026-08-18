@@ -36,7 +36,7 @@ export function HeroMessenger({
   return (
     <div
       className={cn(
-        "w-full max-w-lg animate-fade-in [animation-delay:120ms] lg:ml-auto",
+        "w-full animate-fade-in [animation-delay:120ms]",
         className
       )}
     >

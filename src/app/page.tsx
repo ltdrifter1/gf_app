@@ -97,14 +97,14 @@ export default async function LandingPage() {
       </header>
 
       {/* Full-bleed hero: brand + MSN messenger plane */}
-      <main className="relative z-10 mx-auto grid min-h-[100svh] max-w-6xl lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.15fr)]">
-        <div className="flex flex-col justify-center px-6 pb-8 pt-28 sm:px-10 lg:px-12 lg:pb-20 lg:pt-24">
+      <main className="relative z-10 mx-auto grid min-h-[100svh] max-w-6xl overflow-x-clip xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.15fr)]">
+        <div className="flex min-w-0 flex-col justify-center px-6 pb-6 pt-28 sm:px-10 xl:px-12 xl:pb-20 xl:pt-24">
           <p className="flex items-center gap-2 text-sm font-medium text-sage-600 animate-fade-in dark:text-sage-300">
             <span className="h-2 w-2 animate-pulse-soft rounded-full bg-emerald-500 shadow-[0_0_8px_2px_rgba(16,185,129,0.55)]" />
             {presenceLabel}
           </p>
 
-          <h1 className="mt-5 font-display text-5xl font-semibold leading-[1.02] tracking-[-0.03em] text-sage-900 animate-fade-in dark:text-white sm:text-6xl lg:text-7xl [animation-delay:80ms]">
+          <h1 className="mt-5 font-display text-5xl font-semibold leading-[1.02] tracking-[-0.03em] text-sage-900 animate-fade-in dark:text-white sm:text-6xl xl:text-7xl [animation-delay:80ms]">
             Safely
           </h1>
 
@@ -121,12 +121,12 @@ export default async function LandingPage() {
           </div>
         </div>
 
-        <div className="relative flex items-end px-4 pb-16 pt-2 sm:px-8 sm:pb-20 lg:items-center lg:px-6 lg:pb-12 lg:pt-24">
-          <div className="pointer-events-none absolute inset-y-16 right-0 left-8 hidden rounded-[2rem] bg-safely-gradient opacity-90 blur-[1px] lg:block" />
-          <div className="pointer-events-none absolute inset-y-10 -right-6 left-16 hidden rounded-[2.5rem] bg-gradient-to-br from-brand-600 via-brand-500 to-accent-400 opacity-80 lg:block" />
-          <div className="pointer-events-none absolute -left-10 top-1/3 hidden h-64 w-64 rounded-full bg-white/20 blur-3xl lg:block" />
+        <div className="relative flex min-w-0 items-start justify-center px-4 pb-20 pt-4 sm:px-8 sm:pb-24 xl:items-center xl:justify-end xl:px-6 xl:pb-12 xl:pt-24">
+          <div className="pointer-events-none absolute inset-y-12 inset-x-4 hidden rounded-[2rem] bg-safely-gradient opacity-90 blur-[1px] xl:block" />
+          <div className="pointer-events-none absolute inset-y-8 inset-x-8 hidden rounded-[2.5rem] bg-gradient-to-br from-brand-600 via-brand-500 to-accent-400 opacity-80 xl:block" />
+          <div className="pointer-events-none absolute left-0 top-1/3 hidden h-64 w-64 rounded-full bg-white/20 blur-3xl xl:block" />
 
-          <div className="relative w-full">
+          <div className="relative w-full max-w-lg">
             <HeroMessenger
               onlineCount={messengerOnline}
               messages={bubbles.length > 0 ? bubbles : FALLBACK_MESSAGES}

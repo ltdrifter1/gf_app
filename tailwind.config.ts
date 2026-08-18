@@ -51,9 +51,10 @@ const config: Config = {
       },
     },
       fontFamily: {
-        // Apple Store / iOS — SF Pro on Apple platforms, clean system fallbacks elsewhere
+        // Apple Store / iOS — Geist + SF Pro system stack
         sans: [
           "var(--font-sans)",
+          "var(--font-geist-sans)",
           "-apple-system",
           "BlinkMacSystemFont",
           "SF Pro Text",
@@ -64,6 +65,7 @@ const config: Config = {
         ],
         display: [
           "var(--font-display)",
+          "var(--font-geist-sans)",
           "-apple-system",
           "BlinkMacSystemFont",
           "SF Pro Display",
