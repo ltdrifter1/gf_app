@@ -11,6 +11,7 @@ import { HealthTrackPanel } from "@/components/health-track";
 import { Avatar } from "@/components/ui/avatar";
 import { MessageCircle, Activity, Brain, BookOpen, LineChart, ArrowRight } from "lucide-react";
 import { timeAgo, cn } from "@/lib/utils";
+import { isSameDay } from "date-fns";
 
 export default async function HealthPage({
   searchParams,
@@ -80,6 +81,11 @@ export default async function HealthPage({
     createdAt: e.createdAt.toISOString(),
   }));
 
+  const now = new Date();
+  const todaysMoodEntry = moodEntries.find((e) => isSameDay(e.createdAt, now));
+  const todayMood = todaysMoodEntry?.mood ?? null;
+  const hasMoodToday = Boolean(todaysMoodEntry);
+
   const initialLogs = healthLogs.map((e) => ({
     id: e.id,
     kind: e.kind,
@@ -107,54 +113,78 @@ export default async function HealthPage({
     },
   } as const;
 
-  return (
-    <div className="mx-auto max-w-6xl space-y-6">
-      <header className="relative overflow-hidden rounded-[1.75rem] border border-white/40 bg-[#0b0f0e] px-6 py-8 text-white shadow-glass sm:px-10 sm:py-10">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_15%_0%,rgba(13,148,136,0.35),transparent_55%),radial-gradient(ellipse_at_90%_80%,rgba(2,132,200,0.2),transparent_45%)]" />
-        <div className="relative">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/55">
-            Health
-          </p>
-          <h1 className="mt-2 font-display text-3xl font-bold tracking-tight sm:text-4xl">
-            {headlines[active].title}
-          </h1>
-          <p className="mt-2 max-w-lg text-sm text-white/70 sm:text-base">
-            {headlines[active].blurb}
-          </p>
-        </div>
-      </header>
+  const tabs = (
+    <nav className="flex flex-wrap gap-2" aria-label="Health sections">
+      {(
+        [
+          { id: "journal", href: "/app/health", label: "Journal", icon: BookOpen },
+          { id: "track", href: "/app/health?tab=track", label: "Track", icon: LineChart },
+          { id: "mental", href: "/app/health?tab=mental", label: "Mental", icon: Brain },
+          { id: "physical", href: "/app/health?tab=physical", label: "Physical", icon: Activity },
+        ] as const
+      ).map((item) => {
+        const Icon = item.icon;
+        const on = active === item.id;
+        return (
+          <Link
+            key={item.id}
+            href={item.href}
+            className={cn(
+              "inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition",
+              on
+                ? "bg-sage-900 text-white shadow-soft dark:bg-white dark:text-sage-900"
+                : "bg-white/60 text-sage-600 hover:bg-white dark:bg-white/5 dark:text-sage-300 dark:hover:bg-white/10"
+            )}
+          >
+            <Icon className="h-3.5 w-3.5" />
+            {item.label}
+          </Link>
+        );
+      })}
+    </nav>
+  );
 
-      <nav className="flex flex-wrap gap-2" aria-label="Health sections">
-        {(
-          [
-            { id: "journal", href: "/app/health", label: "Journal", icon: BookOpen },
-            { id: "track", href: "/app/health?tab=track", label: "Track", icon: LineChart },
-            { id: "mental", href: "/app/health?tab=mental", label: "Mental", icon: Brain },
-            { id: "physical", href: "/app/health?tab=physical", label: "Physical", icon: Activity },
-          ] as const
-        ).map((item) => {
-          const Icon = item.icon;
-          const on = active === item.id;
-          return (
-            <Link
-              key={item.id}
-              href={item.href}
-              className={cn(
-                "inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition",
-                on
-                  ? "bg-sage-900 text-white shadow-soft dark:bg-white dark:text-sage-900"
-                  : "bg-white/60 text-sage-600 hover:bg-white dark:bg-white/5 dark:text-sage-300 dark:hover:bg-white/10"
-              )}
-            >
-              <Icon className="h-3.5 w-3.5" />
-              {item.label}
-            </Link>
-          );
-        })}
-      </nav>
+  return (
+    <div className="mx-auto max-w-6xl space-y-5">
+      {active === "journal" ? (
+        <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h1 className="font-display text-2xl font-semibold tracking-tight text-sage-900 dark:text-white sm:text-3xl">
+              Journal
+            </h1>
+            <p className="mt-1 max-w-md text-sm text-sage-500">
+              Private, unhurried, yours — continue today or open any past page.
+            </p>
+          </div>
+          {tabs}
+        </header>
+      ) : (
+        <>
+          <header className="relative overflow-hidden rounded-[1.75rem] border border-white/40 bg-[#0b0f0e] px-6 py-8 text-white shadow-glass sm:px-10 sm:py-10">
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_15%_0%,rgba(13,148,136,0.35),transparent_55%),radial-gradient(ellipse_at_90%_80%,rgba(2,132,200,0.2),transparent_45%)]" />
+            <div className="relative">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/55">
+                Health
+              </p>
+              <h1 className="mt-2 font-display text-3xl font-bold tracking-tight sm:text-4xl">
+                {headlines[active].title}
+              </h1>
+              <p className="mt-2 max-w-lg text-sm text-white/70 sm:text-base">
+                {headlines[active].blurb}
+              </p>
+            </div>
+          </header>
+          {tabs}
+        </>
+      )}
 
       {active === "journal" && (
-        <JournalStudio initialEntries={initialEntries} journeyStage={journeyStage} />
+        <JournalStudio
+          initialEntries={initialEntries}
+          journeyStage={journeyStage}
+          todayMood={todayMood}
+          hasMoodToday={hasMoodToday}
+        />
       )}
 
       {active === "track" && (

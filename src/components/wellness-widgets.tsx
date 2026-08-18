@@ -1,8 +1,16 @@
 "use client";
 
-import { useMemo, useState, useTransition, useCallback } from "react";
+import { useMemo, useState, useTransition, useCallback, useEffect, useRef } from "react";
 import { format } from "date-fns";
-import { Shuffle, Feather, Lock, Check, Pencil, Trash2, X } from "lucide-react";
+import {
+  Shuffle,
+  Feather,
+  Lock,
+  Check,
+  Trash2,
+  Plus,
+  Flame,
+} from "lucide-react";
 import {
   JOURNEY_STAGES,
   MOOD_OPTIONS,
@@ -11,6 +19,12 @@ import {
   type JourneyStageSlug,
 } from "@/lib/constants";
 import { addJournal, deleteJournal, logMood, updateJournal } from "@/lib/actions/wellness";
+import {
+  dayLabel,
+  findTodayEntry,
+  firstLine,
+  journalStreakDays,
+} from "@/lib/journal";
 import { cn, timeAgo } from "@/lib/utils";
 
 export type JournalEntryView = {
@@ -206,12 +220,29 @@ export function MoodTrend({ entries }: { entries: MoodEntryView[] }) {
   );
 }
 
+function pickPrompt(prompts: string[], avoid?: string) {
+  if (prompts.length === 0) return "";
+  if (prompts.length === 1) return prompts[0];
+  let next = prompts[Math.floor(Math.random() * prompts.length)];
+  if (!avoid) return next;
+  let guard = 0;
+  while (next === avoid && guard++ < 8) {
+    next = prompts[Math.floor(Math.random() * prompts.length)];
+  }
+  return next;
+}
+
 export function JournalStudio({
   initialEntries,
   journeyStage = "newly-diagnosed",
+  todayMood = null,
+  hasMoodToday = false,
 }: {
   initialEntries: JournalEntryView[];
   journeyStage?: string | null;
+  /** Latest Track mood logged today — seeds the journal mood strip */
+  todayMood?: number | null;
+  hasMoodToday?: boolean;
 }) {
   const stage = (
     JOURNEY_STAGES.some((s) => s.slug === journeyStage)
@@ -219,20 +250,26 @@ export function JournalStudio({
       : "newly-diagnosed"
   ) as JourneyStageSlug;
   const prompts = useMemo(() => promptsForJourneyStage(stage), [stage]);
-  const [prompt, setPrompt] = useState(
-    () => prompts[Math.floor(Math.random() * prompts.length)]
-  );
-  const [content, setContent] = useState("");
-  const [entryMood, setEntryMood] = useState<number | null>(null);
+
   const [entries, setEntries] = useState(initialEntries);
+  const [activeId, setActiveId] = useState<string | "new">("new");
+  const [prompt, setPrompt] = useState(() => pickPrompt(prompts));
+  const [content, setContent] = useState("");
+  const [entryMood, setEntryMood] = useState<number | null>(todayMood);
+  const [moodSyncedToday, setMoodSyncedToday] = useState(hasMoodToday);
   const [pending, startTransition] = useTransition();
   const [savedFlash, setSavedFlash] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [openId, setOpenId] = useState<string | null>(null);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editContent, setEditContent] = useState("");
-  const [editPrompt, setEditPrompt] = useState("");
   const [query, setQuery] = useState("");
+  const [dirty, setDirty] = useState(false);
+  const booted = useRef(false);
+  const writerRef = useRef<HTMLTextAreaElement>(null);
+
+  const todayEntry = useMemo(() => findTodayEntry(entries), [entries]);
+  const streak = useMemo(() => journalStreakDays(entries), [entries]);
+  const activeEntry = activeId === "new" ? null : entries.find((e) => e.id === activeId) ?? null;
+  const isToday = Boolean(activeEntry && todayEntry && activeEntry.id === todayEntry.id);
+  const isContinuingToday = activeId === "new" ? !todayEntry : isToday;
 
   const wordCount = useMemo(() => {
     const t = content.trim();
@@ -250,15 +287,59 @@ export function JournalStudio({
     );
   }, [entries, query]);
 
-  const shufflePrompt = useCallback(() => {
-    let next = prompt;
-    if (prompts.length > 1) {
-      while (next === prompt) {
-        next = prompts[Math.floor(Math.random() * prompts.length)];
-      }
+  const loadEntry = useCallback((entry: JournalEntryView) => {
+    setActiveId(entry.id);
+    setContent(entry.content);
+    setPrompt(entry.prompt || pickPrompt(prompts));
+    setEntryMood(entry.mood ?? todayMood);
+    setDirty(false);
+    setError(null);
+  }, [prompts, todayMood]);
+
+  const startFresh = useCallback(() => {
+    setActiveId("new");
+    setContent("");
+    setPrompt(pickPrompt(prompts));
+    setEntryMood(todayMood);
+    setDirty(false);
+    setError(null);
+    requestAnimationFrame(() => writerRef.current?.focus());
+  }, [prompts, todayMood]);
+
+  useEffect(() => {
+    if (booted.current) return;
+    booted.current = true;
+    const today = findTodayEntry(initialEntries);
+    if (today) {
+      loadEntry(today);
+    } else {
+      setEntryMood(todayMood);
     }
-    setPrompt(next);
-  }, [prompt, prompts]);
+  }, [initialEntries, loadEntry, todayMood]);
+
+  const shufflePrompt = useCallback(() => {
+    setPrompt((prev) => pickPrompt(prompts, prev));
+    setDirty(true);
+  }, [prompts]);
+
+  function openEntry(entry: JournalEntryView) {
+    if (dirty && content.trim() && !window.confirm("Discard unsaved changes?")) return;
+    loadEntry(entry);
+    writerRef.current?.focus();
+  }
+
+  function newEntry() {
+    if (dirty && content.trim() && !window.confirm("Discard unsaved changes?")) return;
+    startFresh();
+  }
+
+  async function syncMoodToTrack(mood: number) {
+    if (moodSyncedToday) return;
+    const fd = new FormData();
+    fd.set("mood", String(mood));
+    const result = await logMood(fd);
+    if (!result?.error) setMoodSyncedToday(true);
+  }
 
   function save() {
     const body = content.trim();
@@ -267,57 +348,44 @@ export function JournalStudio({
       return;
     }
     setError(null);
-    const fd = new FormData();
-    fd.set("prompt", prompt);
-    fd.set("content", body);
-    if (entryMood) fd.set("mood", String(entryMood));
     startTransition(async () => {
-      const result = await addJournal(fd);
-      if (result?.error) {
-        setError(result.error);
-        return;
+      if (activeId !== "new") {
+        const fd = new FormData();
+        fd.set("id", activeId);
+        fd.set("content", body);
+        fd.set("prompt", prompt);
+        if (entryMood) fd.set("mood", String(entryMood));
+        else fd.set("clearMood", "true");
+        const result = await updateJournal(fd);
+        if (result?.error) {
+          setError(result.error);
+          return;
+        }
+        if (result?.entry) {
+          setEntries((prev) => prev.map((e) => (e.id === result.entry!.id ? result.entry! : e)));
+          setActiveId(result.entry.id);
+        }
+      } else {
+        const fd = new FormData();
+        fd.set("prompt", prompt);
+        fd.set("content", body);
+        if (entryMood) fd.set("mood", String(entryMood));
+        const result = await addJournal(fd);
+        if (result?.error) {
+          setError(result.error);
+          return;
+        }
+        if (result?.entry) {
+          setEntries((prev) => [result.entry!, ...prev]);
+          setActiveId(result.entry.id);
+        }
       }
-      if (result?.entry) {
-        setEntries((prev) => [result.entry!, ...prev]);
-        setOpenId(result.entry.id);
-      }
-      setContent("");
-      setEntryMood(null);
+
+      if (entryMood) await syncMoodToTrack(entryMood);
+
+      setDirty(false);
       setSavedFlash(true);
       window.setTimeout(() => setSavedFlash(false), 1800);
-      shufflePrompt();
-    });
-  }
-
-  function startEdit(entry: JournalEntryView) {
-    setEditingId(entry.id);
-    setEditContent(entry.content);
-    setEditPrompt(entry.prompt || "");
-    setOpenId(entry.id);
-  }
-
-  function saveEdit() {
-    if (!editingId) return;
-    const body = editContent.trim();
-    if (!body) {
-      setError("Write a few words first");
-      return;
-    }
-    setError(null);
-    const fd = new FormData();
-    fd.set("id", editingId);
-    fd.set("content", body);
-    fd.set("prompt", editPrompt);
-    startTransition(async () => {
-      const result = await updateJournal(fd);
-      if (result?.error) {
-        setError(result.error);
-        return;
-      }
-      if (result?.entry) {
-        setEntries((prev) => prev.map((e) => (e.id === result.entry!.id ? result.entry! : e)));
-      }
-      setEditingId(null);
     });
   }
 
@@ -332,43 +400,63 @@ export function JournalStudio({
         return;
       }
       setEntries((prev) => prev.filter((e) => e.id !== id));
-      if (openId === id) setOpenId(null);
-      if (editingId === id) setEditingId(null);
+      if (activeId === id) startFresh();
     });
   }
 
+  const statusLine = isContinuingToday
+    ? todayEntry || activeId !== "new"
+      ? "Continuing today"
+      : "Today’s entry"
+    : activeEntry
+      ? dayLabel(activeEntry.createdAt)
+      : "New entry";
+
   return (
-    <div className="grid gap-5 lg:grid-cols-[minmax(0,1.35fr)_minmax(280px,0.85fr)]">
+    <div className="grid gap-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(260px,0.75fr)]">
       <section className="relative overflow-hidden rounded-[1.75rem] border border-white/40 bg-white/55 shadow-glass backdrop-blur-xl dark:border-white/10 dark:bg-[#0f1715]/80">
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-[radial-gradient(ellipse_at_20%_0%,rgba(13,148,136,0.16),transparent_60%)]" />
-        <div className="relative flex items-center justify-between gap-3 border-b border-sage-200/60 px-6 py-4 dark:border-white/10">
-          <div className="flex items-center gap-2 text-sage-500">
-            <Feather className="h-4 w-4 text-brand-600" />
-            <span className="text-xs font-semibold uppercase tracking-[0.16em]">
-              Private journal
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-36 bg-[radial-gradient(ellipse_at_20%_0%,rgba(13,148,136,0.14),transparent_60%)]" />
+
+        <div className="relative flex flex-wrap items-center justify-between gap-2 border-b border-sage-200/50 px-5 py-3.5 sm:px-7 dark:border-white/10">
+          <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-sage-500">
+              <Feather className="h-3.5 w-3.5 text-brand-600" />
+              {statusLine}
             </span>
+            {streak > 0 && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-[11px] font-semibold text-amber-800 dark:text-amber-200">
+                <Flame className="h-3 w-3" />
+                {streak}-day streak
+              </span>
+            )}
           </div>
           <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-sage-400">
-            <Lock className="h-3 w-3" /> Only you — never on your profile
+            <Lock className="h-3 w-3" /> Only you
           </span>
         </div>
 
-        <div className="relative space-y-5 px-6 py-6 sm:px-8 sm:py-8">
+        <div className="relative space-y-4 px-5 py-5 sm:px-7 sm:py-6">
           <div>
-            <p className="mb-2 text-xs font-medium text-sage-500">
+            <p className="mb-1.5 text-xs font-medium text-sage-500">
               Prompts for{" "}
               <span className="font-semibold text-brand-700 dark:text-brand-300">
                 {journeyStageLabel(stage)}
               </span>
-              <LinkHint />
+              <span className="text-sage-400">
+                {" "}
+                ·{" "}
+                <a href="/app/profile" className="underline hover:text-brand-600">
+                  change in profile
+                </a>
+              </span>
             </p>
-            <div className="mb-3 flex items-start justify-between gap-3">
-              <p className="font-display text-2xl font-semibold leading-snug tracking-tight text-sage-900 dark:text-white sm:text-[1.75rem]">
+            <div className="flex items-start justify-between gap-3">
+              <p className="font-display text-[1.35rem] font-semibold leading-snug tracking-tight text-sage-900 dark:text-white sm:text-[1.55rem]">
                 {prompt}
               </p>
               <button
                 type="button"
-                onClick={() => shufflePrompt()}
+                onClick={shufflePrompt}
                 className="btn-ghost shrink-0 rounded-full p-2.5"
                 title="Another prompt"
                 aria-label="Shuffle prompt"
@@ -376,43 +464,53 @@ export function JournalStudio({
                 <Shuffle className="h-4 w-4" />
               </button>
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="mt-2.5 flex flex-wrap gap-1.5">
               {prompts.slice(0, 3).map((p) => (
                 <button
                   key={p}
                   type="button"
-                  onClick={() => setPrompt(p)}
+                  onClick={() => {
+                    setPrompt(p);
+                    setDirty(true);
+                  }}
                   className={cn(
-                    "max-w-full truncate rounded-full px-3 py-1 text-[11px] font-medium transition",
+                    "max-w-full truncate rounded-full px-2.5 py-1 text-[11px] font-medium transition",
                     p === prompt
                       ? "bg-sage-900 text-white dark:bg-white dark:text-sage-900"
                       : "bg-white/70 text-sage-600 hover:bg-white dark:bg-white/5 dark:text-sage-300"
                   )}
                 >
-                  {p.length > 42 ? `${p.slice(0, 42)}…` : p}
+                  {p.length > 36 ? `${p.slice(0, 36)}…` : p}
                 </button>
               ))}
             </div>
           </div>
 
           <textarea
+            ref={writerRef}
             value={content}
             onChange={(e) => {
               setContent(e.target.value);
+              setDirty(true);
               if (error) setError(null);
             }}
-            rows={12}
+            rows={14}
             placeholder="Write freely. No audience. No edits required."
             className="w-full resize-none rounded-3xl border border-sage-200/70 bg-white/80 px-5 py-5 font-display text-lg leading-relaxed text-sage-900 outline-none transition placeholder:text-sage-400 focus:border-brand-400/50 focus:ring-4 focus:ring-brand-400/15 dark:border-white/10 dark:bg-black/20 dark:text-sage-50 dark:placeholder:text-sage-500"
           />
 
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs font-medium text-sage-400">Mood with this entry</span>
+            <span className="text-xs font-medium text-sage-400">
+              Mood{moodSyncedToday || todayMood ? " · from today" : ""}
+            </span>
             {MOOD_OPTIONS.map((m) => (
               <button
                 key={m.value}
                 type="button"
-                onClick={() => setEntryMood((prev) => (prev === m.value ? null : m.value))}
+                onClick={() => {
+                  setEntryMood((prev) => (prev === m.value ? null : m.value));
+                  setDirty(true);
+                }}
                 className={cn(
                   "rounded-full px-2.5 py-1 text-sm transition",
                   entryMood === m.value
@@ -425,13 +523,29 @@ export function JournalStudio({
                 {m.emoji}
               </button>
             ))}
+            <span className="text-[11px] text-sage-400">
+              Saves to Track trends too
+            </span>
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="text-xs text-sage-400">
-              {wordCount === 0 ? "Start anywhere" : `${wordCount} word${wordCount === 1 ? "" : "s"}`}
+              {wordCount === 0
+                ? "Start anywhere"
+                : `${wordCount} word${wordCount === 1 ? "" : "s"}${dirty ? " · unsaved" : ""}`}
             </p>
             <div className="flex items-center gap-2">
+              {activeId !== "new" && (
+                <button
+                  type="button"
+                  onClick={() => remove(activeId)}
+                  disabled={pending}
+                  className="btn-ghost rounded-full px-3 py-2 text-rose-500"
+                  aria-label="Delete entry"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              )}
               {savedFlash && (
                 <span className="inline-flex items-center gap-1 text-sm font-medium text-emerald-600 dark:text-emerald-300">
                   <Check className="h-4 w-4" /> Saved
@@ -443,7 +557,7 @@ export function JournalStudio({
                 disabled={pending || !content.trim()}
                 className="btn-primary px-6"
               >
-                {pending ? "Saving…" : "Save entry"}
+                {pending ? "Saving…" : activeId === "new" && !todayEntry ? "Save today" : "Save"}
               </button>
             </div>
           </div>
@@ -455,132 +569,93 @@ export function JournalStudio({
         </div>
       </section>
 
-      <aside className="space-y-4">
-        <div className="rounded-[1.75rem] border border-white/40 bg-white/55 p-5 shadow-glass backdrop-blur-xl dark:border-white/10 dark:bg-[#0f1715]/80">
-          <div className="mb-4 flex items-baseline justify-between gap-2">
-            <h2 className="font-display text-lg font-semibold text-sage-900 dark:text-white">
-              Your entries
+      <aside className="space-y-3" id="journal-index">
+        <div className="rounded-[1.75rem] border border-white/40 bg-white/55 p-4 shadow-glass backdrop-blur-xl dark:border-white/10 dark:bg-[#0f1715]/80 sm:p-5">
+          <div className="mb-3 flex items-center justify-between gap-2">
+            <h2 className="font-display text-base font-semibold text-sage-900 dark:text-white">
+              Entries
             </h2>
-            <span className="text-xs font-medium text-sage-400">{entries.length}</span>
+            <button
+              type="button"
+              onClick={newEntry}
+              className="btn-secondary rounded-full px-3 py-1.5 text-xs"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              New
+            </button>
           </div>
+
+          {todayEntry && activeId !== todayEntry.id && (
+            <button
+              type="button"
+              onClick={() => openEntry(todayEntry)}
+              className="mb-3 w-full rounded-2xl bg-safely-gradient px-3.5 py-2.5 text-left text-sm font-semibold text-white shadow-glow transition hover:brightness-105"
+            >
+              Continue today
+            </button>
+          )}
 
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="input mb-3"
-            placeholder="Search entries…"
+            className="input mb-3 py-2 text-sm"
+            placeholder="Search…"
           />
 
           {filtered.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-sage-300/70 px-4 py-10 text-center dark:border-white/15">
-              <p className="font-display text-base text-sage-700 dark:text-sage-200">
+            <div className="rounded-2xl border border-dashed border-sage-300/70 px-4 py-8 text-center dark:border-white/15">
+              <p className="font-display text-sm text-sage-700 dark:text-sage-200">
                 {entries.length === 0 ? "Your first page is waiting" : "No matches"}
-              </p>
-              <p className="mt-1 text-sm text-sage-500">
-                Entries stay private on Safely.
               </p>
             </div>
           ) : (
-            <ol className="max-h-[32rem] space-y-3 overflow-y-auto pr-1">
-              {filtered.map((entry, i) => {
-                const open = openId === entry.id;
-                const editing = editingId === entry.id;
+            <ol className="max-h-[min(28rem,55vh)] space-y-1 overflow-y-auto pr-0.5 lg:max-h-[36rem]">
+              {filtered.map((entry) => {
+                const active = activeId === entry.id;
                 const moodOpt = entry.mood
                   ? MOOD_OPTIONS.find((o) => o.value === entry.mood)
                   : null;
+                const today = todayEntry?.id === entry.id;
                 return (
-                  <li
-                    key={entry.id}
-                    className="animate-fade-in rounded-2xl bg-gradient-to-br from-white/90 to-brand-50/40 p-4 dark:from-white/[0.06] dark:to-brand-500/10"
-                    style={{ animationDelay: `${Math.min(i, 6) * 40}ms` }}
-                  >
-                    <div className="flex items-center justify-between gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setOpenId(open ? null : entry.id)}
-                        className="text-left"
-                      >
-                        <time className="text-[11px] font-semibold uppercase tracking-wider text-brand-700/80 dark:text-brand-300">
-                          {format(new Date(entry.createdAt), "MMM d · h:mm a")}
-                        </time>
-                      </button>
-                      <div className="flex items-center gap-1">
-                        {moodOpt && <span className="text-sm">{moodOpt.emoji}</span>}
-                        <button
-                          type="button"
-                          className="btn-ghost rounded-full p-1.5"
-                          aria-label="Edit entry"
-                          onClick={() => startEdit(entry)}
-                        >
-                          <Pencil className="h-3.5 w-3.5" />
-                        </button>
-                        <button
-                          type="button"
-                          className="btn-ghost rounded-full p-1.5 text-rose-500"
-                          aria-label="Delete entry"
-                          onClick={() => remove(entry.id)}
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </button>
-                      </div>
-                    </div>
-
-                    {editing ? (
-                      <div className="mt-3 space-y-2">
-                        <input
-                          value={editPrompt}
-                          onChange={(e) => setEditPrompt(e.target.value)}
-                          className="input text-sm"
-                          placeholder="Prompt (optional)"
-                        />
-                        <textarea
-                          value={editContent}
-                          onChange={(e) => setEditContent(e.target.value)}
-                          rows={6}
-                          className="input min-h-[8rem] resize-y font-display text-sm leading-relaxed"
-                        />
-                        <div className="flex gap-2">
-                          <button
-                            type="button"
-                            onClick={saveEdit}
-                            disabled={pending}
-                            className="btn-primary py-2 text-sm"
-                          >
-                            Save
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setEditingId(null)}
-                            className="btn-secondary py-2 text-sm"
-                          >
-                            <X className="h-3.5 w-3.5" /> Cancel
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => setOpenId(open ? null : entry.id)}
-                        className="mt-2 w-full text-left"
-                      >
-                        {entry.prompt && (
-                          <p className="line-clamp-2 font-display text-sm font-medium text-sage-800 dark:text-sage-100">
-                            {entry.prompt}
-                          </p>
-                        )}
-                        <p
-                          className={cn(
-                            "mt-1.5 whitespace-pre-wrap text-sm leading-relaxed text-sage-600 dark:text-sage-300",
-                            open ? "" : "line-clamp-4"
+                  <li key={entry.id}>
+                    <button
+                      type="button"
+                      onClick={() => openEntry(entry)}
+                      className={cn(
+                        "flex w-full items-start gap-2.5 rounded-2xl px-3 py-2.5 text-left transition",
+                        active
+                          ? "bg-brand-50 ring-1 ring-brand-300/40 dark:bg-brand-500/15 dark:ring-brand-400/30"
+                          : "hover:bg-white/70 dark:hover:bg-white/5"
+                      )}
+                    >
+                      <span className="mt-0.5 w-4 shrink-0 text-center text-sm leading-none">
+                        {moodOpt?.emoji ?? "·"}
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="flex items-center gap-1.5">
+                          <span className="text-[11px] font-semibold uppercase tracking-wider text-sage-500">
+                            {dayLabel(entry.createdAt)}
+                          </span>
+                          {today && (
+                            <span className="rounded-full bg-brand-500/15 px-1.5 py-px text-[9px] font-bold uppercase tracking-wide text-brand-700 dark:text-brand-300">
+                              Today
+                            </span>
                           )}
-                        >
-                          {entry.content}
-                        </p>
-                        <p className="mt-1.5 text-[10px] text-sage-400">
-                          {open ? "Tap to collapse" : "Tap to read · edit anytime"}
-                        </p>
-                      </button>
-                    )}
+                        </span>
+                        <span className="mt-0.5 block truncate text-sm font-medium text-sage-800 dark:text-sage-100">
+                          {entry.prompt
+                            ? entry.prompt.length > 48
+                              ? `${entry.prompt.slice(0, 48)}…`
+                              : entry.prompt
+                            : firstLine(entry.content)}
+                        </span>
+                        {entry.prompt && (
+                          <span className="mt-0.5 block truncate text-xs text-sage-500">
+                            {firstLine(entry.content, 56)}
+                          </span>
+                        )}
+                      </span>
+                    </button>
                   </li>
                 );
               })}
@@ -589,18 +664,6 @@ export function JournalStudio({
         </div>
       </aside>
     </div>
-  );
-}
-
-function LinkHint() {
-  return (
-    <span className="text-sage-400">
-      {" "}
-      ·{" "}
-      <a href="/app/profile" className="underline hover:text-brand-600">
-        change in profile
-      </a>
-    </span>
   );
 }
 
