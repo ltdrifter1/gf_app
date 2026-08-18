@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { MsnPresenceIcon } from "@/components/msn-presence-icon";
 import { cn } from "@/lib/utils";
 
@@ -9,79 +9,153 @@ type Msg = { name: string; text: string };
 export function HeroMessenger({
   onlineCount,
   messages,
+  className,
 }: {
   onlineCount: number;
   messages: Msg[];
+  className?: string;
 }) {
   const [visible, setVisible] = useState(0);
   const [typing, setTyping] = useState(true);
 
+  const lines = useMemo(
+    () => messages.filter((m) => m.name.trim() && m.text.trim()),
+    [messages]
+  );
+  const linesKey = useMemo(
+    () => lines.map((m) => `${m.name}:${m.text}`).join("|"),
+    [lines]
+  );
+
   useEffect(() => {
     setVisible(0);
     setTyping(true);
+    if (lines.length === 0) {
+      setTyping(false);
+      return;
+    }
     const timers: ReturnType<typeof setTimeout>[] = [];
-    messages.forEach((_, i) => {
+    lines.forEach((_, i) => {
       timers.push(
         setTimeout(() => {
           setVisible(i + 1);
-          if (i === messages.length - 1) setTyping(false);
-        }, 600 + i * 900)
+          if (i === lines.length - 1) setTyping(false);
+        }, 700 + i * 950)
       );
     });
     return () => timers.forEach(clearTimeout);
-  }, [messages]);
+    // Restart only when the message content actually changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [linesKey]);
+
+  const shown = lines.slice(0, visible);
+  const awaitingMore = typing && visible < lines.length;
 
   return (
-    <div className="w-full max-w-lg animate-fade-in [animation-delay:120ms] lg:ml-auto">
-      <div className="overflow-hidden rounded-[1.75rem] border border-white/50 bg-gradient-to-b from-white/90 to-white/70 shadow-glass-lg backdrop-blur-xl dark:border-white/15 dark:from-white/[0.10] dark:to-white/[0.04]">
-        <div className="flex items-center gap-2 border-b border-sage-200/60 px-4 py-3 dark:border-white/10">
-          <div className="grid h-9 w-9 place-items-center rounded-xl bg-safely-gradient text-sm text-white">
+    <div
+      className={cn(
+        "w-full animate-fade-in [animation-delay:120ms]",
+        className
+      )}
+    >
+      <div className="msn-window msn-window-hero">
+        <div className="msn-titlebar">
+          <MsnPresenceIcon status="online" size={14} />
+          <span className="min-w-0 flex-1 truncate text-[12px] font-semibold tracking-wide">
+            Safely Messenger — Instant Message
+          </span>
+          <span className="hidden text-[10px] text-white/80 sm:inline">
+            General Support
+          </span>
+          <span className="msn-titlebar-btn" aria-hidden>
+            _
+          </span>
+          <span className="msn-titlebar-btn" aria-hidden>
+            ×
+          </span>
+        </div>
+
+        <div className="msn-menubar">
+          <button type="button" tabIndex={-1}>
+            File
+          </button>
+          <button type="button" tabIndex={-1}>
+            Edit
+          </button>
+          <button type="button" tabIndex={-1}>
+            Actions
+          </button>
+          <button type="button" tabIndex={-1}>
+            Tools
+          </button>
+          <button type="button" tabIndex={-1}>
+            Help
+          </button>
+        </div>
+
+        <div className="flex items-center gap-3 border-b border-[#c5c2b2]/80 bg-gradient-to-b from-[#faf9f4] to-[#f0efe6] px-3 py-2.5 dark:border-white/10 dark:from-[#243044] dark:to-[#1c2636]">
+          <div className="grid h-12 w-12 place-items-center rounded-md border border-[#7f9db9]/70 bg-gradient-to-br from-[#5eb1ef] via-[#1a7fd4] to-[#0d5aa8] text-xl text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.45),0_4px_12px_-4px_rgba(13,90,168,0.55)]">
             💬
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate font-display text-sm font-bold text-sage-900 dark:text-white">
+            <p className="font-display text-[15px] font-semibold tracking-tight text-[#0a246a] dark:text-white">
               General Support
             </p>
-            <p className="flex items-center gap-1.5 text-[11px] text-sage-500">
-              <MsnPresenceIcon status="online" size={10} />
-              {onlineCount} online · Safely Messenger
+            <p className="mt-0.5 flex items-center gap-1.5 text-[11px] text-[#555] dark:text-sage-400">
+              <MsnPresenceIcon status="online" size={11} />
+              {onlineCount} online · Safely Lounge
             </p>
           </div>
         </div>
 
-        <div className="flex min-h-[260px] flex-col gap-2.5 px-4 py-4 sm:min-h-[300px]">
-          {messages.slice(0, visible).map((m, i) => (
-            <div
-              key={`${m.name}-${i}`}
-              className={cn(
-                "max-w-[90%] animate-fade-in rounded-2xl px-3 py-2",
-                m.name === "You"
-                  ? "ml-auto bg-brand-500/15"
-                  : "bg-white/80 dark:bg-white/[0.06]"
-              )}
-            >
-              {m.name !== "You" && (
-                <p className="text-[11px] font-semibold text-brand-700 dark:text-brand-300">
-                  {m.name}
+        <div className="msn-inset m-2 flex min-h-[260px] flex-col gap-3 p-3.5 sm:min-h-[300px]">
+          {shown.map((m, i) => {
+            const mine = m.name === "You";
+            return (
+              <div
+                key={`${m.name}-${m.text.slice(0, 24)}-${i}`}
+                className="msn-says animate-fade-in"
+              >
+                <p>
+                  <span
+                    className="msn-says-name"
+                    style={{ color: mine ? "#0a5a9c" : "#8b1a1a" }}
+                  >
+                    {m.name} says:
+                  </span>
                 </p>
-              )}
-              <p className="text-[13px] leading-relaxed text-sage-800 dark:text-sage-100">
-                {m.text}
-              </p>
-            </div>
-          ))}
-          {typing && (
-            <p className="text-xs italic text-sage-400">Someone is typing…</p>
+                <p className="pl-0.5 text-[13.5px] leading-relaxed text-[#1a1a1a] dark:text-sage-100">
+                  {m.text}
+                </p>
+              </div>
+            );
+          })}
+
+          {awaitingMore && (
+            <p className="text-[11px] italic text-[#666] dark:text-sage-400">
+              Someone is typing a message…
+            </p>
           )}
         </div>
 
-        <div className="flex items-center gap-2 border-t border-sage-200/50 bg-white/40 p-3 dark:border-white/10 dark:bg-white/[0.04]">
-          <div className="flex-1 rounded-2xl border border-sage-200/70 bg-white/90 px-3 py-2 text-[13px] text-sage-400 dark:border-white/15 dark:bg-black/25">
+        <div className="msn-composer">
+          <button type="button" className="msn-nudge-btn" tabIndex={-1}>
+            Nudge!
+          </button>
+          <div className="msn-input flex-1 text-[#888]">
             Message General Support…
           </div>
           <button type="button" className="msn-send" tabIndex={-1}>
             Send
           </button>
+        </div>
+
+        <div className="msn-statusbar">
+          {awaitingMore ? (
+            <span className="italic">Someone is typing a message…</span>
+          ) : (
+            <span>{onlineCount} people online</span>
+          )}
         </div>
       </div>
     </div>

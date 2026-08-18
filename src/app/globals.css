@@ -3,8 +3,24 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    /* Apple Store / iOS feel — Geist (SF-adjacent) + Apple system stack */
+    --font-sans: var(--font-geist-sans), -apple-system, BlinkMacSystemFont,
+      "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --font-display: var(--font-geist-sans), -apple-system, BlinkMacSystemFont,
+      "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
   body {
     @apply bg-[#e8f5f3] text-sage-900 antialiased;
+    font-family: var(--font-sans);
+    letter-spacing: -0.011em;
     transition: background-color 0.35s ease, color 0.35s ease;
     background-image:
       radial-gradient(1100px 560px at 8% -12%, rgba(13, 148, 136, 0.20), transparent),
@@ -19,6 +35,12 @@
       radial-gradient(1100px 560px at 8% -12%, rgba(13, 148, 136, 0.18), transparent),
       radial-gradient(900px 520px at 100% -6%, rgba(14, 165, 233, 0.14), transparent),
       radial-gradient(1000px 700px at 60% 115%, rgba(56, 189, 248, 0.08), transparent);
+  }
+
+  /* Apple-style display headlines: tighter tracking, confident weight */
+  .font-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.022em;
   }
 }
 
@@ -65,7 +87,7 @@
     @apply bg-safely-gradient bg-clip-text text-transparent;
   }
 
-  /* —— Modern Messenger shell (single window) —— */
+  /* —— Modern Messenger shell (in-app) —— */
   .messenger-shell {
     @apply glass-strong flex overflow-hidden rounded-[1.75rem] text-sage-900 dark:text-sage-100;
   }
@@ -78,7 +100,8 @@
       height: calc(100svh - 6.25rem);
     }
   }
-  /* Legacy aliases — keep older class names working during transition */
+
+  /* Legacy / non-hero glass window */
   .msn-window {
     @apply flex flex-col overflow-hidden rounded-[1.75rem] border border-white/50 bg-gradient-to-b from-white/85 to-white/65 text-sage-900 shadow-glass dark:border-white/[0.14] dark:from-white/[0.10] dark:to-white/[0.04] dark:bg-[#1a2436] dark:text-sage-100;
   }
@@ -137,6 +160,151 @@
   }
   .msn-nudge-btn {
     @apply shrink-0 rounded-full border border-amber-300/60 bg-amber-50 px-3 text-[12px] font-semibold text-amber-900 transition hover:bg-amber-100 disabled:opacity-50 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-100 dark:hover:bg-amber-500/20;
+  }
+
+  /* —— Home hero: classic MSN with modern polish —— */
+  .msn-window-hero {
+    border-radius: 10px;
+    border: 1px solid rgba(10, 36, 106, 0.35);
+    background: linear-gradient(180deg, #f7f5ec 0%, #ece9d8 100%);
+    color: #1a1a1a;
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.65) inset,
+      0 28px 80px -24px rgba(10, 36, 106, 0.55),
+      0 12px 32px -12px rgba(0, 0, 0, 0.35);
+    overflow: hidden;
+  }
+  .dark .msn-window-hero {
+    border-color: rgba(56, 120, 200, 0.35);
+    background: linear-gradient(180deg, #243044 0%, #1a2433 100%);
+    color: #e8eef6;
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.08) inset,
+      0 28px 80px -24px rgba(0, 0, 0, 0.75);
+  }
+  .msn-window-hero .msn-titlebar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.55rem;
+    color: #fff;
+    border-bottom: none;
+    background: linear-gradient(180deg, #1ab0ff 0%, #0675d6 45%, #0254a8 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  }
+  .msn-window-hero .msn-titlebar-btn {
+    display: grid;
+    place-items: center;
+    height: 1.05rem;
+    width: 1.05rem;
+    border-radius: 3px;
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    font-size: 9px;
+    line-height: 1;
+    color: rgba(255, 255, 255, 0.95);
+    background: linear-gradient(180deg, #4db8f7, #0a6ec4);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  }
+  .msn-window-hero .msn-menubar {
+    display: flex;
+    gap: 0.15rem;
+    border-bottom: 1px solid #b8b5a6;
+    background: linear-gradient(180deg, #f4f2e8, #e8e5d6);
+    padding: 0.2rem 0.4rem;
+    font-size: 11px;
+    color: #1a1a1a;
+  }
+  .dark .msn-window-hero .msn-menubar {
+    border-bottom-color: rgba(255, 255, 255, 0.12);
+    background: linear-gradient(180deg, #2a364a, #222e40);
+    color: #d7e0ec;
+  }
+  .msn-window-hero .msn-menubar button {
+    border-radius: 3px;
+    padding: 0.15rem 0.4rem;
+    background: transparent;
+  }
+  .msn-window-hero .msn-menubar button:hover {
+    background: #316ac5;
+    color: #fff;
+  }
+  .msn-window-hero .msn-inset {
+    border: 2px solid;
+    border-color: #8a8a8a #fff #fff #8a8a8a;
+    border-radius: 4px;
+    background: #fff;
+  }
+  .dark .msn-window-hero .msn-inset {
+    border-color: #0a1220 #3a4a60 #3a4a60 #0a1220;
+    background: #121a28;
+  }
+  .msn-window-hero .msn-composer {
+    display: flex;
+    align-items: stretch;
+    gap: 0.35rem;
+    border-top: 1px solid #b8b5a6;
+    background: linear-gradient(180deg, #f2f0e6, #e6e3d4);
+    padding: 0.45rem;
+    border-radius: 0;
+  }
+  .dark .msn-window-hero .msn-composer {
+    border-top-color: rgba(255, 255, 255, 0.12);
+    background: linear-gradient(180deg, #2a364a, #222e40);
+  }
+  .msn-window-hero .msn-input {
+    border-radius: 3px;
+    border: 1px solid #7f9db9;
+    background: #fff;
+    padding: 0.45rem 0.6rem;
+    font-size: 13px;
+    color: #1a1a1a;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.06);
+  }
+  .dark .msn-window-hero .msn-input {
+    border-color: rgba(255, 255, 255, 0.18);
+    background: #121a28;
+    color: #e8eef6;
+  }
+  .msn-window-hero .msn-send {
+    border-radius: 4px;
+    border: 1px solid #003c74;
+    background: linear-gradient(180deg, #6ec0f5, #1a6dbf 55%, #0d5aa8);
+    padding: 0 0.9rem;
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  }
+  .msn-window-hero .msn-send:hover {
+    filter: brightness(1.06);
+  }
+  .msn-window-hero .msn-nudge-btn {
+    border-radius: 4px;
+    border: 1px solid #8a6a20;
+    background: linear-gradient(180deg, #ffe08a, #e8b84a 55%, #c99220);
+    padding: 0 0.65rem;
+    font-size: 11px;
+    font-weight: 600;
+    color: #3a2a00;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  }
+  .msn-window-hero .msn-nudge-btn:hover {
+    filter: brightness(1.04);
+  }
+  .msn-window-hero .msn-statusbar {
+    border-top: 1px solid #b8b5a6;
+    background: linear-gradient(180deg, #f0eee4, #e4e1d2);
+    padding: 0.3rem 0.55rem;
+    font-size: 11px;
+    color: #333;
+  }
+  .dark .msn-window-hero .msn-statusbar {
+    border-top-color: rgba(255, 255, 255, 0.12);
+    background: linear-gradient(180deg, #2a364a, #222e40);
+    color: #b8c4d4;
+  }
+  .msn-window-hero .msn-says-name {
+    font-weight: 700;
   }
 }
 
