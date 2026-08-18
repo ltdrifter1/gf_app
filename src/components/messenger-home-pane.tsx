@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { MsnPresenceIcon } from "@/components/msn-presence-icon";
 import { presenceLabel } from "@/lib/presence";
 import type { MsnContact } from "@/components/buddy-list";
@@ -25,40 +26,51 @@ export function MessengerHomePane({
     me.presence === "away" || me.presence === "offline" ? me.presence : "online";
 
   return (
-    <div className={embedded ? "flex h-full min-h-0 flex-col" : "msn-window msn-window-fill hidden lg:flex"}>
-      <div className="relative overflow-hidden border-b border-sage-200/50 px-6 py-6 dark:border-white/10">
-        <div className="pointer-events-none absolute -right-16 -top-20 h-48 w-48 rounded-full bg-brand-400/15 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-24 left-1/3 h-40 w-40 rounded-full bg-accent-400/10 blur-3xl" />
-        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-sage-500">
-          Welcome back
-        </p>
-        <h2 className="mt-1.5 font-display text-[1.75rem] font-bold tracking-tight text-sage-900 dark:text-white">
-          {me.name}
-        </h2>
-        <p className="mt-2 flex items-center gap-1.5 text-sm text-sage-500">
-          <MsnPresenceIcon status={status} size={12} />
-          {presenceLabel(status as "online" | "away" | "offline")}
-          {me.statusMessage ? ` — ${me.statusMessage}` : ""}
-        </p>
-        <p className="mt-3 max-w-md text-sm leading-relaxed text-sage-600 dark:text-sage-300">
-          {onlineCount} online now. Open a contact or room to start chatting.
-        </p>
+    <div
+      className={
+        embedded
+          ? "flex h-full min-h-0 flex-col"
+          : "msn-window msn-window-hero msn-window-fill hidden lg:flex"
+      }
+    >
+      <div className="msn-hero-peer shrink-0">
+        <div className="msn-hero-avatar">
+          <Image
+            src="/logo.webp"
+            alt=""
+            width={44}
+            height={44}
+            className="h-full w-full object-cover"
+          />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="font-display text-[15px] font-semibold tracking-tight text-[#0a3a6e] dark:text-white">
+            {me.name}
+          </p>
+          <p className="mt-0.5 flex items-center gap-1.5 text-[11px] text-[#4a5568] dark:text-sage-400">
+            <MsnPresenceIcon status={status} size={11} />
+            {presenceLabel(status as "online" | "away" | "offline")}
+            {me.statusMessage ? ` — ${me.statusMessage}` : ""}
+          </p>
+        </div>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto p-5">
-        <section>
-          <div className="mb-3 flex items-baseline justify-between gap-3">
-            <h3 className="text-[11px] font-semibold uppercase tracking-[0.16em] text-sage-500">
-              Online now
-            </h3>
-            <span className="text-[11px] tabular-nums text-sage-400">{liveBuddies.length}</span>
-          </div>
+      <div className="msn-inset m-2.5 min-h-0 flex-1 overflow-y-auto p-3.5">
+        <p className="text-[13.5px] leading-relaxed text-[#1a1a1a] dark:text-sage-100">
+          {onlineCount} people online. Open a contact or room from the list to start chatting —
+          Instant Message style.
+        </p>
+
+        <div className="mt-4">
+          <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-[#64748b]">
+            Online now
+          </p>
           {liveBuddies.length === 0 ? (
-            <p className="rounded-2xl border border-dashed border-sage-200/70 px-4 py-8 text-center text-sm text-sage-500 dark:border-white/10">
+            <p className="rounded-lg border border-dashed border-[#94a3b8]/50 px-3 py-6 text-center text-[12.5px] text-[#64748b]">
               Nobody else is online yet — be the first to wave in a room.
             </p>
           ) : (
-            <ul className="grid gap-1 sm:grid-cols-2">
+            <ul className="space-y-0.5">
               {liveBuddies.map((c) => (
                 <li key={c.id}>
                   <Link
@@ -72,10 +84,10 @@ export function MessengerHomePane({
               ))}
             </ul>
           )}
-        </section>
+        </div>
       </div>
 
-      <div className="border-t border-sage-200/50 px-4 py-2.5 text-xs text-sage-500 dark:border-white/10">
+      <div className="msn-statusbar shrink-0">
         Select a contact or room to start chatting
       </div>
     </div>

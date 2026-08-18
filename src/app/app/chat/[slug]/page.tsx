@@ -78,6 +78,7 @@ export default async function ChatRoomPage({
         <ArrowLeft className="h-4 w-4" /> Back to Messenger
       </Link>
       <MessengerRoomShell
+        subtitle={displayName}
         sidebar={
           <ContactListPane
             embedded
