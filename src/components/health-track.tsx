@@ -81,7 +81,7 @@ export function HealthTrackPanel({
             </h2>
             <p className="mt-1 text-sm text-sage-500">
               Private by default. Journal can log today&apos;s mood here too —{" "}
-              <Link href="/app/health" className="font-medium text-brand-700 hover:underline dark:text-brand-300">
+              <Link href="/app/journal" className="font-medium text-brand-700 hover:underline dark:text-brand-300">
                 open Journal
               </Link>
               .

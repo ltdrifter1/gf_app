@@ -33,19 +33,28 @@ export const RECIPE_CATEGORIES = [
 ] as const;
 
 export const MENTAL_HEALTH_CATEGORIES = [
-  { slug: "anxiety", label: "Anxiety Support", emoji: "🌊" },
+  { slug: "anxiety", label: "Anxiety & Hypervigilance", emoji: "🌊" },
   { slug: "depression", label: "Low Mood", emoji: "🌤️" },
-  { slug: "isolation", label: "Feeling Isolated", emoji: "🤝" },
-  { slug: "eating-out", label: "Eating Out Nerves", emoji: "🍴" },
+  { slug: "isolation", label: "Loneliness & Belonging", emoji: "🤝" },
+  { slug: "eating-out", label: "Dining Out Nerves", emoji: "🍴" },
   { slug: "newly-diagnosed", label: "Newly Diagnosed", emoji: "🌱" },
+  { slug: "grief", label: "Grief & Identity", emoji: "🍂" },
+  { slug: "relationships", label: "Dating & Relationships", emoji: "💬" },
+  { slug: "burnout", label: "GF Burnout", emoji: "🔋" },
+  { slug: "family", label: "Family & Kids", emoji: "🏠" },
 ] as const;
 
 export const PHYSICAL_HEALTH_CATEGORIES = [
   { slug: "gut", label: "Gut & Digestion", emoji: "🦠" },
   { slug: "nutrition", label: "Nutrition & Deficits", emoji: "🥗" },
-  { slug: "recovery", label: "Healing After Glutening", emoji: "💚" },
+  { slug: "recovery", label: "After Glutening", emoji: "💚" },
   { slug: "energy", label: "Energy & Fatigue", emoji: "⚡" },
   { slug: "labs", label: "Labs & Follow-up", emoji: "🔬" },
+  { slug: "kitchen", label: "Kitchen & Cross-Contact", emoji: "🧽" },
+  { slug: "skin-bones", label: "Skin & Bones", emoji: "🦴" },
+  { slug: "dental", label: "Dental & Oral", emoji: "🦷" },
+  { slug: "travel-body", label: "Travel & Body Prep", emoji: "✈️" },
+  { slug: "meds", label: "Meds & Excipients", emoji: "💊" },
 ] as const;
 
 export const MOOD_OPTIONS = [

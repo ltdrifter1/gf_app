@@ -53,6 +53,7 @@ export async function updateProfile(formData: FormData) {
   revalidatePath("/app/profile");
   revalidatePath(`/app/u/${user.username}`);
   revalidatePath("/app/health");
+  revalidatePath("/app/journal");
   revalidatePath("/app");
   return { ok: true };
 }

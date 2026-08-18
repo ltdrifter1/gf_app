@@ -77,6 +77,125 @@ const TOOLS: Record<
       "Vitamin B12",
       "Folate",
       "Bone density (if indicated)",
+      "Thyroid labs (if your clinician recommends)",
+    ],
+  },
+  "ask-for-help": {
+    title: "One ask today",
+    intro: "Pick who you’ll reach out to. One message is enough.",
+    checklist: [
+      "Text a friend who gets it",
+      "Message Mental Health chat",
+      "Tell a partner what would help tonight",
+      "Book or message a clinician about mood",
+      "Write one honest Journal page instead of white-knuckling",
+    ],
+  },
+  "server-scripts": {
+    title: "Practice your line",
+    intro: "Say it once out loud. Awkward rehearsal beats freezing at the table.",
+    steps: [
+      {
+        title: "Name the need",
+        detail: "“I have celiac. I need no gluten and careful cross-contact.”",
+      },
+      {
+        title: "Ask for help",
+        detail: "“What do you recommend that’s prepared safely?”",
+      },
+      {
+        title: "Allow an exit",
+        detail: "“If there’s any doubt, I’ll order something else or skip — thank you.”",
+      },
+    ],
+  },
+  "first-30-days": {
+    title: "First 30 days",
+    intro: "Check items as you go — pace is personal.",
+    checklist: [
+      "Pantry sweep + a few trusted meals",
+      "Told close people / set house rules",
+      "Learned label basics for your country",
+      "One social plan with an exit strategy",
+      "Follow-up questions listed for your clinician",
+      "Opened Journal or Track at least once",
+    ],
+  },
+  "perfectionism-reset": {
+    title: "After a mistake",
+    intro: "Walk through once. Shame is optional; care is not.",
+    steps: [
+      {
+        title: "Fact",
+        detail: "Name what happened in one sentence — no character assassination.",
+      },
+      {
+        title: "Care",
+        detail: "Hydrate, rest, known-safe foods, log on Track if useful.",
+      },
+      {
+        title: "Kindness",
+        detail: "Repeat: careful people still get glutened.",
+      },
+      {
+        title: "One fix",
+        detail: "Choose a single system tweak for next time — not twenty rules.",
+      },
+    ],
+  },
+  "mixed-kitchen-talk": {
+    title: "Household agreements",
+    intro: "Check what you’ve already talked through — then schedule the rest.",
+    checklist: [
+      "Dedicated toaster / spreads plan",
+      "Cutting boards & dishwash habits",
+      "Guest briefing script",
+      "Who cleans crumb zones",
+      "Shared meal nights vs separate plates",
+    ],
+  },
+  "dietitian-prep": {
+    title: "Dietitian visit prep",
+    intro: "Bring reality, not a performance grocery list.",
+    checklist: [
+      "3–7 day food recall (brands included)",
+      "Symptom / Track notes",
+      "Supplement bottles or list",
+      "Confusing labels screenshoted",
+      "Top 3 goals for the visit",
+    ],
+  },
+  "kitchen-audit": {
+    title: "Kitchen audit",
+    intro: "Safer is incremental. Check what’s handled.",
+    checklist: [
+      "Toaster solution (dedicated or bags)",
+      "No double-dip condiments",
+      "Separate boards / colander",
+      "Counter wipe before GF prep",
+      "Flour dust awareness if gluten baking happens",
+      "Labeled GF shelf",
+    ],
+  },
+  "travel-body-prep": {
+    title: "Travel body prep",
+    intro: "Pack care, not just outfits.",
+    checklist: [
+      "Extra sealed snacks / backup meal",
+      "Restaurant screenshots or cards",
+      "Meds + generics list",
+      "If-glutened plan (rest / pharmacy / care)",
+      "Hydration plan for transit",
+    ],
+  },
+  "pharmacy-questions": {
+    title: "Pharmacy questions",
+    intro: "Screenshot this before refills.",
+    checklist: [
+      "Confirm this manufacturer for gluten excipients",
+      "Ask about GF alternative if needed",
+      "Note food timing with other meds",
+      "Verify supplements are GF when possible",
     ],
   },
 };
