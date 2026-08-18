@@ -87,6 +87,12 @@ export async function updateJournal(formData: FormData) {
   const id = String(formData.get("id") || "");
   const content = String(formData.get("content") || "").trim();
   const prompt = String(formData.get("prompt") || "").trim() || null;
+  const moodRaw = formData.get("mood");
+  const moodNum = moodRaw != null && String(moodRaw) !== "" ? Number(moodRaw) : null;
+  const mood =
+    moodNum != null && Number.isInteger(moodNum) && moodNum >= 1 && moodNum <= 5 ? moodNum : null;
+  const clearMood = formData.get("clearMood") === "true";
+
   if (!id) return { error: "Missing entry" };
   if (!content) return { error: "Write something first" };
   if (content.length > 8000) return { error: "Keep entries under 8,000 characters" };
@@ -96,7 +102,11 @@ export async function updateJournal(formData: FormData) {
 
   const entry = await prisma.journalEntry.update({
     where: { id },
-    data: { content, prompt },
+    data: {
+      content,
+      prompt,
+      ...(clearMood ? { mood: null } : mood != null ? { mood } : {}),
+    },
   });
 
   revalidateHealth();

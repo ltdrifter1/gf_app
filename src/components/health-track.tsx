@@ -79,7 +79,13 @@ export function HealthTrackPanel({
             <h2 className="font-display text-xl font-semibold text-sage-900 dark:text-white">
               Mood check-in
             </h2>
-            <p className="mt-1 text-sm text-sage-500">Private by default. Trends stay on this tab.</p>
+            <p className="mt-1 text-sm text-sage-500">
+              Private by default. Journal can log today&apos;s mood here too —{" "}
+              <Link href="/app/health" className="font-medium text-brand-700 hover:underline dark:text-brand-300">
+                open Journal
+              </Link>
+              .
+            </p>
           </div>
           <span className="inline-flex items-center gap-1 text-[11px] font-medium text-sage-400">
             <Lock className="h-3 w-3" /> You only
