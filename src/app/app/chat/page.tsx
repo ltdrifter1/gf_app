@@ -39,7 +39,6 @@ export default async function ChatHome() {
           me={me}
           onlineCount={contacts.onlineCount}
           online={contacts.online}
-          rooms={rooms}
         />
       }
     />
