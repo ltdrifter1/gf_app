@@ -1,6 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import { ensureLaunchCatalog } from "@/lib/bootstrap";
-import { isNudgeMessage } from "@/lib/msn";
+import { isCheckinMessage, isNudgeMessage } from "@/lib/msn";
+import { cityFromUserLocation, isCityTonightSlug } from "@/lib/city-rooms";
+import { ensureCityTonightForUser } from "@/lib/city-tonight";
+import { isLivePresence } from "@/lib/presence";
 
 export const ROOM_EMOJI: Record<string, string> = {
   "general-support": "💬",
@@ -10,10 +13,36 @@ export const ROOM_EMOJI: Record<string, string> = {
   teens: "🎧",
 };
 
+function previewText(content: string) {
+  if (isNudgeMessage(content)) return "sent a nudge!";
+  if (isCheckinMessage(content)) return "asked for a check-in";
+  return content;
+}
+
 export async function getRoomsWithStats(userId?: string) {
   await ensureLaunchCatalog();
+
+  let userCity: string | null = null;
+  if (userId) {
+    const me = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { location: true },
+    });
+    userCity = cityFromUserLocation(me?.location);
+    if (userCity) await ensureCityTonightForUser(me?.location);
+  }
+
   const rooms = await prisma.chatRoom.findMany({
-    where: { isCommunity: true },
+    where: {
+      isCommunity: true,
+      OR: [
+        { kind: { not: "city-tonight" } },
+        ...(userCity
+          ? [{ kind: "city-tonight" as const, city: { equals: userCity, mode: "insensitive" as const } }]
+          : []),
+        ...(userId ? [{ members: { some: { userId } } }] : []),
+      ],
+    },
     orderBy: { createdAt: "asc" },
     include: {
       _count: { select: { members: true, messages: true } },
@@ -37,14 +66,15 @@ export async function getRoomsWithStats(userId?: string) {
   }
 
   const onlineSince = new Date(Date.now() - 60000);
-  return Promise.all(
+  const mapped = await Promise.all(
     rooms.map(async (r) => {
-      const online = await prisma.chatRoomMember.count({
-        where: {
-          roomId: r.id,
-          user: { presence: "online", lastSeen: { gte: onlineSince } },
-        },
+      const members = await prisma.chatRoomMember.findMany({
+        where: { roomId: r.id },
+        select: { user: { select: { presence: true, lastSeen: true } } },
       });
+      const online = members.filter(
+        (m) => isLivePresence(m.user.presence) && m.user.lastSeen >= onlineSince
+      ).length;
       const last = r.messages[0];
       let unreadCount = 0;
       const lastReadAt = membershipByRoom.get(r.id);
@@ -57,19 +87,22 @@ export async function getRoomsWithStats(userId?: string) {
           },
         });
       }
+      const cityRoom = r.kind === "city-tonight" || isCityTonightSlug(r.slug);
       return {
         id: r.id,
         name: r.name,
         slug: r.slug,
         description: r.description,
-        emoji: ROOM_EMOJI[r.slug] ?? "💬",
+        emoji: cityRoom ? "🌃" : (ROOM_EMOJI[r.slug] ?? "💬"),
+        kind: r.kind,
+        city: r.city,
         members: r._count.members,
         messageCount: r._count.messages,
         online,
         unreadCount,
         lastMessage: last
           ? {
-              text: isNudgeMessage(last.content) ? "sent a nudge!" : last.content,
+              text: previewText(last.content),
               sender: last.sender.name,
               at: last.createdAt.toISOString(),
             }
@@ -77,4 +110,13 @@ export async function getRoomsWithStats(userId?: string) {
       };
     })
   );
+
+  mapped.sort((a, b) => {
+    const aCity = a.kind === "city-tonight" ? 1 : 0;
+    const bCity = b.kind === "city-tonight" ? 1 : 0;
+    if (aCity !== bCity) return bCity - aCity;
+    return 0;
+  });
+
+  return mapped;
 }

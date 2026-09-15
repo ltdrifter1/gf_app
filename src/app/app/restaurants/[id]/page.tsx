@@ -18,7 +18,8 @@ import { Stars } from "@/components/star-rating";
 import { Avatar } from "@/components/ui/avatar";
 import { MessageButton } from "@/components/message-button";
 import { safetyColor, safetyLabel, timeAgo, cn } from "@/lib/utils";
-import { computeRestaurantConfidence } from "@/lib/dining-confidence";
+import { computeTrustRollup } from "@/lib/dining-confidence";
+import { TrustBadges, TrustChecklist } from "@/components/trust-badges";
 
 export default async function RestaurantDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -29,7 +30,7 @@ export default async function RestaurantDetail({ params }: { params: Promise<{ i
   });
   if (!r || r.status !== "published") notFound();
 
-  const live = computeRestaurantConfidence(
+  const live = computeTrustRollup(
     r.reviews.map((rev) => ({
       safetyRating: rev.safetyRating,
       crossContactIncident: rev.crossContactIncident,
@@ -87,11 +88,15 @@ export default async function RestaurantDetail({ params }: { params: Promise<{ i
             <div className="rounded-3xl bg-gradient-to-br from-brand-500 to-sage-600 p-4 text-center text-white">
               <p className="font-display text-3xl font-bold">{confidence}%</p>
               <p className="text-xs text-white/80">Community confidence</p>
-              <p className="mt-1 text-[10px] text-white/70">Decays without fresh reviews</p>
+              <p className="mt-1 text-[10px] text-white/70">Updates as verified visits land</p>
             </div>
           </div>
 
           {r.description && <p className="mt-4 text-sage-700 dark:text-sage-200">{r.description}</p>}
+
+          <div className="mt-4">
+            <TrustBadges badges={live.badges} />
+          </div>
 
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
             <div className="rounded-2xl bg-white/60 p-4 dark:bg-white/5">
@@ -111,14 +116,14 @@ export default async function RestaurantDetail({ params }: { params: Promise<{ i
             </div>
             <div className="rounded-2xl bg-white/60 p-4 dark:bg-white/5">
               <p className="flex items-center gap-1.5 text-xs font-medium text-sage-500">
-                <GraduationCap className="h-3.5 w-3.5" /> Staff training
+                <GraduationCap className="h-3.5 w-3.5" /> Staff training · visit checklist
               </p>
-              <p className="mt-2 font-display text-lg font-semibold capitalize text-sage-900 dark:text-white">
+              <p className="mt-1 font-display text-lg font-semibold capitalize text-sage-900 dark:text-white">
                 {r.staffTrainingLevel}
               </p>
-              <p className={cn("text-xs font-semibold", safetyColor(confidence))}>
-                {safetyLabel(confidence)}
-              </p>
+              <div className="mt-3">
+                <TrustChecklist rollup={{ ...live, confidence }} />
+              </div>
             </div>
           </div>
 

@@ -49,13 +49,25 @@ export async function ensureNotificationPermission(): Promise<boolean> {
   return result === "granted";
 }
 
-export function notifyMsnMessage(title: string, body: string) {
+export function notifyMsnMessage(
+  title: string,
+  body: string,
+  opts?: { evenIfVisible?: boolean; tag?: string }
+) {
   if (typeof window === "undefined" || !("Notification" in window)) return;
   if (!msnNotificationsEnabled() || Notification.permission !== "granted") return;
-  if (document.visibilityState === "visible") return;
+  if (!opts?.evenIfVisible && document.visibilityState === "visible") return;
   try {
-    new Notification(title, { body, icon: "/logo.webp" });
+    new Notification(title, { body, icon: "/logo.png", tag: opts?.tag });
   } catch {
     /* ignore */
+  }
+}
+
+/** In-app + browser ping for buddy / DM nudges while the tab is open. */
+export function notifyBuddyNudge(title: string, body: string) {
+  notifyMsnMessage(title, body, { evenIfVisible: true, tag: "safely-buddy" });
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("safely-toast", { detail: { title, body } }));
   }
 }

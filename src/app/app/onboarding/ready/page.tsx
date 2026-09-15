@@ -5,6 +5,7 @@ import { getCompanionMatch } from "@/lib/actions/onboarding";
 import { Avatar } from "@/components/ui/avatar";
 import { FollowButton } from "@/components/follow-button";
 import { MessageButton } from "@/components/message-button";
+import { FindBuddyButton } from "@/components/find-buddy-button";
 import { safetyColor, safetyLabel } from "@/lib/utils";
 
 export default async function OnboardingReadyPage({
@@ -56,6 +57,9 @@ export default async function OnboardingReadyPage({
             <Link href={`/app/chat/${roomSlug}`} className="btn-primary mt-3 inline-flex">
               Open room <ArrowRight className="h-4 w-4" />
             </Link>
+            <div className="mt-3 max-w-xs">
+              <FindBuddyButton />
+            </div>
           </div>
         </div>
       </section>

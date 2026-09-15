@@ -6,6 +6,7 @@ import Link from "next/link";
 import { updateProfile, setPresence } from "@/lib/actions/profile";
 import { Avatar } from "@/components/ui/avatar";
 import { JOURNEY_STAGES } from "@/lib/constants";
+import { PRESENCE_STATUSES, presenceLabel } from "@/lib/presence";
 
 export function ProfileEditForm({
   initial,
@@ -22,6 +23,7 @@ export function ProfileEditForm({
     mood: string;
     likeToMeet: string;
     interests: string;
+    insightsOptIn?: boolean;
   };
   username: string;
 }) {
@@ -151,29 +153,33 @@ export function ProfileEditForm({
       </div>
       <div>
         <label className="text-xs font-medium text-sage-500">Messenger presence</label>
-        <div className="mt-1 flex gap-2">
-          {(["online", "away", "offline"] as const).map((p) => (
+        <div className="mt-1 flex flex-wrap gap-2">
+          {PRESENCE_STATUSES.map((s) => (
             <button
-              key={p}
+              key={s.slug}
               type="button"
               disabled={pending}
-              className={`chip capitalize ${
-                presence === p
+              className={`chip ${
+                presence === s.slug
                   ? "bg-brand-50 text-brand-700 dark:bg-brand-500/15 dark:text-brand-200"
                   : "bg-white/60 text-sage-600 dark:bg-white/5"
               }`}
               onClick={() =>
                 start(async () => {
-                  setPresenceLocal(p);
-                  await setPresence(p);
+                  setPresenceLocal(s.slug);
+                  await setPresence(s.slug);
                 })
               }
             >
-              {p}
+              {presenceLabel(s.slug)}
             </button>
           ))}
         </div>
       </div>
+      <label className="flex items-center gap-2 text-sm text-sage-700 dark:text-sage-200">
+        <input type="checkbox" name="insightsOptIn" defaultChecked={initial.insightsOptIn} />
+        Opt in to private pattern insights (Health / Journal only)
+      </label>
       {error && <p className="text-sm text-rose-500">{error}</p>}
       <div className="flex gap-2">
         <button type="submit" disabled={pending} className="btn-primary">

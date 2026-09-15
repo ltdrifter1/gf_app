@@ -68,6 +68,92 @@ export function computeRestaurantConfidence(
   };
 }
 
+const CHECKLIST: { key: keyof ConfidenceReview; label: string }[] = [
+  { key: "observedDedicatedKitchen", label: "Dedicated kitchen" },
+  { key: "observedDedicatedFryer", label: "Dedicated fryer" },
+  { key: "observedSeparatePrep", label: "Separate prep" },
+  { key: "observedLabeledMenu", label: "Labeled menu" },
+  { key: "observedStaffUnderstood", label: "Staff understood" },
+];
+
+export type TrustBadge = {
+  key: string;
+  label: string;
+  tone: "good" | "warn" | "bad" | "neutral";
+};
+
+export type TrustRollup = {
+  confidence: number;
+  risk: number;
+  lastReviewAt: Date | null;
+  reviewCount: number;
+  verifiedVisits: number;
+  incidentCount: number;
+  checklist: { key: string; label: string; yes: number; no: number }[];
+  badges: TrustBadge[];
+};
+
+function isVerifiedVisit(r: ConfidenceReview) {
+  const filled = CHECKLIST.filter((c) => typeof r[c.key] === "boolean").length;
+  return filled >= 2;
+}
+
+export function computeTrustRollup(reviews: ConfidenceReview[], now = Date.now()): TrustRollup {
+  const base = computeRestaurantConfidence(reviews, now);
+  const verifiedVisits = reviews.filter(isVerifiedVisit).length;
+  const incidentCount = reviews.filter((r) => r.crossContactIncident).length;
+  const checklist = CHECKLIST.map((c) => ({
+    key: String(c.key),
+    label: c.label,
+    yes: reviews.filter((r) => r[c.key] === true).length,
+    no: reviews.filter((r) => r[c.key] === false).length,
+  }));
+
+  const badges: TrustBadge[] = [];
+  if (verifiedVisits > 0) {
+    badges.push({
+      key: "verified",
+      label: `${verifiedVisits} verified visit${verifiedVisits === 1 ? "" : "s"}`,
+      tone: "good",
+    });
+  }
+  const kitchen = checklist.find((c) => c.key === "observedDedicatedKitchen");
+  if (kitchen && kitchen.yes >= 2 && kitchen.yes > kitchen.no) {
+    badges.push({ key: "dedicated-kitchen", label: "Dedicated kitchen observed", tone: "good" });
+  }
+  const staff = checklist.find((c) => c.key === "observedStaffUnderstood");
+  if (staff && staff.yes >= 2 && staff.yes > staff.no) {
+    badges.push({ key: "staff", label: "Staff understood GF", tone: "good" });
+  }
+  if (incidentCount > 0) {
+    badges.push({
+      key: "incident",
+      label:
+        incidentCount === 1 ? "Cross-contact report" : `${incidentCount} cross-contact reports`,
+      tone: "bad",
+    });
+  }
+  if (base.lastReviewAt) {
+    const ageDays = (now - base.lastReviewAt.getTime()) / 86_400_000;
+    if (ageDays <= 90) {
+      badges.push({ key: "fresh", label: "Fresh reviews", tone: "good" });
+    } else {
+      badges.push({ key: "stale", label: "Reviews going stale", tone: "warn" });
+    }
+  } else {
+    badges.push({ key: "unverified", label: "No visits logged yet", tone: "neutral" });
+  }
+
+  return {
+    ...base,
+    reviewCount: reviews.length,
+    verifiedVisits,
+    incidentCount,
+    checklist,
+    badges,
+  };
+}
+
 function clamp(n: number, min: number, max: number) {
   return Math.min(max, Math.max(min, n));
 }

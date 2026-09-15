@@ -1,18 +1,19 @@
 import { cn } from "@/lib/utils";
+import { presenceMeta } from "@/lib/presence";
 
-/** Classic MSN-style presence “guy” icon. */
+/** Classic MSN-style presence “guy” icon — colours track meaningful statuses. */
 export function MsnPresenceIcon({
   status,
   size = 14,
   className,
 }: {
-  status: "online" | "away" | "offline" | string;
+  status: string;
   size?: number;
   className?: string;
 }) {
-  const fill =
-    status === "online" ? "#2ecc3a" : status === "away" ? "#f0c000" : "#c04040";
-  const stroke = status === "offline" ? "#7a2020" : "#0a4a10";
+  const meta = presenceMeta(status);
+  const fill = meta.fill;
+  const stroke = meta.stroke;
 
   return (
     <svg

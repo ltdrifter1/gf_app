@@ -27,8 +27,11 @@ Catalog boots safely without demo accounts (`npm run db:seed:prod` or auto on fi
 ## Features
 
 - **Community feed** — All / Following, topics, posts, comments, likes
-- **Messenger** — online buddy list, DMs, community rooms, presence
-- **Restaurants** — city filters, list/map tabs, safety scores
-- **Recipes** — search, sort, ratings, author profiles
-- **Health** — mental check-ins + physical tips
+- **Messenger** — buddy list with meaningful statuses, DMs, community + city “dining tonight” rooms, presence, buddy match
+- **Restaurants** — city filters, list/map tabs, safety scores, verified-visit trust badges
+- **Recipes** — search, sort, ratings, kid-friendly filter
+- **Health** — mental / physical library, caregiver pack, glutening recovery card, private insights
+- **Label scan** — `/app/scan` photo or paste gluten checker (heuristic, not lab-grade)
+- **GF cost tracker** — `/app/costs` Canadian medical-expense-style CSV (not tax advice)
+- **PWA** — installable; in-tab notifications (VAPID optional later)
 - **Profiles** — public pages, follow, edit

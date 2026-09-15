@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { isClassicAutoPresence } from "@/lib/presence";
 
 /**
  * Heartbeat: bump lastSeen. Never forces offline users online.
- * Tab hide → away (from online). Tab show → online (from away).
+ * Tab hide → away (from classic online). Tab show → online (from classic away).
+ * Meaningful statuses (need-check-in, dining-out, …) stick until the user changes them.
  * Manual Offline sticks until the user sets Online again.
  */
 export async function POST(req: NextRequest) {
@@ -23,10 +25,12 @@ export async function POST(req: NextRequest) {
   }
 
   const data: { lastSeen: Date; presence?: string } = { lastSeen: new Date() };
-  if (body.hidden === true && current.presence === "online") {
-    data.presence = "away";
-  } else if (body.hidden === false && current.presence === "away") {
-    data.presence = "online";
+  if (isClassicAutoPresence(current.presence)) {
+    if (body.hidden === true && current.presence === "online") {
+      data.presence = "away";
+    } else if (body.hidden === false && current.presence === "away") {
+      data.presence = "online";
+    }
   }
 
   const updated = await prisma.user.update({

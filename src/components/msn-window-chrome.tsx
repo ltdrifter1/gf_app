@@ -37,6 +37,10 @@ export function MsnWindowChrome({
             {label}
           </button>
         ))}
+        <a href="/app/scan" className="ml-auto font-semibold">
+          Label scan
+        </a>
+        <a href="/app/health?tab=physical#recovery">I got gluten</a>
       </div>
     </div>
   );

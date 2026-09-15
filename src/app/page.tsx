@@ -32,7 +32,7 @@ export default async function LandingPage() {
   const hourAgo = new Date(Date.now() - 3600_000);
   const [onlineCount, recentMessages, hourMessages] = await Promise.all([
     prisma.user.count({
-      where: { presence: "online", lastSeen: { gte: since } },
+      where: { presence: { not: "offline" }, lastSeen: { gte: since } },
     }),
     prisma.message.findMany({
       where: { room: { slug: "general-support" } },

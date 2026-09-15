@@ -1,7 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
 import { RestaurantDirectory, type RestaurantItem } from "@/components/restaurant-directory";
-import { computeRestaurantConfidence } from "@/lib/dining-confidence";
+import { computeTrustRollup } from "@/lib/dining-confidence";
+import Link from "next/link";
 
 export default async function RestaurantsPage() {
   const user = await requireUser();
@@ -27,8 +28,15 @@ export default async function RestaurantsPage() {
 
   const data: RestaurantItem[] = restaurants.map((r) => {
     const live = r.reviews.length
-      ? computeRestaurantConfidence(r.reviews)
-      : { confidence: r.communityConfidence, risk: r.crossContaminationRisk, lastReviewAt: r.lastReviewAt };
+      ? computeTrustRollup(r.reviews)
+      : {
+          confidence: r.communityConfidence,
+          risk: r.crossContaminationRisk,
+          lastReviewAt: r.lastReviewAt,
+          verifiedVisits: 0,
+          incidentCount: 0,
+          badges: [],
+        };
     return {
       id: r.id,
       name: r.name,
@@ -52,6 +60,9 @@ export default async function RestaurantsPage() {
         : 0,
       reviewCount: r.reviews.length,
       lastReviewAt: live.lastReviewAt?.toISOString?.() ?? (r.lastReviewAt?.toISOString() ?? null),
+      verifiedVisits: "verifiedVisits" in live ? live.verifiedVisits : 0,
+      incidentCount: "incidentCount" in live ? live.incidentCount : 0,
+      badges: "badges" in live ? live.badges : [],
     };
   });
 
@@ -66,7 +77,11 @@ export default async function RestaurantsPage() {
         </h1>
         <p className="text-sage-500 dark:text-sage-400">
           Celiac-safe restaurants scored by structured community reviews — with decay so trust stays
-          fresh.
+          fresh. Scanning a menu? Try the{" "}
+          <Link href="/app/scan" className="font-medium text-brand-600 hover:underline">
+            label / menu checker
+          </Link>
+          .
         </p>
       </div>
       <RestaurantDirectory restaurants={data} defaultCity={defaultCity} />

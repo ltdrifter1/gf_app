@@ -55,6 +55,7 @@ export function MsnPrefsControls() {
         />
         Alerts
       </label>
+      <span className="text-[10px] text-sage-400">Install from your browser menu · sounds stay on if checked</span>
     </div>
   );
 }

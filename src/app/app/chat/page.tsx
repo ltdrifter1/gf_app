@@ -21,6 +21,8 @@ export default async function ChatHome() {
     statusMessage: user.profile?.mood?.trim() || null,
   };
 
+  const cityTonight = rooms.find((r) => r.kind === "city-tonight");
+
   return (
     <MessengerShell
       sidebar={
@@ -31,6 +33,7 @@ export default async function ChatHome() {
           offline={contacts.offline}
           rooms={rooms}
           me={me}
+          panicBuddyId={user.profile?.panicBuddyId ?? null}
         />
       }
       main={
@@ -39,6 +42,7 @@ export default async function ChatHome() {
           me={me}
           onlineCount={contacts.onlineCount}
           online={contacts.online}
+          cityTonightSlug={cityTonight?.slug ?? null}
         />
       }
     />

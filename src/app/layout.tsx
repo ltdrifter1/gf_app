@@ -16,6 +16,12 @@ export const metadata: Metadata = {
     icon: [{ url: "/logo.png", type: "image/png" }],
     apple: [{ url: "/apple-touch-icon.png" }],
   },
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    title: "Safely",
+    statusBarStyle: "default",
+  },
   openGraph: {
     title: "Safely",
     description: "Find your people.",

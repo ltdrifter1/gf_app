@@ -445,8 +445,8 @@ export async function ensureCommunityRooms(prisma: PrismaClient) {
   for (const r of COMMUNITY_ROOMS) {
     await prisma.chatRoom.upsert({
       where: { slug: r.slug },
-      update: { name: r.name, description: r.description, isCommunity: true },
-      create: { ...r, isCommunity: true },
+      update: { name: r.name, description: r.description, isCommunity: true, kind: "community" },
+      create: { ...r, isCommunity: true, kind: "community" },
     });
   }
 }
@@ -583,4 +583,8 @@ export async function ensureLaunchCatalog(prisma: PrismaClient) {
   await ensureHealthResources(prisma);
   await ensureRestaurants(prisma);
   await ensureRecipes(prisma);
+  await prisma.chatRoom.updateMany({
+    where: { isCommunity: false, kind: "community" },
+    data: { kind: "dm" },
+  });
 }
