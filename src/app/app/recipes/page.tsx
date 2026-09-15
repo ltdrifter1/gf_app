@@ -2,6 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
 import { RECIPE_CATEGORIES } from "@/lib/constants";
+import { containsI } from "@/lib/search";
 import { Stars } from "@/components/star-rating";
 import { Clock, Flame, Search } from "lucide-react";
 
@@ -21,9 +22,9 @@ export default async function RecipesPage({
       ...(query
         ? {
             OR: [
-              { title: { contains: query } },
-              { description: { contains: query } },
-              { category: { contains: query } },
+              { title: containsI(query) },
+              { description: containsI(query) },
+              { category: containsI(query) },
             ],
           }
         : {}),

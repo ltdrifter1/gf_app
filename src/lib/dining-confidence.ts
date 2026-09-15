@@ -17,12 +17,20 @@ export type ConfidenceReview = {
 
 const HALF_LIFE_DAYS = 90;
 
+/** Claim-only listings never outrank a real visit. */
+export const CLAIM_CONFIDENCE_CAP = 50;
+
+export function applyClaimCap(confidence: number, reviewCount: number) {
+  if (reviewCount === 0) return Math.min(confidence, CLAIM_CONFIDENCE_CAP);
+  return confidence;
+}
+
 export function computeRestaurantConfidence(
   reviews: ConfidenceReview[],
   now = Date.now()
 ): { confidence: number; risk: number; lastReviewAt: Date | null } {
   if (reviews.length === 0) {
-    return { confidence: 50, risk: 50, lastReviewAt: null };
+    return { confidence: CLAIM_CONFIDENCE_CAP, risk: 100 - CLAIM_CONFIDENCE_CAP, lastReviewAt: null };
   }
 
   let weightSum = 0;
@@ -133,6 +141,12 @@ export function computeTrustRollup(reviews: ConfidenceReview[], now = Date.now()
       tone: "bad",
     });
   }
+
+  const recentIncident = reviews.some((r) => {
+    if (!r.crossContactIncident) return false;
+    return now - r.createdAt.getTime() <= 180 * 86_400_000;
+  });
+
   if (base.lastReviewAt) {
     const ageDays = (now - base.lastReviewAt.getTime()) / 86_400_000;
     if (ageDays <= 90) {
@@ -156,4 +170,21 @@ export function computeTrustRollup(reviews: ConfidenceReview[], now = Date.now()
 
 function clamp(n: number, min: number, max: number) {
   return Math.min(max, Math.max(min, n));
+}
+
+/** Fresh cross-contact reports (180 days) should take a listing out of “safe to try” confidence. */
+export function hasRecentCrossContactIncident(reviews: ConfidenceReview[], now = Date.now()) {
+  return reviews.some(
+    (r) => r.crossContactIncident && now - r.createdAt.getTime() <= 180 * 86_400_000
+  );
+}
+
+export function listingStatusAfterReviews(
+  current: string,
+  reviews: ConfidenceReview[],
+  now = Date.now()
+) {
+  if (current === "hidden") return current;
+  if (hasRecentCrossContactIncident(reviews, now)) return "disputed";
+  return current;
 }

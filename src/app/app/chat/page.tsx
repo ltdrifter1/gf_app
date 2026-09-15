@@ -1,16 +1,18 @@
 import { requireUser } from "@/lib/auth";
 import { getRoomsWithStats } from "@/lib/chat";
-import { getContactList } from "@/lib/actions/chat";
+import { getContactList, getIncomingDmRequests } from "@/lib/actions/chat";
 import { ContactListPane } from "@/components/contact-list-pane";
 import { MessengerHomePane } from "@/components/messenger-home-pane";
 import { MessengerShell } from "@/components/messenger-shell";
+import { DmRequests } from "@/components/dm-requests";
 import { effectivePresence } from "@/lib/presence";
 
 export default async function ChatHome() {
   const user = await requireUser();
-  const [rooms, contacts] = await Promise.all([
+  const [rooms, contacts, requests] = await Promise.all([
     getRoomsWithStats(user.id),
     getContactList(user.id),
+    getIncomingDmRequests(user.id),
   ]);
 
   const me = {
@@ -37,13 +39,16 @@ export default async function ChatHome() {
         />
       }
       main={
-        <MessengerHomePane
-          embedded
-          me={me}
-          onlineCount={contacts.onlineCount}
-          online={contacts.online}
-          cityTonightSlug={cityTonight?.slug ?? null}
-        />
+        <div className="flex h-full min-h-0 flex-col gap-3">
+          <DmRequests requests={requests} />
+          <MessengerHomePane
+            embedded
+            me={me}
+            onlineCount={contacts.onlineCount}
+            online={contacts.online}
+            cityTonightSlug={cityTonight?.slug ?? null}
+          />
+        </div>
       }
     />
   );

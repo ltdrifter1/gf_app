@@ -47,6 +47,7 @@ export async function getRoomsWithStats(userId?: string) {
     include: {
       _count: { select: { members: true, messages: true } },
       messages: {
+        where: { hidden: false },
         orderBy: { createdAt: "desc" },
         take: 1,
         include: { sender: { select: { name: true } } },
@@ -83,6 +84,7 @@ export async function getRoomsWithStats(userId?: string) {
           where: {
             roomId: r.id,
             senderId: { not: userId },
+            hidden: false,
             createdAt: { gt: lastReadAt },
           },
         });

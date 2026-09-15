@@ -60,6 +60,12 @@ export default function LoginPage() {
         <SubmitButton>Sign in</SubmitButton>
       </form>
 
+      <p className="mt-4 text-center text-sm">
+        <Link href="/forgot" className="font-semibold text-brand-600 hover:underline">
+          Forgot password?
+        </Link>
+      </p>
+
       <p className="mt-5 text-center text-sm text-sage-600 dark:text-sage-300">
         New here?{" "}
         <Link href="/register" className="font-semibold text-brand-600 hover:underline">

@@ -6,7 +6,7 @@ import { rateLimit } from "@/lib/rate-limit";
 
 export async function flagContent(input: { type: string; refId: string; reason: string }) {
   const user = await requireUser();
-  const limited = rateLimit(`flag:${user.id}`, 10, 60 * 60 * 1000);
+  const limited = await rateLimit(`flag:${user.id}`, 10, 60 * 60 * 1000);
   if (!limited.ok) {
     return { error: `Thanks — we've got enough flags for now. Try again in ${limited.retryAfterSec}s.` };
   }

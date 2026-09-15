@@ -4,6 +4,7 @@ import { useMemo, useState, useTransition } from "react";
 import { Download, Trash2 } from "lucide-react";
 import { addGfCostEntry, deleteGfCostEntry, exportGfCostsCsv } from "@/lib/actions/costs";
 import { cn } from "@/lib/utils";
+import { ImageUpload } from "@/components/image-upload";
 
 export type CostRow = {
   id: string;
@@ -110,8 +111,8 @@ export function GfCostTracker({ initial }: { initial: CostRow[] }) {
             />
           </div>
           <div className="sm:col-span-2">
-            <label className="text-xs font-medium text-sage-500">Receipt photo URL (optional)</label>
-            <input name="photoUrl" className="input mt-1" placeholder="https://…" />
+            <label className="text-xs font-medium text-sage-500">Receipt photo (optional)</label>
+            <ImageUpload name="photoUrl" folder="receipts" label="Upload receipt" />
           </div>
           <button type="submit" className="btn-primary sm:col-span-2" disabled={pending}>
             {pending ? "Saving…" : "Save receipt"}

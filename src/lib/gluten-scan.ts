@@ -3,7 +3,7 @@
  * Not lab-grade. Favour recall on known gluten grains; flag sneaky extras as caution.
  */
 
-export type ScanVerdict = "safe" | "caution" | "unsafe";
+export type ScanVerdict = "safe" | "caution" | "unsafe" | "unknown";
 
 export type ScanHit = {
   token: string;
@@ -82,7 +82,7 @@ export function analyzeIngredients(raw: string): ScanResult {
   const text = raw.replace(/\s+/g, " ").trim();
   const normalized = text.toLowerCase();
   if (!text) {
-    return { verdict: "caution", hits: [], reasons: ["Paste or scan some ingredients first."], normalized };
+    return { verdict: "unknown", hits: [], reasons: ["Nothing to scan yet."], normalized };
   }
 
   const hits: ScanHit[] = [];
@@ -108,9 +108,13 @@ export function analyzeIngredients(raw: string): ScanResult {
   let verdict: ScanVerdict = "safe";
   if (unsafe.length) verdict = "unsafe";
   else if (caution.length) verdict = "caution";
-  else if (!hasGfClaim && text.length < 12) verdict = "caution";
+  else if (!hasGfClaim && text.length < 12) verdict = "unknown";
 
+  const certified = /\bcertified\s+gluten[-\s]?free\b/i.test(text);
   const reasons = filtered.map((h) => h.reason);
+  if (certified && verdict !== "unsafe") {
+    reasons.unshift("Packaging mentions certified gluten-free — still confirm the certification mark.");
+  }
   if (verdict === "safe") {
     reasons.push(
       hasGfClaim
@@ -125,5 +129,6 @@ export function analyzeIngredients(raw: string): ScanResult {
 export function verdictLabel(verdict: ScanVerdict) {
   if (verdict === "safe") return "Looks safer";
   if (verdict === "caution") return "Caution";
+  if (verdict === "unknown") return "Not in the catalog";
   return "Unsafe signals";
 }

@@ -22,10 +22,10 @@ export default async function PublicProfilePage({
 
   const isOwn = profileUser.id === me.id;
 
-  const [posts, followers, following, isFollowing, topFriends, recipes, diningReviews] =
+  const [posts, followers, following, isFollowing, topFriends, recipes, diningReviews, blockedRow, mutedRow] =
     await Promise.all([
       prisma.post.findMany({
-        where: { authorId: profileUser.id },
+        where: { authorId: profileUser.id, hidden: false },
         orderBy: { createdAt: "desc" },
         include: {
           author: true,
@@ -61,6 +61,16 @@ export default async function PublicProfilePage({
           restaurant: { select: { id: true, name: true, city: true, imageUrl: true } },
         },
       }),
+      isOwn
+        ? Promise.resolve(null)
+        : prisma.userBlock.findUnique({
+            where: { blockerId_blockedId: { blockerId: me.id, blockedId: profileUser.id } },
+          }),
+      isOwn
+        ? Promise.resolve(null)
+        : prisma.userMute.findUnique({
+            where: { muterId_mutedId: { muterId: me.id, mutedId: profileUser.id } },
+          }),
     ]);
 
   const data: PostCardData[] = posts.map((p) => ({
@@ -104,6 +114,8 @@ export default async function PublicProfilePage({
         isOwn,
         viewerId: me.id,
         isFollowing: !!isFollowing,
+        blockedByMe: !!blockedRow,
+        mutedByMe: !!mutedRow,
         topFriends,
         posts: data,
         recipes,

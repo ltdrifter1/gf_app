@@ -6,7 +6,8 @@ import { effectivePresence } from "@/lib/presence";
 import { rateLimit } from "@/lib/rate-limit";
 import { NUDGE_CONTENT, isNudgeMessage } from "@/lib/msn";
 import { publishChat } from "@/lib/chat-events";
-import { createNotification } from "@/lib/actions/notifications";
+import { notifyUser } from "@/lib/notify";
+import { isPendingDm } from "@/lib/dm";
 
 const MAX_CONTENT = 2000;
 const DEFAULT_LIMIT = 50;
@@ -79,6 +80,7 @@ export async function GET(
   const recent = await prisma.message.findMany({
     where: {
       roomId,
+      hidden: false,
       ...(beforeCursor
         ? {
             OR: [
@@ -170,6 +172,7 @@ export async function GET(
     peerPresence,
     peerLastSeen,
     serverNow: onlineSince.toISOString(),
+    dmPending: access.ok ? isPendingDm(access.room) : false,
   });
 }
 
@@ -180,7 +183,7 @@ export async function POST(
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
-  const limited = rateLimit(`chat:${user.id}`, 30, 60_000);
+  const limited = await rateLimit(`chat:${user.id}`, 30, 60_000);
   if (!limited.ok) {
     return NextResponse.json(
       { error: `Slow down — try again in ${limited.retryAfterSec}s` },
@@ -193,7 +196,7 @@ export async function POST(
   const isNudge = body?.type === "nudge" || isNudgeMessage(String(body.content || ""));
 
   if (isNudge) {
-    const nudgeLimit = rateLimit(`nudge:${user.id}`, 8, 60_000);
+    const nudgeLimit = await rateLimit(`nudge:${user.id}`, 8, 60_000);
     if (!nudgeLimit.ok) {
       return NextResponse.json(
         { error: `Easy on the nudges — try again in ${nudgeLimit.retryAfterSec}s` },
@@ -211,6 +214,19 @@ export async function POST(
   const access = await assertRoomAccess(roomId, user.id);
   if (!access.ok) {
     return NextResponse.json({ error: access.error }, { status: access.status });
+  }
+
+  if (isPendingDm(access.room)) {
+    const othersSent = await prisma.message.findFirst({
+      where: { roomId, senderId: { not: user.id }, hidden: false },
+      select: { id: true },
+    });
+    if (othersSent) {
+      await prisma.chatRoom.update({
+        where: { id: roomId },
+        data: { dmAcceptedAt: new Date() },
+      });
+    }
   }
 
   const message = await prisma.message.create({
@@ -265,12 +281,13 @@ export async function POST(
       : content.slice(0, 120);
     await Promise.all(
       peers.map((p) =>
-        createNotification({
+        notifyUser({
           userId: p.userId,
           type: "message",
           title: user.name,
           body: preview,
           href: `/app/chat/${access.room.slug}`,
+          fromUserId: user.id,
         }).catch(() => null)
       )
     );

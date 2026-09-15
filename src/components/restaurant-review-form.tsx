@@ -4,6 +4,7 @@ import { useRef, useState, useTransition } from "react";
 import { StarRating } from "./star-rating";
 import { addRestaurantReview } from "@/lib/actions/reviews";
 import { cn } from "@/lib/utils";
+import { ImageUpload } from "@/components/image-upload";
 
 const CHECKLIST = [
   { name: "observedDedicatedKitchen", label: "Dedicated kitchen" },
@@ -110,17 +111,7 @@ export function RestaurantReviewForm({ restaurantId }: { restaurantId: string })
         placeholder="How was the gluten-free experience? Any cross-contamination concerns?"
       />
 
-      <div>
-        <label className="mb-1 block text-xs font-medium text-sage-500">
-          Evidence photo URL (menu, kitchen, packaging — optional)
-        </label>
-        <input
-          name="evidenceUrl"
-          type="url"
-          className="input"
-          placeholder="https://…"
-        />
-      </div>
+      <ImageUpload name="evidenceUrl" folder="evidence" label="Evidence photo (optional)" />
 
       {error && <p className="text-sm text-rose-600">{error}</p>}
       <button type="submit" disabled={pending} className="btn-primary">

@@ -1,0 +1,43 @@
+import "server-only";
+import { BRAND } from "@/lib/brand";
+
+export function appUrl() {
+  return (process.env.NEXT_PUBLIC_APP_URL || `https://${BRAND.domain}`).replace(/\/$/, "");
+}
+
+export function emailConfigured() {
+  return Boolean(process.env.RESEND_API_KEY?.trim());
+}
+
+export async function sendPlainEmail(opts: {
+  to: string;
+  subject: string;
+  text: string;
+}): Promise<{ ok: true } | { ok: false; error: string; devLink?: string }> {
+  const key = process.env.RESEND_API_KEY?.trim();
+  const from = process.env.EMAIL_FROM?.trim() || `${BRAND.name} <noreply@${BRAND.domain}>`;
+  if (!key) {
+    if (process.env.NODE_ENV === "production") {
+      return { ok: false, error: "Email isn't configured yet. Try again later." };
+    }
+    const match = opts.text.match(/https?:\/\/\S+/);
+    return { ok: false, error: "Email isn't configured (dev).", devLink: match?.[0] };
+  }
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${key}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from,
+      to: [opts.to],
+      subject: opts.subject,
+      text: opts.text,
+    }),
+  });
+  if (!res.ok) {
+    return { ok: false, error: "Couldn't send email right now." };
+  }
+  return { ok: true };
+}

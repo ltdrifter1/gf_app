@@ -14,6 +14,7 @@ import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
 import { RestaurantMap } from "@/components/restaurant-map";
 import { RestaurantReviewForm } from "@/components/restaurant-review-form";
+import { FlagListingButton } from "@/components/flag-listing-button";
 import { Stars } from "@/components/star-rating";
 import { Avatar } from "@/components/ui/avatar";
 import { MessageButton } from "@/components/message-button";
@@ -28,7 +29,10 @@ export default async function RestaurantDetail({ params }: { params: Promise<{ i
     where: { id },
     include: { reviews: { include: { user: true }, orderBy: { createdAt: "desc" } } },
   });
-  if (!r || r.status !== "published") notFound();
+  if (!r) notFound();
+  const canViewPending = me.role === "ADMIN" || r.submittedById === me.id;
+  if (r.status === "hidden" && me.role !== "ADMIN") notFound();
+  if (r.status === "pending" && !canViewPending) notFound();
 
   const live = computeTrustRollup(
     r.reviews.map((rev) => ({
@@ -70,6 +74,15 @@ export default async function RestaurantDetail({ params }: { params: Promise<{ i
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <h1 className="font-display text-3xl font-bold text-sage-900 dark:text-white">{r.name}</h1>
+              {r.status !== "published" ? (
+                <p className="mt-2 rounded-xl bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:bg-amber-500/10 dark:text-amber-200">
+                  {r.status === "pending"
+                    ? "Pending review — claims don't raise confidence until visits are logged."
+                    : r.status === "disputed"
+                      ? "Disputed after a cross-contact report. Treat with extra caution."
+                      : "This listing is hidden from the directory."}
+                </p>
+              ) : null}
               <p className="mt-1 text-sage-500 dark:text-sage-400">
                 {r.cuisine} · {r.address}, {r.city} · {"$".repeat(r.priceLevel)}
               </p>
@@ -158,6 +171,9 @@ export default async function RestaurantDetail({ params }: { params: Promise<{ i
               Structured checklist + evidence keeps confidence honest.
             </p>
             <RestaurantReviewForm restaurantId={r.id} />
+            <div className="pt-2">
+              <FlagListingButton restaurantId={r.id} />
+            </div>
           </div>
 
           <div className="space-y-3">

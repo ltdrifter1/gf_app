@@ -5,6 +5,7 @@ import { SignJWT, jwtVerify } from "jose";
 import bcrypt from "bcryptjs";
 import { prisma } from "./prisma";
 import { BRAND } from "./brand";
+import { pickSessionToken } from "./session-cookie";
 
 const COOKIE_NAME = BRAND.sessionCookie;
 const LEGACY_COOKIE_NAME = BRAND.legacySessionCookie;
@@ -66,8 +67,7 @@ export async function destroySession() {
 
 export async function getSessionPayload(): Promise<SessionPayload | null> {
   const cookieStore = await cookies();
-  const token =
-    cookieStore.get(COOKIE_NAME)?.value ?? cookieStore.get(LEGACY_COOKIE_NAME)?.value;
+  const token = pickSessionToken((name) => cookieStore.get(name), COOKIE_NAME, LEGACY_COOKIE_NAME);
   if (!token) return null;
   try {
     const { payload } = await jwtVerify(token, authSecretBytes());

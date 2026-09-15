@@ -4,9 +4,10 @@ import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
 import { rateLimit } from "@/lib/rate-limit";
 import { cityFromLocation } from "@/lib/companion";
-import { createNotification } from "@/lib/actions/notifications";
 import { getOrCreateDmRoom } from "@/lib/actions/chat";
 import { BRAND } from "@/lib/brand";
+import { blockedPairIds } from "@/lib/blocks";
+import { notifyUser } from "@/lib/notify";
 
 const MATCH_LIMIT_PER_DAY = 5;
 
@@ -62,7 +63,7 @@ function scoreCandidate(opts: {
 
 export async function findBuddyMatch() {
   const user = await requireUser();
-  const limited = rateLimit(`buddy:${user.id}`, MATCH_LIMIT_PER_DAY, 24 * 60 * 60 * 1000);
+  const limited = await rateLimit(`buddy:${user.id}`, MATCH_LIMIT_PER_DAY, 24 * 60 * 60 * 1000);
   if (!limited.ok) {
     return { error: `Easy on matches — try again in ${limited.retryAfterSec}s.` };
   }
@@ -95,6 +96,8 @@ export async function findBuddyMatch() {
   for (const m of already) {
     taken.add(m.userAId === me.id ? m.userBId : m.userAId);
   }
+  const blocked = await blockedPairIds(me.id);
+  for (const id of blocked) taken.add(id);
 
   const candidates = await prisma.user.findMany({
     where: {
@@ -146,7 +149,7 @@ export async function findBuddyMatch() {
     };
   }
 
-  const dm = await getOrCreateDmRoom(pick.id);
+  const dm = await getOrCreateDmRoom(pick.id, { accept: true });
   if ("error" in dm) return { error: dm.error };
 
   const [a, b] = pairIds(me.id, pick.id);
@@ -169,19 +172,20 @@ export async function findBuddyMatch() {
   }
 
   await Promise.all([
-    createNotification({
+    notifyUser({
       userId: me.id,
       type: "companion",
       title: "Buddy match",
       body: `You're paired with ${pick.name}. Icebreaker is in your DM — no medical details shared.`,
       href: `/app/chat/${dm.slug}`,
     }),
-    createNotification({
+    notifyUser({
       userId: pick.id,
       type: "companion",
       title: "A buddy said hi",
       body: `${me.name} was matched with you as a ${BRAND.name} buddy. Open the DM when you're ready — no pressure.`,
       href: `/app/chat/${dm.slug}`,
+      fromUserId: me.id,
     }),
   ]).catch(() => {});
 

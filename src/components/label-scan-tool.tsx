@@ -1,8 +1,13 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Camera, ClipboardPaste, Loader2, ScanLine, Trash2 } from "lucide-react";
-import { deleteLabelScan, scanIngredients } from "@/lib/actions/scan";
+import { Camera, ClipboardPaste, Loader2, ScanLine, Trash2, Barcode } from "lucide-react";
+import {
+  deleteLabelScan,
+  reportScanMiss,
+  scanBarcode,
+  scanIngredients,
+} from "@/lib/actions/scan";
 import { verdictLabel, type ScanVerdict } from "@/lib/gluten-scan";
 import { cn, timeAgo } from "@/lib/utils";
 
@@ -28,40 +33,66 @@ async function ocrFile(file: File): Promise<string> {
 
 export function LabelScanTool({ initialHistory }: { initialHistory: HistoryItem[] }) {
   const [text, setText] = useState("");
+  const [barcode, setBarcode] = useState("");
   const [pending, start] = useTransition();
   const [ocrBusy, setOcrBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<{
+    id?: string | null;
     verdict: ScanVerdict;
     reasons: string[];
     hits: { token: string; severity: string; reason: string }[];
+    ocrText?: string;
+    productName?: string | null;
   } | null>(null);
   const [history, setHistory] = useState(initialHistory);
+  const [missNote, setMissNote] = useState("");
+  const [missed, setMissed] = useState(false);
+
+  function applyResult(res: {
+    ok?: boolean;
+    error?: string;
+    id?: string | null;
+    verdict?: ScanVerdict;
+    reasons?: string[];
+    hits?: { token: string; severity: string; reason: string }[];
+    ocrText?: string;
+    product?: { name: string } | null;
+  }, source: string, preview: string) {
+    if (res.error) {
+      setError(res.error);
+      return;
+    }
+    if (!res.ok || !res.verdict) return;
+    setResult({
+      id: res.id,
+      verdict: res.verdict,
+      reasons: res.reasons || [],
+      hits: res.hits || [],
+      ocrText: res.ocrText,
+      productName: res.product?.name ?? null,
+    });
+    if (res.id) {
+      setHistory((prev) => [
+        {
+          id: res.id!,
+          source,
+          verdict: res.verdict!,
+          reasons: res.reasons || [],
+          preview: preview.slice(0, 140),
+          createdAt: new Date().toISOString(),
+        },
+        ...prev,
+      ]);
+    }
+  }
 
   function runScan(source: "image" | "paste", value: string) {
     setError(null);
+    setMissed(false);
     start(async () => {
       const res = await scanIngredients({ text: value, source, persist: true });
-      if ("error" in res && res.error) {
-        setError(res.error);
-        return;
-      }
-      if ("ok" in res && res.ok) {
-        setResult({ verdict: res.verdict, reasons: res.reasons, hits: res.hits });
-        if (res.id) {
-          setHistory((prev) => [
-            {
-              id: res.id!,
-              source,
-              verdict: res.verdict,
-              reasons: res.reasons,
-              preview: value.slice(0, 140),
-              createdAt: new Date().toISOString(),
-            },
-            ...prev,
-          ]);
-        }
-      }
+      applyResult(res, source, value);
     });
   }
 
@@ -94,8 +125,7 @@ export function LabelScanTool({ initialHistory }: { initialHistory: HistoryItem[
               Label / menu scan
             </h2>
             <p className="text-sm text-sage-500">
-              Upload a photo or paste ingredients. We highlight wheat, barley, rye, malt, and common sneaky extras.
-              Not a lab test.
+              Photo, barcode (Open Food Facts CA/world), or paste. Heuristic gluten check — not a lab.
             </p>
           </div>
         </div>
@@ -112,6 +142,33 @@ export function LabelScanTool({ initialHistory }: { initialHistory: HistoryItem[
             onChange={(e) => onFile(e.target.files?.[0])}
           />
         </label>
+
+        <div className="flex flex-wrap gap-2">
+          <input
+            value={barcode}
+            onChange={(e) => setBarcode(e.target.value)}
+            className="input flex-1"
+            inputMode="numeric"
+            placeholder="Barcode (8–14 digits)"
+          />
+          <button
+            type="button"
+            className="btn-secondary"
+            disabled={pending || barcode.replace(/\D/g, "").length < 8}
+            onClick={() => {
+              setError(null);
+              setMissed(false);
+              start(async () => {
+                const res = await scanBarcode(barcode);
+                applyResult(res, "barcode", barcode);
+                if ("ocrText" in res && res.ocrText) setText(res.ocrText);
+              });
+            }}
+          >
+            <Barcode className="h-4 w-4" />
+            Look up
+          </button>
+        </div>
 
         <textarea
           value={text}
@@ -143,21 +200,59 @@ export function LabelScanTool({ initialHistory }: { initialHistory: HistoryItem[
               result.verdict === "caution" &&
                 "border-amber-300 bg-amber-50/80 dark:border-amber-500/30 dark:bg-amber-500/10",
               result.verdict === "safe" &&
-                "border-emerald-300 bg-emerald-50/80 dark:border-emerald-500/30 dark:bg-emerald-500/10"
+                "border-emerald-300 bg-emerald-50/80 dark:border-emerald-500/30 dark:bg-emerald-500/10",
+              result.verdict === "unknown" &&
+                "border-sage-300 bg-sage-50/80 dark:border-white/10 dark:bg-white/5"
             )}
           >
             <p className="font-display text-lg font-semibold">{verdictLabel(result.verdict)}</p>
+            {result.productName ? (
+              <p className="text-sm text-sage-600">{result.productName}</p>
+            ) : null}
+            {result.ocrText ? (
+              <details className="mt-2">
+                <summary className="cursor-pointer text-sm font-medium">What we read</summary>
+                <pre className="mt-1 whitespace-pre-wrap text-xs text-sage-600">{result.ocrText}</pre>
+              </details>
+            ) : null}
             <ul className="mt-2 list-disc space-y-1 pl-4 text-sm">
               {result.reasons.map((r) => (
                 <li key={r}>{r}</li>
               ))}
             </ul>
+            <div className="mt-3 space-y-2">
+              <textarea
+                value={missNote}
+                onChange={(e) => setMissNote(e.target.value)}
+                className="input min-h-[3rem] text-sm"
+                placeholder="Wrong call? Tell us what the pack actually says…"
+              />
+              <button
+                type="button"
+                className="btn-ghost text-sm"
+                disabled={missed || pending}
+                onClick={() =>
+                  start(async () => {
+                    await reportScanMiss({
+                      scanId: result.id || undefined,
+                      barcode: barcode || undefined,
+                      rawText: result.ocrText || text,
+                      note: missNote,
+                    });
+                    setMissed(true);
+                  })
+                }
+              >
+                {missed ? "Thanks — we'll review" : "Report a miss"}
+              </button>
+            </div>
           </div>
         )}
 
         <p className="text-[11px] text-sage-400">
           Heuristic only — packaging changes, shared equipment, and “may contain” statements still matter. When in
-          doubt, skip it or ask the maker. Not a diagnosis and not lab-grade certainty.
+          doubt, skip it or ask the maker. Not a diagnosis and not lab-grade certainty. Scans older than 90 days
+          are deleted unless you keep history on Profile.
         </p>
       </div>
 

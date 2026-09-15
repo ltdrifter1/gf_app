@@ -43,6 +43,7 @@ export type RestaurantItem = {
   verifiedVisits?: number;
   incidentCount?: number;
   badges?: { key: string; label: string; tone: "good" | "warn" | "bad" | "neutral" }[];
+  distanceKm?: number | null;
 };
 
 const FILTERS = [
@@ -56,9 +57,11 @@ const FILTERS = [
 export function RestaurantDirectory({
   restaurants,
   defaultCity,
+  initialNearMe,
 }: {
   restaurants: RestaurantItem[];
   defaultCity?: string | null;
+  initialNearMe?: { lat: number; lng: number } | null;
 }) {
   const cities = useMemo(
     () => Array.from(new Set(restaurants.map((r) => r.city))).sort(),
@@ -74,7 +77,7 @@ export function RestaurantDirectory({
   const [active, setActive] = useState<Record<string, boolean>>({});
   const [selected, setSelected] = useState<string | null>(null);
   const [mobileTab, setMobileTab] = useState<"list" | "map">("list");
-  const [nearMe, setNearMe] = useState<{ lat: number; lng: number } | null>(null);
+  const [nearMe, setNearMe] = useState<{ lat: number; lng: number } | null>(initialNearMe ?? null);
   const [locating, setLocating] = useState(false);
   const [geoError, setGeoError] = useState("");
 
@@ -90,6 +93,10 @@ export function RestaurantDirectory({
         setNearMe({ lat: pos.coords.latitude, lng: pos.coords.longitude });
         setCity("");
         setLocating(false);
+        const url = new URL(window.location.href);
+        url.searchParams.set("lat", String(pos.coords.latitude));
+        url.searchParams.set("lng", String(pos.coords.longitude));
+        window.history.replaceState({}, "", url);
       },
       () => {
         setLocating(false);

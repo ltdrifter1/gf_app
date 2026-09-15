@@ -5,6 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
 import { JOURNEY_STAGES } from "@/lib/constants";
 import { isPresenceSlug, type PresenceSlug } from "@/lib/presence";
+import { isAllowedImageUrl } from "@/lib/uploads";
+import { maybeNudgePanicBuddy } from "@/lib/checkin-nudge";
 
 export async function updateProfile(formData: FormData) {
   const user = await requireUser();
@@ -18,7 +20,11 @@ export async function updateProfile(formData: FormData) {
     : "newly-diagnosed";
   const insightsOptIn =
     formData.get("insightsOptIn") === "on" || formData.get("insightsOptIn") === "true";
-  const avatarUrl = String(formData.get("avatarUrl") || "").trim() || null;
+  const avatarRaw = String(formData.get("avatarUrl") || "").trim();
+  if (avatarRaw && !isAllowedImageUrl(avatarRaw)) {
+    return { error: "Use an uploaded photo or an allowed image URL" };
+  }
+  const avatarUrl = avatarRaw || null;
   const mood = String(formData.get("mood") || "").trim().slice(0, 80);
   const likeToMeet = String(formData.get("likeToMeet") || "").trim().slice(0, 500);
   const interests = String(formData.get("interests") || "").trim().slice(0, 500);
@@ -70,6 +76,7 @@ export async function setPresence(presence: PresenceSlug | "online" | "away" | "
     where: { id: user.id },
     data: { presence: next, lastSeen: new Date() },
   });
+  await maybeNudgePanicBuddy(user.id, next);
   revalidatePath("/app/profile");
   revalidatePath("/app/chat");
   return { ok: true };
@@ -110,4 +117,46 @@ export async function getTopFriends(userId: string, take = 8) {
     },
   });
   return follows.map((f) => f.following);
+}
+
+export async function updateNotificationPrefs(formData: FormData) {
+  const user = await requireUser();
+  const hour = (key: string) => {
+    const raw = String(formData.get(key) || "").trim();
+    if (raw === "") return null;
+    const n = Number(raw);
+    if (!Number.isInteger(n) || n < 0 || n > 23) return null;
+    return n;
+  };
+  const start = hour("quietHoursStart");
+  const end = hour("quietHoursEnd");
+  if ((start == null) !== (end == null)) {
+    return { error: "Set both quiet-hour times, or leave both off." };
+  }
+
+  await prisma.profile.upsert({
+    where: { userId: user.id },
+    create: {
+      userId: user.id,
+      diagnosis: "unspecified",
+      notifyDms: formData.get("notifyDms") === "on",
+      notifyBuddy: formData.get("notifyBuddy") === "on",
+      notifyCheckin: formData.get("notifyCheckin") === "on",
+      notifyDining: formData.get("notifyDining") === "on",
+      keepScanHistory: formData.get("keepScanHistory") === "on",
+      quietHoursStart: start,
+      quietHoursEnd: end,
+    },
+    update: {
+      notifyDms: formData.get("notifyDms") === "on",
+      notifyBuddy: formData.get("notifyBuddy") === "on",
+      notifyCheckin: formData.get("notifyCheckin") === "on",
+      notifyDining: formData.get("notifyDining") === "on",
+      keepScanHistory: formData.get("keepScanHistory") === "on",
+      quietHoursStart: start,
+      quietHoursEnd: end,
+    },
+  });
+  revalidatePath("/app/profile");
+  return { ok: true };
 }

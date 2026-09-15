@@ -2,10 +2,23 @@ import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
 import { RestaurantDirectory, type RestaurantItem } from "@/components/restaurant-directory";
 import { computeTrustRollup } from "@/lib/dining-confidence";
+import { distanceKm } from "@/lib/geo";
 import Link from "next/link";
 
-export default async function RestaurantsPage() {
+export default async function RestaurantsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ lat?: string; lng?: string }>;
+}) {
   const user = await requireUser();
+  const { lat, lng } = await searchParams;
+  const originLat = Number(lat);
+  const originLng = Number(lng);
+  const origin =
+    Number.isFinite(originLat) && Number.isFinite(originLng)
+      ? { lat: originLat, lng: originLng }
+      : null;
+
   const restaurants = await prisma.restaurant.findMany({
     where: { status: "published" },
     include: {
@@ -63,8 +76,13 @@ export default async function RestaurantsPage() {
       verifiedVisits: "verifiedVisits" in live ? live.verifiedVisits : 0,
       incidentCount: "incidentCount" in live ? live.incidentCount : 0,
       badges: "badges" in live ? live.badges : [],
+      distanceKm: origin ? distanceKm(origin, { lat: r.lat, lng: r.lng }) : null,
     };
   });
+
+  if (origin) {
+    data.sort((a, b) => (a.distanceKm ?? 9999) - (b.distanceKm ?? 9999));
+  }
 
   // Prefer city from profile location e.g. "Austin, TX"
   const defaultCity = user.location?.split(",")[0]?.trim() || null;
@@ -84,7 +102,11 @@ export default async function RestaurantsPage() {
           .
         </p>
       </div>
-      <RestaurantDirectory restaurants={data} defaultCity={defaultCity} />
+      <RestaurantDirectory
+        restaurants={data}
+        defaultCity={defaultCity}
+        initialNearMe={origin}
+      />
     </div>
   );
 }

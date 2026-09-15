@@ -7,6 +7,7 @@ import { updateProfile, setPresence } from "@/lib/actions/profile";
 import { Avatar } from "@/components/ui/avatar";
 import { JOURNEY_STAGES } from "@/lib/constants";
 import { PRESENCE_STATUSES, presenceLabel } from "@/lib/presence";
+import { ImageUpload } from "@/components/image-upload";
 
 export function ProfileEditForm({
   initial,
@@ -73,13 +74,14 @@ export function ProfileEditForm({
           className="rounded-xl"
         />
         <div className="min-w-0 flex-1">
-          <label className="text-xs font-medium text-sage-500">Avatar URL</label>
-          <input
-            name="avatarUrl"
-            defaultValue={initial.avatarUrl}
-            placeholder="https://…"
-            className="input mt-1"
-            onChange={(e) => setAvatarPreview(e.target.value.trim())}
+          <label className="text-xs font-medium text-sage-500">Avatar</label>
+          <input type="hidden" name="avatarUrl" value={avatarPreview} />
+          <ImageUpload
+            name="avatarUpload"
+            folder="avatars"
+            value={avatarPreview}
+            onChange={(url) => setAvatarPreview(url)}
+            label="Upload photo"
           />
         </div>
       </div>

@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
 import { Search, FileText, MapPin, ChefHat, Users, MessageCircle } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
+import { containsI } from "@/lib/search";
 
 export default async function SearchPage({
   searchParams,
@@ -17,40 +18,39 @@ export default async function SearchPage({
     ? await Promise.all([
         prisma.post.findMany({
           where: {
-            OR: [{ title: { contains: query } }, { content: { contains: query } }],
+            hidden: false,
+            OR: [{ title: containsI(query) }, { content: containsI(query) }],
           },
           take: 6,
           include: { author: true },
         }),
         prisma.restaurant.findMany({
           where: {
+            status: "published",
             OR: [
-              { name: { contains: query } },
-              { city: { contains: query } },
-              { cuisine: { contains: query } },
+              { name: containsI(query) },
+              { city: containsI(query) },
+              { cuisine: containsI(query) },
             ],
           },
           take: 6,
         }),
         prisma.recipe.findMany({
           where: {
-            OR: [{ title: { contains: query } }, { description: { contains: query } }],
+            OR: [{ title: containsI(query) }, { description: containsI(query) }],
           },
           take: 6,
         }),
         prisma.user.findMany({
           where: {
-            OR: [
-              { name: { contains: query } },
-              { username: { contains: query } },
-            ],
+            OR: [{ name: containsI(query) }, { username: containsI(query) }],
           },
           take: 6,
         }),
         prisma.chatRoom.findMany({
           where: {
             isCommunity: true,
-            OR: [{ name: { contains: query } }, { description: { contains: query } }],
+            OR: [{ name: containsI(query) }, { description: containsI(query) }],
           },
           take: 4,
         }),

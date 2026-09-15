@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { ImagePlus, Send, X } from "lucide-react";
+import { Send, X } from "lucide-react";
 import { POST_CATEGORIES } from "@/lib/constants";
 import { createPost } from "@/lib/actions/posts";
 import { Avatar } from "./ui/avatar";
+import { ImageUpload } from "@/components/image-upload";
 
 export function PostComposer({ user }: { user: { name: string; avatarUrl: string | null } }) {
   const [open, setOpen] = useState(false);
@@ -91,16 +92,13 @@ export function PostComposer({ user }: { user: { name: string; avatarUrl: string
           {error && <p className="text-sm text-rose-600">{error}</p>}
 
           <div className="flex items-center justify-between">
-            <label className="btn-ghost cursor-pointer text-sm">
-              <ImagePlus className="h-4 w-4" />
-              <span className="hidden sm:inline">Add image URL</span>
-              <input
-                type="url"
-                placeholder="Paste image URL"
-                className="ml-2 w-40 rounded-lg bg-transparent text-xs outline-none placeholder:text-sage-400"
-                onChange={(e) => setImageUrl(e.target.value)}
-              />
-            </label>
+            <ImageUpload
+              name="composerImage"
+              folder="posts"
+              value={imageUrl}
+              onChange={setImageUrl}
+              label="Add photo"
+            />
             <button type="submit" disabled={pending} className="btn-primary">
               <Send className="h-4 w-4" />
               {pending ? "Posting…" : "Post"}
