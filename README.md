@@ -33,7 +33,7 @@ Catalog boots safely without demo accounts (`npm run db:seed:prod` or auto on fi
 
 - **Community feed** — All / Following (Following is only people you follow — never your own posts)
 - **Messenger** — buddy list with meaningful statuses, DMs, community + city “dining tonight” rooms, presence, buddy match
-- **Restaurants** — pending review, city filters, list/map tabs (CARTO tiles), `?lat&lng` distance, visit-based trust (claims capped)
+- **Restaurants** — pending review, city filters, list/map tabs (OpenFreeMap tiles, no API key), `?lat&lng` distance, visit-based trust (claims capped)
 - **Recipes** — search, sort, ratings, kid-friendly filter
 - **Health** — mental / physical library, caregiver pack, glutening recovery card, private insights
 - **Label scan** — `/app/scan` photo, barcode (Open Food Facts), or paste (heuristic, not lab-grade)

@@ -2,7 +2,12 @@ import "server-only";
 import { BRAND } from "@/lib/brand";
 
 export function appUrl() {
-  return (process.env.NEXT_PUBLIC_APP_URL || `https://${BRAND.domain}`).replace(/\/$/, "");
+  const fromEnv = (process.env.NEXT_PUBLIC_APP_URL || "").replace(/\/$/, "");
+  if (process.env.NODE_ENV !== "production") {
+    if (fromEnv && /localhost|127\.0\.0\.1/.test(fromEnv)) return fromEnv;
+    return "http://localhost:3000";
+  }
+  return fromEnv || `https://${BRAND.domain}`;
 }
 
 export function emailConfigured() {

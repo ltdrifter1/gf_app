@@ -6,7 +6,7 @@ const nextConfig = {
       { protocol: "https", hostname: "**.public.blob.vercel-storage.com" },
       { protocol: "https", hostname: "images.openfoodfacts.org" },
       { protocol: "https", hostname: "static.openfoodfacts.org" },
-      { protocol: "https", hostname: "**.basemaps.cartocdn.com" },
+      { protocol: "https", hostname: "tiles.openfreemap.org" },
     ],
   },
   async headers() {
@@ -32,7 +32,7 @@ const nextConfig = {
               "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net",
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: blob: https:",
-              "connect-src 'self' https://cdn.jsdelivr.net https://tessdata.projectnaptha.com https://ca.openfoodfacts.org https://world.openfoodfacts.org https://*.openfoodfacts.org https://*.public.blob.vercel-storage.com https://*.basemaps.cartocdn.com https://basemaps.cartocdn.com",
+              "connect-src 'self' https://cdn.jsdelivr.net https://tessdata.projectnaptha.com https://ca.openfoodfacts.org https://world.openfoodfacts.org https://*.openfoodfacts.org https://*.public.blob.vercel-storage.com https://tiles.openfreemap.org https://*.openfreemap.org",
               "font-src 'self' data:",
               "worker-src 'self' blob:",
               "manifest-src 'self'",
