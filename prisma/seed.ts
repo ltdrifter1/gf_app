@@ -1,11 +1,11 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { ensureHealthResources } from "./catalog";
+import { catalogImageUrl } from "../src/lib/safe-image";
 
 const prisma = new PrismaClient();
 
-const img = (seed: string, w = 800, h = 600) =>
-  `https://picsum.photos/seed/${seed}/${w}/${h}`;
+const img = (seed: string) => catalogImageUrl(seed);
 
 async function main() {
   console.log("🔵 Seeding Lumen…");
@@ -361,6 +361,10 @@ async function main() {
     ["sara", "maya"],
     ["theo", "maya"],
     ["leo", "maya"],
+    ["maya", "theo"],
+    ["maya", "sara"],
+    ["maya", "leo"],
+    ["maya", "priya"],
   ] as const) {
     await prisma.follow.upsert({
       where: {
@@ -371,6 +375,37 @@ async function main() {
       },
       update: {},
       create: { followerId: users[a].id, followingId: users[b].id },
+    });
+  }
+
+  await prisma.topEightFriend.deleteMany({ where: { ownerId: users["maya"].id } });
+  for (const [i, uname] of ["theo", "sara", "leo", "priya"].entries()) {
+    await prisma.topEightFriend.create({
+      data: {
+        ownerId: users["maya"].id,
+        friendId: users[uname].id,
+        position: i + 1,
+      },
+    });
+  }
+
+  const existingWall = await prisma.profileWallComment.count({
+    where: { profileUserId: users["maya"].id },
+  });
+  if (existingWall === 0) {
+    await prisma.profileWallComment.createMany({
+      data: [
+        {
+          profileUserId: users["maya"].id,
+          authorId: users["priya"].id,
+          content: "Your Austin recs saved my first week. Thank you.",
+        },
+        {
+          profileUserId: users["maya"].id,
+          authorId: users["leo"].id,
+          content: "The lunchbox tips still live on our fridge.",
+        },
+      ],
     });
   }
 

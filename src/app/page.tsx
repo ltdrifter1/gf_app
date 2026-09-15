@@ -6,6 +6,7 @@ import { Logo } from "@/components/logo";
 import { getCurrentUser } from "@/lib/auth";
 import { ensureLaunchCatalog } from "@/lib/bootstrap";
 import { prisma } from "@/lib/prisma";
+import { LegalFooter } from "@/components/legal-footer";
 import { BRAND } from "@/lib/brand";
 
 const FALLBACK_MESSAGES = [
@@ -135,7 +136,7 @@ export default async function LandingPage() {
       </main>
 
       <footer className="absolute inset-x-0 bottom-0 z-10 py-5 text-center text-xs text-sage-500/80 dark:text-white/35">
-        © {new Date().getFullYear()} {BRAND.name}
+        <LegalFooter />
       </footer>
     </div>
   );

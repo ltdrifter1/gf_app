@@ -3,10 +3,10 @@ const nextConfig = {
   reactStrictMode: true,
   images: {
     remotePatterns: [
-      { protocol: "https", hostname: "picsum.photos" },
       { protocol: "https", hostname: "**.public.blob.vercel-storage.com" },
       { protocol: "https", hostname: "images.openfoodfacts.org" },
       { protocol: "https", hostname: "static.openfoodfacts.org" },
+      { protocol: "https", hostname: "tiles.openfreemap.org" },
     ],
   },
   async headers() {
@@ -31,8 +31,8 @@ const nextConfig = {
               "default-src 'self'",
               "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net",
               "style-src 'self' 'unsafe-inline'",
-              "img-src 'self' data: blob: https://picsum.photos https://*.public.blob.vercel-storage.com https://images.openfoodfacts.org https://static.openfoodfacts.org https://*.openfoodfacts.org",
-              "connect-src 'self' https://cdn.jsdelivr.net https://tessdata.projectnaptha.com https://ca.openfoodfacts.org https://world.openfoodfacts.org https://*.openfoodfacts.org https://*.public.blob.vercel-storage.com",
+              "img-src 'self' data: blob: https:",
+              "connect-src 'self' https://cdn.jsdelivr.net https://tessdata.projectnaptha.com https://ca.openfoodfacts.org https://world.openfoodfacts.org https://*.openfoodfacts.org https://*.public.blob.vercel-storage.com https://tiles.openfreemap.org https://*.openfreemap.org",
               "font-src 'self' data:",
               "worker-src 'self' blob:",
               "manifest-src 'self'",

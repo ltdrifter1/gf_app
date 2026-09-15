@@ -3,7 +3,9 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
 import { MyspaceProfile } from "@/components/myspace-profile";
+import { ProfileWall } from "@/components/profile-wall";
 import { getTopFriends } from "@/lib/actions/profile";
+import { studioLookFromProfile } from "@/lib/profile-theme";
 import type { PostCardData } from "@/components/post-card";
 
 export default async function PublicProfilePage({
@@ -22,7 +24,7 @@ export default async function PublicProfilePage({
 
   const isOwn = profileUser.id === me.id;
 
-  const [posts, followers, following, isFollowing, topFriends, recipes, diningReviews, blockedRow, mutedRow] =
+  const [posts, followers, following, isFollowing, topFriends, recipes, diningReviews, blockedRow, mutedRow, wall] =
     await Promise.all([
       prisma.post.findMany({
         where: { authorId: profileUser.id, hidden: false },
@@ -71,6 +73,14 @@ export default async function PublicProfilePage({
         : prisma.userMute.findUnique({
             where: { muterId_mutedId: { muterId: me.id, mutedId: profileUser.id } },
           }),
+      prisma.profileWallComment.findMany({
+        where: { profileUserId: profileUser.id },
+        orderBy: { createdAt: "desc" },
+        take: 40,
+        include: {
+          author: { select: { id: true, name: true, username: true, avatarUrl: true } },
+        },
+      }),
     ]);
 
   const data: PostCardData[] = posts.map((p) => ({
@@ -126,10 +136,25 @@ export default async function PublicProfilePage({
           content: r.content,
           restaurant: r.restaurant,
         })),
+        look: studioLookFromProfile(profileUser.profile),
+        wall,
+        wallSlot: (
+          <ProfileWall
+            profileUserId={profileUser.id}
+            isOwn={isOwn}
+            viewerId={me.id}
+            comments={wall}
+          />
+        ),
         editSlot: isOwn ? (
-          <Link href="/app/profile" className="btn-secondary w-full">
-            Edit your page
-          </Link>
+          <div className="flex flex-col gap-2">
+            <Link href="/app/profile" className="btn-secondary w-full">
+              Edit your page
+            </Link>
+            <Link href="/app/profile/studio" className="btn-primary w-full">
+              Profile Studio
+            </Link>
+          </div>
         ) : undefined,
       }}
     />

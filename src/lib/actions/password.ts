@@ -38,10 +38,14 @@ export async function requestPasswordReset(formData: FormData) {
     text: `Reset your password (expires in 1 hour):\n\n${link}\n\nIf you didn't ask for this, you can ignore it.`,
   });
 
+  const emailed = sent.ok;
   return {
     ok: true as const,
-    message: "If that email is on Lumen, a reset link is on its way.",
-    ...(sent.ok ? {} : { devLink: sent.devLink }),
+    emailed,
+    message: emailed
+      ? "If that email is on Lumen, a reset link is on its way."
+      : "If that email is on Lumen, use the one-time link below. This host isn't sending email yet (set RESEND_API_KEY).",
+    recoveryLink: emailed ? undefined : sent.recoveryLink,
   };
 }
 

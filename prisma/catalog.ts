@@ -3,10 +3,11 @@ import { randomBytes } from "crypto";
 import bcrypt from "bcryptjs";
 import { LAUNCH_HEALTH } from "./health-catalog";
 
+import { catalogImageUrl, isStaleCatalogImage } from "../src/lib/safe-image";
+
 export { LAUNCH_HEALTH } from "./health-catalog";
 
-const img = (seed: string, w = 800, h = 600) =>
-  `https://picsum.photos/seed/${seed}/${w}/${h}`;
+const img = (seed: string) => catalogImageUrl(seed);
 
 export const COMMUNITY_ROOMS = [
   {
@@ -539,7 +540,7 @@ export async function ensureRestaurants(prisma: PrismaClient) {
                 communityConfidence: r.communityConfidence,
                 crossContaminationRisk: 100 - r.communityConfidence,
               }),
-          imageUrl: existing.imageUrl || img(r.img),
+          imageUrl: isStaleCatalogImage(existing.imageUrl) ? img(r.img) : existing.imageUrl,
           description: r.desc,
           status: "published",
         },
@@ -574,9 +575,18 @@ export async function ensureRestaurants(prisma: PrismaClient) {
 }
 
 export async function ensureRecipes(prisma: PrismaClient) {
-  if ((await prisma.recipe.count()) > 0) return;
   const author = await ensureCatalogAuthor(prisma);
   for (const r of LAUNCH_RECIPES) {
+    const existing = await prisma.recipe.findFirst({ where: { title: r.title } });
+    if (existing) {
+      if (isStaleCatalogImage(existing.imageUrl)) {
+        await prisma.recipe.update({
+          where: { id: existing.id },
+          data: { imageUrl: img(r.img) },
+        });
+      }
+      continue;
+    }
     await prisma.recipe.create({
       data: {
         authorId: author.id,
@@ -594,6 +604,21 @@ export async function ensureRecipes(prisma: PrismaClient) {
         ingredients: [...r.ingredients],
         steps: [...r.steps],
       },
+    });
+  }
+
+  const leftover = await prisma.recipe.findMany({
+    where: { OR: [{ imageUrl: { contains: "picsum" } }, { imageUrl: null }] },
+    select: { id: true, title: true },
+  });
+  for (const row of leftover) {
+    const match = LAUNCH_RECIPES.find((r) => r.title === row.title);
+    const seed =
+      match?.img ||
+      `rec-${row.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40)}`;
+    await prisma.recipe.update({
+      where: { id: row.id },
+      data: { imageUrl: img(seed) },
     });
   }
 }

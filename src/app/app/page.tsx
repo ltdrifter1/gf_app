@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
 import { blockedPairIds } from "@/lib/blocks";
 import { POST_CATEGORIES, categoryBySlug } from "@/lib/constants";
+import { followingAuthorFilter } from "@/lib/feed";
 import { PostComposer } from "@/components/post-composer";
 import { PostCard, type PostCardData } from "@/components/post-card";
 
@@ -18,13 +19,18 @@ export default async function FeedPage({
   const blockedList = [...blocked];
 
   let authorFilter: { authorId?: string | { in: string[] } } = {};
+  let followedCount = 0;
   if (followingOnly) {
     const follows = await prisma.follow.findMany({
       where: { followerId: user.id },
       select: { followingId: true },
     });
-    const ids = follows.map((f) => f.followingId).filter((id) => !blocked.has(id));
-    authorFilter = { authorId: { in: [...ids, user.id] } };
+    const ids = follows.map((f) => f.followingId).filter((id) => id !== user.id && !blocked.has(id));
+    followedCount = ids.length;
+    const scoped = followingAuthorFilter(ids);
+    authorFilter = scoped.empty
+      ? { authorId: { in: ["__lumen-no-follows__"] } }
+      : { authorId: scoped.authorId };
   }
 
   const posts = await prisma.post.findMany({
@@ -150,7 +156,9 @@ export default async function FeedPage({
         <div className="card space-y-3 p-10 text-center text-sage-500 dark:text-sage-400">
           <p>
             {followingOnly
-              ? "No posts from people you follow yet. Find someone in Messenger."
+              ? followedCount === 0
+                ? "You're not following anyone yet, so Following stays empty. Your own posts live on Community."
+                : "No posts from people you follow yet. Find someone in Messenger."
               : "No posts yet here. Be the first to share something."}
           </p>
           {followingOnly && (

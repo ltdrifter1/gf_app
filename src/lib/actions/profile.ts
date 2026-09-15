@@ -97,14 +97,14 @@ export async function updateStatusMessage(mood: string) {
   return { ok: true };
 }
 
-/** Top 8 friends = people you follow (newest first), classic MySpace Friend Space. */
+/** Explicit Top 8 — empty until the owner picks people in Profile Studio. */
 export async function getTopFriends(userId: string, take = 8) {
-  const follows = await prisma.follow.findMany({
-    where: { followerId: userId },
-    orderBy: { createdAt: "desc" },
+  const explicit = await prisma.topEightFriend.findMany({
+    where: { ownerId: userId },
+    orderBy: { position: "asc" },
     take,
     include: {
-      following: {
+      friend: {
         select: {
           id: true,
           name: true,
@@ -116,7 +116,7 @@ export async function getTopFriends(userId: string, take = 8) {
       },
     },
   });
-  return follows.map((f) => f.following);
+  return explicit.map((row) => row.friend);
 }
 
 export async function updateNotificationPrefs(formData: FormData) {

@@ -6,6 +6,7 @@ import { POST_CATEGORIES } from "@/lib/constants";
 import { createPost } from "@/lib/actions/posts";
 import { Avatar } from "./ui/avatar";
 import { ImageUpload } from "@/components/image-upload";
+import { SafeImg } from "@/components/safe-img";
 
 export function PostComposer({ user }: { user: { name: string; avatarUrl: string | null } }) {
   const [open, setOpen] = useState(false);
@@ -65,7 +66,7 @@ export function PostComposer({ user }: { user: { name: string; avatarUrl: string
           {imageUrl && (
             <div className="relative overflow-hidden rounded-2xl">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={imageUrl} alt="preview" className="max-h-64 w-full object-cover" />
+              <SafeImg src={imageUrl} alt="preview" className="max-h-64 w-full object-cover" />
               <button type="button" onClick={() => setImageUrl("")} className="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-full bg-black/50 text-white">
                 <X className="h-4 w-4" />
               </button>

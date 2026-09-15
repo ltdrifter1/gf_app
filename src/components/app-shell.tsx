@@ -17,6 +17,8 @@ import {
   Bookmark,
   Shield,
   Feather,
+  ScanSearch,
+  Receipt,
 } from "lucide-react";
 import { Logo } from "./logo";
 import { Avatar } from "./ui/avatar";
@@ -40,6 +42,8 @@ const SIDEBAR_NAV = [
   { href: "/app/health", label: "Health", icon: HeartPulse },
   { href: "/app/restaurants", label: "Dining", icon: UtensilsCrossed },
   { href: "/app/recipes", label: "Recipes", icon: BookOpen },
+  { href: "/app/scan", label: "Scan", icon: ScanSearch },
+  { href: "/app/costs", label: "Costs", icon: Receipt },
   { href: "/app/saved", label: "Saved", icon: Bookmark },
   { href: "/app/profile", label: "You", icon: UserRound },
 ] as const;
@@ -178,6 +182,12 @@ export function AppShell({
             <div className="flex-1 sm:hidden" />
             <Link href="/app/search" className="btn-ghost p-2 sm:hidden" title="Search">
               <Search className="h-5 w-5" />
+            </Link>
+            <Link href="/app/scan" className="btn-ghost hidden p-2 sm:inline-flex" title="Scan a label">
+              <ScanSearch className="h-5 w-5" />
+            </Link>
+            <Link href="/app/costs" className="btn-ghost hidden p-2 sm:inline-flex" title="GF costs">
+              <Receipt className="h-5 w-5" />
             </Link>
             <NotificationBell initialUnread={notificationUnread} />
             <ThemeToggle />

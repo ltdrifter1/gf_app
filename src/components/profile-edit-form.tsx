@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Loader2, Check, ExternalLink } from "lucide-react";
+import { Loader2, Check, ExternalLink, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { updateProfile, setPresence } from "@/lib/actions/profile";
 import { Avatar } from "@/components/ui/avatar";
@@ -45,6 +45,10 @@ export function ProfileEditForm({
           <ExternalLink className="h-4 w-4" />
           View as others see you
         </Link>
+        <Link href="/app/profile/studio" className="btn-primary w-full sm:w-auto">
+          <Sparkles className="h-4 w-4" />
+          Profile Studio
+        </Link>
       </div>
     );
   }
@@ -83,6 +87,15 @@ export function ProfileEditForm({
             onChange={(url) => setAvatarPreview(url)}
             label="Upload photo"
           />
+          <details className="mt-1">
+            <summary className="cursor-pointer text-[11px] text-sage-400">Paste an https URL instead</summary>
+            <input
+              className="input mt-1 text-xs"
+              placeholder="https://…"
+              value={avatarPreview}
+              onChange={(e) => setAvatarPreview(e.target.value)}
+            />
+          </details>
         </div>
       </div>
       <div>
