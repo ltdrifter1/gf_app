@@ -4,14 +4,15 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
 import { effectivePresence } from "@/lib/presence";
-import { isNudgeMessage } from "@/lib/msn";
+import { isNudgeMessage, isCheckinMessage } from "@/lib/msn";
 
 /** Stable DM slug for two users (order-independent). */
 function dmSlug(a: string, b: string) {
   return `dm-${[a, b].sort().join("-")}`;
 }
 
-export async function getOrCreateDm(targetUserId: string) {
+/** Create or open a DM without redirecting — used by buddy match and recovery. */
+export async function getOrCreateDmRoom(targetUserId: string) {
   const user = await requireUser();
   if (user.id === targetUserId) return { error: "Can't message yourself" };
 
@@ -28,6 +29,7 @@ export async function getOrCreateDm(targetUserId: string) {
         slug,
         description: `Chat with ${target.name}`,
         isCommunity: false,
+        kind: "dm",
         members: {
           create: [{ userId: user.id }, { userId: targetUserId }],
         },
@@ -39,8 +41,17 @@ export async function getOrCreateDm(targetUserId: string) {
       create: { roomId: room.id, userId: user.id },
       update: {},
     });
+    if (room.kind !== "dm") {
+      await prisma.chatRoom.update({ where: { id: room.id }, data: { kind: "dm" } });
+    }
   }
 
+  return { id: room.id, slug: room.slug };
+}
+
+export async function getOrCreateDm(targetUserId: string) {
+  const room = await getOrCreateDmRoom(targetUserId);
+  if ("error" in room) return room;
   redirect(`/app/chat/${room.slug}`);
 }
 
@@ -48,7 +59,7 @@ export async function getOnlineBuddies(excludeUserId?: string) {
   const since = new Date(Date.now() - 60_000);
   return prisma.user.findMany({
     where: {
-      presence: "online",
+      presence: { not: "offline" },
       lastSeen: { gte: since },
       ...(excludeUserId ? { id: { not: excludeUserId } } : {}),
     },
@@ -71,7 +82,7 @@ export type ContactListEntry = {
   name: string;
   username: string;
   avatarUrl: string | null;
-  presence: "online" | "away" | "offline";
+  presence: string;
   statusMessage: string | null;
   /** Existing DM room slug, if any */
   dmSlug: string | null;
@@ -89,7 +100,7 @@ export async function getContactList(userId: string) {
     prisma.user.findMany({
       where: {
         id: { not: userId },
-        presence: "online",
+        presence: { not: "offline" },
         lastSeen: { gte: since },
       },
       select: {
@@ -195,7 +206,11 @@ export async function getContactList(userId: string) {
         unreadCount,
         lastMessage: last
           ? {
-              text: isNudgeMessage(last.content) ? "sent a nudge!" : last.content,
+              text: isNudgeMessage(last.content)
+                ? "sent a nudge!"
+                : isCheckinMessage(last.content)
+                  ? "asked for a check-in"
+                  : last.content,
               sender: last.sender.name,
               at: last.createdAt.toISOString(),
             }
@@ -222,19 +237,26 @@ export async function getContactList(userId: string) {
       lastMessage: dm?.lastMessage ?? null,
       isFavorite: favoriteIds.has(u.id),
     };
-    if (presence === "online" || presence === "away") online.push(row);
-    else offline.push(row);
+    if (presence === "offline") offline.push(row);
+    else online.push(row);
   }
 
-  // Unread first, then name — still one row per person
+  // Need-a-check-in first, then unread, then name
   const rank = (a: ContactListEntry, b: ContactListEntry) => {
+    const aCheck = a.presence === "need-check-in" ? 1 : 0;
+    const bCheck = b.presence === "need-check-in" ? 1 : 0;
+    if (aCheck !== bCheck) return bCheck - aCheck;
     if ((b.unreadCount > 0) !== (a.unreadCount > 0)) return b.unreadCount > 0 ? 1 : -1;
     return a.name.localeCompare(b.name);
   };
   online.sort(rank);
   offline.sort(rank);
 
-  return { online, offline, onlineCount: online.filter((c) => c.presence === "online").length + 1 };
+  return {
+    online,
+    offline,
+    onlineCount: online.filter((c) => c.presence !== "offline").length + 1,
+  };
 }
 
 /** Unread DMs + community rooms for nav badge. */
@@ -311,7 +333,11 @@ export async function getDirectMessageRooms(userId: string) {
         unreadCount,
         lastMessage: last
           ? {
-              text: isNudgeMessage(last.content) ? "sent a nudge!" : last.content,
+              text: isNudgeMessage(last.content)
+                ? "sent a nudge!"
+                : isCheckinMessage(last.content)
+                  ? "asked for a check-in"
+                  : last.content,
               sender: last.sender.name,
               at: last.createdAt.toISOString(),
             }

@@ -1,4 +1,5 @@
 import { avatarGradient, initials, cn } from "@/lib/utils";
+import { presenceMeta } from "@/lib/presence";
 
 export function Avatar({
   name,
@@ -13,12 +14,8 @@ export function Avatar({
   className?: string;
   presence?: string | null;
 }) {
-  const dot =
-    presence === "online"
-      ? "bg-emerald-500 shadow-[0_0_0_2px_rgba(255,255,255,0.9),0_0_8px_1px_rgba(16,185,129,0.7)] dark:shadow-[0_0_0_2px_rgba(20,28,43,1),0_0_8px_1px_rgba(16,185,129,0.7)]"
-      : presence === "away"
-      ? "bg-amber-400"
-      : "bg-sage-300";
+  const meta = presence ? presenceMeta(presence) : null;
+  const pulse = presence === "need-check-in";
 
   return (
     <div className="relative inline-block shrink-0" style={{ width: size, height: size }}>
@@ -42,11 +39,12 @@ export function Avatar({
           {initials(name)}
         </div>
       )}
-      {presence && (
+      {presence && meta && (
         <span
           className={cn(
             "absolute bottom-0 right-0 rounded-full ring-2 ring-white dark:ring-[#0e1512]",
-            dot
+            meta.dot,
+            pulse && "animate-pulse"
           )}
           style={{ width: size * 0.28, height: size * 0.28 }}
         />

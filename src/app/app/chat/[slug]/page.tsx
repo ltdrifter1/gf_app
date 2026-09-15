@@ -88,6 +88,7 @@ export default async function ChatRoomPage({
             rooms={rooms}
             activeSlug={slug}
             me={me}
+            panicBuddyId={user.profile?.panicBuddyId ?? null}
           />
         }
         main={
@@ -103,6 +104,7 @@ export default async function ChatRoomPage({
               isDm && peer ? effectivePresence(peer.presence, peer.lastSeen) : null
             }
             peerStatusMessage={isDm && peer ? peer.profile?.mood ?? null : null}
+            canFlag={!isDm}
           />
         }
       />

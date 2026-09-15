@@ -69,7 +69,15 @@ export default async function RecipesPage({
         </h1>
         <p className="text-sage-500 dark:text-sage-400">
           Trusted gluten-free recipes from the community.
+          {category === "Kids"
+            ? " Kid-friendly picks first — lunchboxes, parties, picky eaters."
+            : ""}
         </p>
+        {category !== "Kids" && (
+          <Link href="/app/recipes?category=Kids" className="mt-2 inline-block text-sm font-medium text-brand-600 hover:underline">
+            Prefer kid-friendly? Jump to Kids recipes
+          </Link>
+        )}
       </div>
 
       <form action="/app/recipes" className="relative">

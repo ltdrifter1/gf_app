@@ -106,7 +106,11 @@ export function HealthTrackPanel({
             Glutening & symptoms
           </h2>
           <p className="mt-1 text-sm text-sage-500">
-            Log exposures and flares for your care team — never shown publicly.
+            Log exposures and flares for your care team — never shown publicly.{" "}
+            <Link href="/app/health#recovery" className="font-medium text-brand-700 hover:underline dark:text-brand-300">
+              Open the recovery card
+            </Link>
+            .
           </p>
         </div>
 

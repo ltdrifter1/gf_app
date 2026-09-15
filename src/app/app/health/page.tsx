@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Activity, ArrowRight, Brain, LineChart, MessageCircle } from "lucide-react";
+import { Activity, ArrowRight, Brain, HeartHandshake, LineChart, MessageCircle, ScanLine, Receipt } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
@@ -9,6 +9,12 @@ import {
   PHYSICAL_HEALTH_CATEGORIES,
 } from "@/lib/constants";
 import { timeAgo, cn } from "@/lib/utils";
+import { CaregiverPack } from "@/components/caregiver-pack";
+import { PatternInsights } from "@/components/pattern-insights";
+import { RecoveryCard } from "@/components/recovery-card";
+import { FindBuddyButton } from "@/components/find-buddy-button";
+import { getPrivateInsights } from "@/lib/actions/insights";
+import { getContactList } from "@/lib/actions/chat";
 
 type Props = {
   searchParams: Promise<{ tab?: string; category?: string }>;
@@ -21,24 +27,31 @@ export default async function HealthPage({ searchParams }: Props) {
     redirect(params.tab === "track" ? "/app/journal?tab=track" : "/app/journal");
   }
 
-  await requireUser();
+  const user = await requireUser();
 
-  const tab = params.tab === "physical" ? "physical" : "mental";
-  const categories =
-    tab === "mental" ? MENTAL_HEALTH_CATEGORIES : PHYSICAL_HEALTH_CATEGORIES;
+  const tab =
+    params.tab === "physical" ? "physical" : params.tab === "care" ? "care" : "mental";
+  const libraryTab = tab === "care" ? null : tab;
+  const categories = libraryTab
+    ? libraryTab === "mental"
+      ? MENTAL_HEALTH_CATEGORIES
+      : PHYSICAL_HEALTH_CATEGORIES
+    : [];
   const categoryFilter =
-    params.category && categories.some((c) => c.slug === params.category)
+    libraryTab && params.category && categories.some((c) => c.slug === params.category)
       ? params.category
       : undefined;
 
-  const [resources, supportPosts] = await Promise.all([
-    prisma.healthResource.findMany({
-      where: {
-        pillar: tab,
-        ...(categoryFilter ? { category: categoryFilter } : {}),
-      },
-      orderBy: { title: "asc" },
-    }),
+  const [resources, supportPosts, insightData, contacts] = await Promise.all([
+    libraryTab
+      ? prisma.healthResource.findMany({
+          where: {
+            pillar: libraryTab,
+            ...(categoryFilter ? { category: categoryFilter } : {}),
+          },
+          orderBy: { title: "asc" },
+        })
+      : Promise.resolve([]),
     tab === "mental"
       ? prisma.post.findMany({
           where: { category: "mental-health" },
@@ -49,6 +62,8 @@ export default async function HealthPage({ searchParams }: Props) {
           },
         })
       : Promise.resolve([]),
+    getPrivateInsights(),
+    getContactList(user.id),
   ]);
 
   const byCategory = categories.map((c) => ({
@@ -66,6 +81,11 @@ export default async function HealthPage({ searchParams }: Props) {
       title: "Physical care",
       blurb:
         "Gut healing, labs, nutrition, skin, bones, kitchen safety — educational deep dives. Confirm everything with your care team.",
+    },
+    care: {
+      title: "Caregiver pack",
+      blurb:
+        "School letters, 30-second explains, and kid-friendly recipes — practical, not legal advice.",
     },
   } as const;
 
@@ -91,10 +111,16 @@ export default async function HealthPage({ searchParams }: Props) {
               Open Journal →
             </Link>
             <Link
-              href="/app/journal?tab=track"
+              href="/app/scan"
               className="rounded-full border border-white/25 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white/90 transition hover:bg-white/20"
             >
-              Symptom Track →
+              Label scan →
+            </Link>
+            <Link
+              href="/app/costs"
+              className="rounded-full border border-white/25 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white/90 transition hover:bg-white/20"
+            >
+              GF cost tracker →
             </Link>
           </div>
         </div>
@@ -110,6 +136,7 @@ export default async function HealthPage({ searchParams }: Props) {
               label: "Physical",
               icon: Activity,
             },
+            { id: "care", href: "/app/health?tab=care", label: "Caregiver", icon: HeartHandshake },
           ] as const
         ).map((item) => {
           const Icon = item.icon;
@@ -132,6 +159,24 @@ export default async function HealthPage({ searchParams }: Props) {
         })}
       </nav>
 
+      <div className="flex flex-wrap gap-2">
+        <Link href="/app/scan" className="btn-secondary text-sm">
+          <ScanLine className="h-4 w-4" /> Label scan
+        </Link>
+        <Link href="/app/costs" className="btn-secondary text-sm">
+          <Receipt className="h-4 w-4" /> Cost tracker
+        </Link>
+        <FindBuddyButton compact className="w-auto" />
+      </div>
+
+      <div id="recovery" className="grid gap-4 lg:grid-cols-2">
+        <RecoveryCard
+          buddies={[...contacts.online, ...contacts.offline].map((c) => ({ id: c.id, name: c.name }))}
+          panicBuddyId={user.profile?.panicBuddyId ?? null}
+        />
+        <PatternInsights optIn={insightData.optIn} insights={insightData.insights} />
+      </div>
+
       {tab === "mental" ? (
         <div className="rounded-2xl border border-rose-300/30 bg-rose-50/50 px-4 py-3 text-sm text-sage-800 dark:bg-rose-500/10 dark:text-sage-200">
           <p className="font-semibold text-sage-900 dark:text-white">You are not alone in this.</p>
@@ -144,7 +189,7 @@ export default async function HealthPage({ searchParams }: Props) {
             (US).
           </p>
         </div>
-      ) : (
+      ) : tab === "physical" ? (
         <div className="rounded-2xl border border-amber-300/40 bg-amber-50/50 px-4 py-3 text-sm text-sage-800 dark:bg-amber-500/10 dark:text-sage-200">
           <p className="font-semibold text-sage-900 dark:text-white">Educational — not a diagnosis.</p>
           <p className="mt-1">
@@ -152,8 +197,19 @@ export default async function HealthPage({ searchParams }: Props) {
             diet changes with a clinician who knows your history.
           </p>
         </div>
+      ) : (
+        <div className="rounded-2xl border border-brand-300/40 bg-brand-50/50 px-4 py-3 text-sm text-sage-800 dark:bg-brand-500/10 dark:text-sage-200">
+          <p className="font-semibold text-sage-900 dark:text-white">For caregivers — and anyone packing a lunchbox.</p>
+          <p className="mt-1">
+            Copy what helps. This is not a school legal form or medical advice.
+          </p>
+        </div>
       )}
 
+      {tab === "care" ? (
+        <CaregiverPack />
+      ) : (
+        <>
       <div className="flex flex-wrap gap-2">
         <Link
           href={`/app/health?tab=${tab}`}
@@ -316,6 +372,8 @@ export default async function HealthPage({ searchParams }: Props) {
           </p>
         </div>
       ) : null}
+        </>
+      )}
     </div>
   );
 }

@@ -4,8 +4,10 @@ import { redirect } from "next/navigation";
 import { SignJWT, jwtVerify } from "jose";
 import bcrypt from "bcryptjs";
 import { prisma } from "./prisma";
+import { BRAND } from "./brand";
 
-const COOKIE_NAME = "safely_session";
+const COOKIE_NAME = BRAND.sessionCookie;
+const LEGACY_COOKIE_NAME = BRAND.legacySessionCookie;
 
 function authSecretBytes() {
   const secret = process.env.AUTH_SECRET;
@@ -53,16 +55,19 @@ export async function createSession(payload: SessionPayload) {
     maxAge: 60 * 60 * 24 * 30,
     path: "/",
   });
+  cookieStore.delete(LEGACY_COOKIE_NAME);
 }
 
 export async function destroySession() {
   const cookieStore = await cookies();
   cookieStore.delete(COOKIE_NAME);
+  cookieStore.delete(LEGACY_COOKIE_NAME);
 }
 
 export async function getSessionPayload(): Promise<SessionPayload | null> {
   const cookieStore = await cookies();
-  const token = cookieStore.get(COOKIE_NAME)?.value;
+  const token =
+    cookieStore.get(COOKIE_NAME)?.value ?? cookieStore.get(LEGACY_COOKIE_NAME)?.value;
   if (!token) return null;
   try {
     const { payload } = await jwtVerify(token, authSecretBytes());

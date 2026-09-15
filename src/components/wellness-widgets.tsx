@@ -589,7 +589,7 @@ export function JournalStudio({
             <button
               type="button"
               onClick={() => openEntry(todayEntry)}
-              className="mb-3 w-full rounded-2xl bg-safely-gradient px-3.5 py-2.5 text-left text-sm font-semibold text-white shadow-glow transition hover:brightness-105"
+              className="mb-3 w-full rounded-2xl bg-lumen-gradient px-3.5 py-2.5 text-left text-sm font-semibold text-white shadow-glow transition hover:brightness-105"
             >
               Continue today
             </button>

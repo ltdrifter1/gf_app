@@ -33,7 +33,7 @@ async function roomSnapshot(roomId: string, userId: string) {
   });
 
   const online = members.filter(
-    (m) => effectivePresence(m.user.presence, m.user.lastSeen) === "online"
+    (m) => effectivePresence(m.user.presence, m.user.lastSeen) !== "offline"
   ).length;
 
   const room = await prisma.chatRoom.findUnique({

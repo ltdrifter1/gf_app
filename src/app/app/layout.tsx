@@ -3,6 +3,8 @@ import { getCurrentUser } from "@/lib/auth";
 import { AppShell } from "@/components/app-shell";
 import { PresenceHeartbeat } from "@/components/presence-heartbeat";
 import { OnboardingRedirect } from "@/components/onboarding-redirect";
+import { PwaRegister } from "@/components/pwa-register";
+import { LiveNotificationBridge } from "@/components/live-notification-bridge";
 import { ensureLaunchCatalog } from "@/lib/bootstrap";
 import { getMessengerUnreadTotal } from "@/lib/actions/chat";
 import { prisma } from "@/lib/prisma";
@@ -33,6 +35,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     >
       <OnboardingRedirect complete={user.onboardingComplete} />
       <PresenceHeartbeat />
+      <PwaRegister />
+      <LiveNotificationBridge />
       {children}
     </AppShell>
   );

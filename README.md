@@ -1,6 +1,6 @@
-# Safely
+# Lumen
 
-**Your gluten-free companion. Find your people.**
+**Your gluten-free companion. Find your people — and a little more light.**
 
 A gluten-free social network with an MSN Messenger–style lounge — community,
 safe dining, recipes, and health support.
@@ -17,18 +17,22 @@ npx prisma db seed     # local demo users only
 npm run dev            # http://localhost:3000
 ```
 
-Local demo login (dev only): `maya@safely.app` / `password123`
+Local demo login (dev only): `maya@lumen.app` / `password123`
 
 ## Ship to production
 
-See **[DEPLOY.md](./DEPLOY.md)** — Postgres + Vercel + Namecheap DNS for **https://safelyceliac.com**.  
+See **[DEPLOY.md](./DEPLOY.md)** — Postgres + Vercel + Namecheap DNS for **https://safelyceliac.com**
+(current host; product name is **Lumen**).  
 Catalog boots safely without demo accounts (`npm run db:seed:prod` or auto on first request).
 
 ## Features
 
 - **Community feed** — All / Following, topics, posts, comments, likes
-- **Messenger** — online buddy list, DMs, community rooms, presence
-- **Restaurants** — city filters, list/map tabs, safety scores
-- **Recipes** — search, sort, ratings, author profiles
-- **Health** — mental check-ins + physical tips
+- **Messenger** — buddy list with meaningful statuses, DMs, community + city “dining tonight” rooms, presence, buddy match
+- **Restaurants** — city filters, list/map tabs, safety scores, verified-visit trust badges
+- **Recipes** — search, sort, ratings, kid-friendly filter
+- **Health** — mental / physical library, caregiver pack, glutening recovery card, private insights
+- **Label scan** — `/app/scan` photo or paste gluten checker (heuristic, not lab-grade)
+- **GF cost tracker** — `/app/costs` Canadian medical-expense-style CSV (not tax advice)
+- **PWA** — installable; in-tab notifications (VAPID optional later)
 - **Profiles** — public pages, follow, edit

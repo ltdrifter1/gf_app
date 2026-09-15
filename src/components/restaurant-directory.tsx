@@ -17,6 +17,7 @@ import { RestaurantMap, type MapPin as Pin } from "./restaurant-map";
 import { AddRestaurantForm } from "./add-restaurant-form";
 import { safetyColor, safetyLabel, cn } from "@/lib/utils";
 import { distanceKm, formatDistanceKm } from "@/lib/geo";
+import { ConfidenceMeter, TrustBadges } from "./trust-badges";
 
 export type RestaurantItem = {
   id: string;
@@ -39,6 +40,9 @@ export type RestaurantItem = {
   avgRating: number;
   reviewCount: number;
   lastReviewAt?: string | null;
+  verifiedVisits?: number;
+  incidentCount?: number;
+  badges?: { key: string; label: string; tone: "good" | "warn" | "bad" | "neutral" }[];
 };
 
 const FILTERS = [
@@ -184,6 +188,8 @@ export function RestaurantDirectory({
                   {r.communityConfidence}% {safetyLabel(r.communityConfidence)}
                 </span>
               </div>
+              <ConfidenceMeter confidence={r.communityConfidence} compact />
+              <TrustBadges badges={r.badges ?? []} className="mt-2" />
               <div className="mt-2 flex flex-wrap gap-1">
                 {r.dedicatedKitchen && (
                   <span className="chip bg-sage-100 text-sage-700 dark:bg-white/10 dark:text-sage-200">

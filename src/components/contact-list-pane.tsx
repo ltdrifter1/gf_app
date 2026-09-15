@@ -38,6 +38,7 @@ export function ContactListPane({
   activeSlug,
   className,
   embedded = false,
+  panicBuddyId = null,
 }: {
   onlineCount: number;
   online: MsnContact[];
@@ -48,6 +49,7 @@ export function ContactListPane({
   className?: string;
   /** When true, pane is a column inside MessengerShell (no outer card). */
   embedded?: boolean;
+  panicBuddyId?: string | null;
 }) {
   const [query, setQuery] = useState("");
 
@@ -78,7 +80,11 @@ export function ContactListPane({
         </Link>
       </div>
 
-      <MsnMeStrip me={me} />
+      <MsnMeStrip
+        me={me}
+        buddies={[...online, ...offline].map((c) => ({ id: c.id, name: c.name }))}
+        panicBuddyId={panicBuddyId}
+      />
 
       <div className="px-2.5 py-2">
         <label className="relative block">
@@ -99,7 +105,7 @@ export function ContactListPane({
 
         <div className="mt-3 border-t border-[#94a3b8]/35 pt-2 dark:border-white/10">
           <p className="mb-1 px-2 text-[10px] font-semibold uppercase tracking-wider text-[#64748b]">
-            Community rooms
+            Community & dining tonight
           </p>
           <RoomsList rooms={rooms} activeSlug={activeSlug} query={query} />
         </div>

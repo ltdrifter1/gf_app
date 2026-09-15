@@ -134,7 +134,7 @@ export async function GET(
     },
   });
   const online = members.filter(
-    (m) => effectivePresence(m.user.presence, m.user.lastSeen) === "online"
+    (m) => effectivePresence(m.user.presence, m.user.lastSeen) !== "offline"
   ).length;
 
   const room = await prisma.chatRoom.findUnique({

@@ -4,6 +4,8 @@ import { requireUser } from "@/lib/auth";
 import { inferJourneyStageFromGoals } from "@/lib/constants";
 import { JournalStudio } from "@/components/wellness-widgets";
 import { HealthTrackPanel } from "@/components/health-track";
+import { PatternInsights } from "@/components/pattern-insights";
+import { getPrivateInsights } from "@/lib/actions/insights";
 import { BookOpen, LineChart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { isSameDay } from "date-fns";
@@ -17,7 +19,7 @@ export default async function JournalPage({
   const active = tab === "track" ? "track" : "journal";
   const user = await requireUser();
 
-  const [journalEntries, moodEntries, healthLogs, profile] = await Promise.all([
+  const [journalEntries, moodEntries, healthLogs, profile, insightData] = await Promise.all([
     prisma.journalEntry.findMany({
       where: { userId: user.id },
       orderBy: { createdAt: "desc" },
@@ -34,6 +36,7 @@ export default async function JournalPage({
       take: 40,
     }),
     prisma.profile.findUnique({ where: { userId: user.id } }),
+    getPrivateInsights(),
   ]);
 
   const journeyStage =
@@ -113,14 +116,20 @@ export default async function JournalPage({
       </header>
 
       {active === "journal" ? (
-        <JournalStudio
-          initialEntries={initialEntries}
-          journeyStage={journeyStage}
-          todayMood={todayMood}
-          hasMoodToday={hasMoodToday}
-        />
+        <>
+          <PatternInsights optIn={insightData.optIn} insights={insightData.insights} />
+          <JournalStudio
+            initialEntries={initialEntries}
+            journeyStage={journeyStage}
+            todayMood={todayMood}
+            hasMoodToday={hasMoodToday}
+          />
+        </>
       ) : (
-        <HealthTrackPanel initialMoods={initialMoods} initialLogs={initialLogs} />
+        <>
+          <PatternInsights optIn={insightData.optIn} insights={insightData.insights} />
+          <HealthTrackPanel initialMoods={initialMoods} initialLogs={initialLogs} />
+        </>
       )}
     </div>
   );

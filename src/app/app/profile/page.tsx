@@ -102,6 +102,7 @@ export default async function ProfilePage() {
               mood: fullUser?.profile?.mood || "",
               likeToMeet: fullUser?.profile?.likeToMeet || "",
               interests: fullUser?.profile?.interests || "",
+              insightsOptIn: fullUser?.profile?.insightsOptIn ?? false,
             }}
           />
         ),

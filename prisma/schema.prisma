@@ -1,4 +1,4 @@
-// Safely — Your gluten-free companion. Find your people.
+// Lumen — Your gluten-free companion. Find your people — and a little more light.
 //
 // Production database: PostgreSQL (Neon / Supabase / Railway / Vercel Postgres).
 // Local: set DATABASE_URL to a Postgres URL (see .env.example).
@@ -22,7 +22,8 @@ model User {
   avatarUrl          String?
   bio                String?
   location           String?
-  presence           String   @default("offline") // online | away | offline
+  /// online | away | offline | need-check-in | dining-out | quiet-today | helping-new
+  presence           String   @default("offline")
   lastSeen           DateTime @default(now())
   /// Existing accounts default complete; new signups set false until /app/onboarding
   onboardingComplete Boolean  @default(true)
@@ -54,6 +55,14 @@ model User {
   notifications  Notification[]
 
   flagsRaised FlaggedContent[] @relation("reporter")
+
+  buddyMatchesAsA BuddyMatch[] @relation("buddyA")
+  buddyMatchesAsB BuddyMatch[] @relation("buddyB")
+
+  gfCostEntries      GfCostEntry[]
+  labelScans         LabelScan[]
+  insightDismissals  InsightDismissal[]
+  pushSubscriptions  PushSubscription[]
 }
 
 model Profile {
@@ -71,6 +80,10 @@ model Profile {
   mood         String?
   likeToMeet   String?
   interests    String?
+  /// Opt-in to private pattern insights from mood / logs / journal
+  insightsOptIn Boolean @default(false)
+  /// Optional buddy to nudge after a glutening (user id) — never public
+  panicBuddyId  String?
 }
 
 model Follow {
@@ -131,16 +144,22 @@ model SavedPost {
 }
 
 model ChatRoom {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   name        String
-  slug        String   @unique
+  slug        String    @unique
   description String?
-  isCommunity Boolean  @default(true)
-  createdAt   DateTime @default(now())
+  isCommunity Boolean   @default(true)
+  /// community | dm | city-tonight
+  kind        String    @default("community")
+  city        String?
+  expiresAt   DateTime?
+  createdAt   DateTime  @default(now())
 
   members  ChatRoomMember[]
   messages Message[]
   typing   TypingIndicator[]
+
+  @@index([kind, city])
 }
 
 model ChatRoomMember {
@@ -346,6 +365,79 @@ model Notification {
 
   @@index([userId, createdAt])
   @@index([userId, readAt])
+}
+
+/// Soft buddy pairing (journeyStage + optional city). Icebreaker lives in the DM.
+model BuddyMatch {
+  id        String   @id @default(cuid())
+  userAId   String
+  userBId   String
+  userA     User     @relation("buddyA", fields: [userAId], references: [id], onDelete: Cascade)
+  userB     User     @relation("buddyB", fields: [userBId], references: [id], onDelete: Cascade)
+  roomId    String
+  /// mentoring | caregiver | same-city | similar-stage
+  reason    String
+  createdAt DateTime @default(now())
+
+  @@unique([userAId, userBId])
+  @@index([userAId, createdAt])
+  @@index([userBId, createdAt])
+}
+
+/// Canadian GF vs regular price tracker — private; user files their own taxes
+model GfCostEntry {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productName  String
+  gfPrice      Float
+  regularPrice Float
+  store        String?
+  purchasedAt  DateTime
+  photoUrl     String?
+  createdAt    DateTime @default(now())
+
+  @@index([userId, purchasedAt])
+}
+
+/// Optional history of label / menu scans — private
+model LabelScan {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// image | paste
+  source    String
+  rawText   String
+  /// safe | caution | unsafe
+  verdict   String
+  reasons   Json
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+}
+
+/// User dismissed a private insight card (keyed, not the copy)
+model InsightDismissal {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  insightKey String
+  createdAt DateTime @default(now())
+
+  @@unique([userId, insightKey])
+}
+
+/// Web Push subscription — filled when VAPID keys exist; unused locally without them
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+
+  @@index([userId])
 }
 
 /// Durable chat fan-out for multi-instance hosts (SSE polls this + in-process hub)

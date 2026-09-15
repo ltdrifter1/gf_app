@@ -7,9 +7,10 @@ import { MsnPresenceIcon } from "./msn-presence-icon";
 import { msnSaysColor } from "./msn-window-chrome";
 import { timeAgo, cn } from "@/lib/utils";
 import { presenceLabel } from "@/lib/presence";
-import { isNudgeMessage, nudgeSystemLine } from "@/lib/msn";
+import { isNudgeMessage, isCheckinMessage, nudgeSystemLine, checkinSystemLine } from "@/lib/msn";
 import { playMessageSound, playNudgeSound } from "@/lib/msn-sounds";
-import { notifyMsnMessage } from "@/lib/msn-prefs";
+import { notifyBuddyNudge, notifyMsnMessage } from "@/lib/msn-prefs";
+import { flagContent } from "@/lib/actions/moderation";
 
 type Msg = {
   id: string;
@@ -32,6 +33,7 @@ export function ChatWindow({
   peerPresence: initialPeerPresence,
   peerStatusMessage,
   embedded = false,
+  canFlag = false,
 }: {
   roomId: string;
   roomName: string;
@@ -42,6 +44,7 @@ export function ChatWindow({
   peerPresence?: string | null;
   peerStatusMessage?: string | null;
   embedded?: boolean;
+  canFlag?: boolean;
 }) {
   const [messages, setMessages] = useState<Msg[]>([]);
   const [typing, setTyping] = useState<string[]>([]);
@@ -56,6 +59,7 @@ export function ChatWindow({
   const [hasMore, setHasMore] = useState(false);
   const [loadingOlder, setLoadingOlder] = useState(false);
   const [live, setLive] = useState(false);
+  const [flagged, setFlagged] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const lastTypingSent = useRef(0);
   const initialised = useRef(false);
@@ -92,7 +96,10 @@ export function ChatWindow({
             if (m.isNudge) {
               playNudgeSound();
               triggerShake();
-              notifyMsnMessage(roomName, `${m.sender.name} sent a nudge!`);
+              notifyBuddyNudge(roomName, `${m.sender.name} sent a nudge!`);
+            } else if (isCheckinMessage(m.content)) {
+              playNudgeSound();
+              notifyBuddyNudge(roomName, `${m.sender.name} asked for a gentle check-in.`);
             } else {
               playMessageSound();
               notifyMsnMessage(roomName, `${m.sender.name}: ${m.content.slice(0, 120)}`);
@@ -388,7 +395,7 @@ export function ChatWindow({
     }
   }
 
-  const status = (peerPresence || "offline") as "online" | "away" | "offline";
+  const status = peerPresence || "offline";
   const typingLine =
     typing.length === 0
       ? null
@@ -427,7 +434,7 @@ export function ChatWindow({
               <span aria-hidden>{roomEmoji}</span>
             ) : (
               <Image
-                src="/logo.webp"
+                src="/lumen-mark.webp"
                 alt=""
                 width={44}
                 height={44}
@@ -461,6 +468,23 @@ export function ChatWindow({
             {memberCount} members
           </p>
         ) : null}
+        {canFlag && !isDm ? (
+          <button
+            type="button"
+            className="ml-1 shrink-0 text-[10px] font-semibold text-rose-700 underline-offset-2 hover:underline disabled:opacity-60 dark:text-rose-300"
+            disabled={flagged}
+            onClick={async () => {
+              const res = await flagContent({
+                type: "chat-room",
+                refId: roomId,
+                reason: "Community room report from Messenger",
+              });
+              if (!res?.error) setFlagged(true);
+            }}
+          >
+            {flagged ? "Flagged" : "Flag room"}
+          </button>
+        ) : null}
       </div>
 
       <div
@@ -480,7 +504,8 @@ export function ChatWindow({
         )}
         {messages.map((m) => {
           const nudge = m.isNudge || isNudgeMessage(m.content);
-          if (nudge) {
+          const checkin = isCheckinMessage(m.content);
+          if (nudge || checkin) {
             return (
               <p
                 key={m.id}
@@ -489,7 +514,9 @@ export function ChatWindow({
                   m.failed && "text-rose-600"
                 )}
               >
-                * {nudgeSystemLine(m.mine ? roomName : m.sender.name, m.mine)}
+                * {checkin
+                  ? checkinSystemLine(m.mine ? roomName : m.sender.name, m.mine)
+                  : nudgeSystemLine(m.mine ? roomName : m.sender.name, m.mine)}
                 <span className="ml-2 not-italic text-[10px] text-[#94a3b8]">
                   {m.pending ? "Sending…" : m.failed ? "Failed" : timeAgo(m.createdAt)}
                 </span>

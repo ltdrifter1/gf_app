@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
 import { JOURNEY_STAGES } from "@/lib/constants";
+import { isPresenceSlug, type PresenceSlug } from "@/lib/presence";
 
 export async function updateProfile(formData: FormData) {
   const user = await requireUser();
@@ -15,6 +16,8 @@ export async function updateProfile(formData: FormData) {
   const journeyStage = JOURNEY_STAGES.some((s) => s.slug === journeyRaw)
     ? journeyRaw
     : "newly-diagnosed";
+  const insightsOptIn =
+    formData.get("insightsOptIn") === "on" || formData.get("insightsOptIn") === "true";
   const avatarUrl = String(formData.get("avatarUrl") || "").trim() || null;
   const mood = String(formData.get("mood") || "").trim().slice(0, 80);
   const likeToMeet = String(formData.get("likeToMeet") || "").trim().slice(0, 500);
@@ -37,6 +40,7 @@ export async function updateProfile(formData: FormData) {
             mood: mood || null,
             likeToMeet: likeToMeet || null,
             interests: interests || null,
+            insightsOptIn,
           },
           update: {
             diagnosis,
@@ -44,6 +48,7 @@ export async function updateProfile(formData: FormData) {
             mood: mood || null,
             likeToMeet: likeToMeet || null,
             interests: interests || null,
+            insightsOptIn,
           },
         },
       },
@@ -58,11 +63,12 @@ export async function updateProfile(formData: FormData) {
   return { ok: true };
 }
 
-export async function setPresence(presence: "online" | "away" | "offline") {
+export async function setPresence(presence: PresenceSlug | "online" | "away" | "offline") {
   const user = await requireUser();
+  const next: PresenceSlug = isPresenceSlug(presence) ? presence : "online";
   await prisma.user.update({
     where: { id: user.id },
-    data: { presence, lastSeen: new Date() },
+    data: { presence: next, lastSeen: new Date() },
   });
   revalidatePath("/app/profile");
   revalidatePath("/app/chat");

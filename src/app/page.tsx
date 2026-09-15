@@ -1,11 +1,12 @@
 import Link from "next/link";
-import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { HeroMessenger } from "@/components/hero-messenger";
+import { Logo } from "@/components/logo";
 import { getCurrentUser } from "@/lib/auth";
 import { ensureLaunchCatalog } from "@/lib/bootstrap";
 import { prisma } from "@/lib/prisma";
+import { BRAND } from "@/lib/brand";
 
 const FALLBACK_MESSAGES = [
   {
@@ -32,7 +33,7 @@ export default async function LandingPage() {
   const hourAgo = new Date(Date.now() - 3600_000);
   const [onlineCount, recentMessages, hourMessages] = await Promise.all([
     prisma.user.count({
-      where: { presence: "online", lastSeen: { gte: since } },
+      where: { presence: { not: "offline" }, lastSeen: { gte: since } },
     }),
     prisma.message.findMany({
       where: { room: { slug: "general-support" } },
@@ -100,19 +101,15 @@ export default async function LandingPage() {
           </p>
 
           <h1 className="mt-7 animate-fade-in [animation-delay:80ms]">
-            <span className="sr-only">Safely</span>
-            <Image
-              src="/logo.webp"
-              alt="Safely Celiac Community"
-              width={168}
-              height={168}
-              priority
-              className="rounded-[28%] shadow-[0_24px_80px_-20px_rgba(13,148,136,0.55)]"
-            />
+            <span className="sr-only">{BRAND.name}</span>
+            <Logo size={88} />
+            <span className="mt-4 block font-display text-4xl font-bold tracking-tight text-sage-900 dark:text-white sm:text-5xl">
+              {BRAND.name}
+            </span>
           </h1>
 
           <p className="mt-6 max-w-sm text-lg leading-relaxed text-sage-600 animate-fade-in dark:text-sage-300 sm:text-xl [animation-delay:140ms]">
-            Find your people.
+            {BRAND.landingLine}
           </p>
 
           <div className="mt-9 animate-fade-in [animation-delay:200ms]">
@@ -124,7 +121,7 @@ export default async function LandingPage() {
         </div>
 
         <div className="relative flex min-w-0 items-start justify-center px-4 pb-20 pt-4 sm:px-8 sm:pb-24 xl:items-center xl:justify-end xl:px-6 xl:pb-12 xl:pt-24">
-          <div className="pointer-events-none absolute inset-y-10 inset-x-3 hidden rounded-[1.75rem] bg-safely-gradient opacity-90 xl:block" />
+          <div className="pointer-events-none absolute inset-y-10 inset-x-3 hidden rounded-[1.75rem] bg-lumen-gradient opacity-90 xl:block" />
           <div className="pointer-events-none absolute inset-y-6 inset-x-8 hidden rounded-[2rem] bg-gradient-to-br from-brand-700/40 via-transparent to-accent-400/30 xl:block" />
           <div className="pointer-events-none absolute left-4 top-1/4 hidden h-56 w-56 rounded-full bg-white/25 blur-3xl xl:block" />
 
@@ -138,7 +135,7 @@ export default async function LandingPage() {
       </main>
 
       <footer className="absolute inset-x-0 bottom-0 z-10 py-5 text-center text-xs text-sage-500/80 dark:text-white/35">
-        © {new Date().getFullYear()} Safely
+        © {new Date().getFullYear()} {BRAND.name}
       </footer>
     </div>
   );

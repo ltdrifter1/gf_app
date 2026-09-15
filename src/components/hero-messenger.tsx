@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { MsnPresenceIcon } from "@/components/msn-presence-icon";
 import { cn } from "@/lib/utils";
+import { BRAND } from "@/lib/brand";
 
 type Msg = { name: string; text: string };
 
@@ -62,7 +63,7 @@ export function HeroMessenger({
         <div className="msn-titlebar">
           <MsnPresenceIcon status="online" size={14} />
           <span className="min-w-0 flex-1 truncate text-[12px] font-semibold tracking-wide">
-            Safely Messenger
+            {BRAND.name} Messenger
           </span>
           <span className="hidden text-[10px] font-medium text-white/75 sm:inline">
             General Support
@@ -95,7 +96,7 @@ export function HeroMessenger({
         <div className="msn-hero-peer">
           <div className="msn-hero-avatar">
             <Image
-              src="/logo.webp"
+              src="/lumen-mark.webp"
               alt=""
               width={44}
               height={44}

@@ -60,7 +60,7 @@ function Group({
           </p>
         ) : (
           contacts.map((c) => {
-            const status = (c.presence || "offline") as "online" | "away" | "offline";
+            const status = c.presence || "offline";
             const active = Boolean(c.dmSlug && activeSlug === c.dmSlug);
             const unread = c.unreadCount ?? 0;
             const preview =
@@ -125,23 +125,27 @@ export function BuddyList({
   const [pending, start] = useTransition();
   const q = query.trim().toLowerCase();
 
-  const { favorites, recent, onlineRest, offlineRest } = useMemo(() => {
+  const { needCheckIn, favorites, recent, onlineRest, offlineRest } = useMemo(() => {
     const all = [...online, ...offline].filter((c) => matchesQuery(c, q));
+    const needCheckIn = all
+      .filter((c) => c.presence === "need-check-in")
+      .sort((a, b) => a.name.localeCompare(b.name));
+    const checkIds = new Set(needCheckIn.map((c) => c.id));
     const favorites = all
-      .filter((c) => c.isFavorite)
+      .filter((c) => c.isFavorite && !checkIds.has(c.id))
       .sort((a, b) => a.name.localeCompare(b.name));
     const favoriteIds = new Set(favorites.map((c) => c.id));
     const recent = all
-      .filter((c) => c.lastMessage && !favoriteIds.has(c.id))
+      .filter((c) => c.lastMessage && !favoriteIds.has(c.id) && !checkIds.has(c.id))
       .sort((a, b) => (b.lastMessage?.at ?? "").localeCompare(a.lastMessage?.at ?? ""))
       .slice(0, 12);
     const recentIds = new Set(recent.map((c) => c.id));
-    const claimed = new Set([...favoriteIds, ...recentIds]);
+    const claimed = new Set([...checkIds, ...favoriteIds, ...recentIds]);
     const onlineRest = all.filter(
-      (c) => !claimed.has(c.id) && (c.presence === "online" || c.presence === "away")
+      (c) => !claimed.has(c.id) && c.presence !== "offline"
     );
     const offlineRest = all.filter((c) => !claimed.has(c.id) && c.presence === "offline");
-    return { favorites, recent, onlineRest, offlineRest };
+    return { needCheckIn, favorites, recent, onlineRest, offlineRest };
   }, [online, offline, q]);
 
   function message(c: MsnContact) {
@@ -161,6 +165,13 @@ export function BuddyList({
 
   return (
     <div className={cn("select-none", className)}>
+      <Group
+        title="Need a check-in"
+        contacts={needCheckIn}
+        defaultOpen
+        activeSlug={activeSlug}
+        onMessage={message}
+      />
       <Group
         title="Favorites"
         contacts={favorites}

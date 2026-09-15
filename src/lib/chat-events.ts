@@ -43,11 +43,11 @@ export type ChatStreamEvent =
 type Listener = (event: ChatStreamEvent) => void;
 
 const globalForChat = globalThis as unknown as {
-  __safelyChatHub?: Map<string, Set<Listener>>;
+  __lumenChatHub?: Map<string, Set<Listener>>;
 };
 
-const rooms = globalForChat.__safelyChatHub ?? new Map<string, Set<Listener>>();
-globalForChat.__safelyChatHub = rooms;
+const rooms = globalForChat.__lumenChatHub ?? new Map<string, Set<Listener>>();
+globalForChat.__lumenChatHub = rooms;
 
 export function subscribeChat(roomId: string, listener: Listener) {
   let set = rooms.get(roomId);

@@ -38,7 +38,7 @@ export async function completeOnboarding(formData: FormData) {
     data: {
       location,
       onboardingComplete: true,
-      bio: user.bio === "New to Safely" || user.bio === "New here — still unpacking the snack aisle."
+      bio: user.bio === "New to Safely" || user.bio === "New to Lumen" || user.bio === "New here — still unpacking the snack aisle."
         ? "Just joined — say hi in Messenger"
         : user.bio,
       profile: {

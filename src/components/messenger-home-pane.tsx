@@ -3,6 +3,7 @@ import Image from "next/image";
 import { MsnPresenceIcon } from "@/components/msn-presence-icon";
 import { presenceLabel } from "@/lib/presence";
 import type { MsnContact } from "@/components/buddy-list";
+import { FindBuddyButton } from "@/components/find-buddy-button";
 
 type Me = {
   name: string;
@@ -15,15 +16,15 @@ export function MessengerHomePane({
   onlineCount,
   online,
   embedded = false,
+  cityTonightSlug,
 }: {
   me: Me;
   onlineCount: number;
   online: MsnContact[];
   embedded?: boolean;
+  cityTonightSlug?: string | null;
 }) {
   const liveBuddies = online.slice(0, 8);
-  const status =
-    me.presence === "away" || me.presence === "offline" ? me.presence : "online";
 
   return (
     <div
@@ -36,7 +37,7 @@ export function MessengerHomePane({
       <div className="msn-hero-peer shrink-0">
         <div className="msn-hero-avatar">
           <Image
-            src="/logo.webp"
+            src="/lumen-mark.webp"
             alt=""
             width={44}
             height={44}
@@ -48,8 +49,8 @@ export function MessengerHomePane({
             {me.name}
           </p>
           <p className="mt-0.5 flex items-center gap-1.5 text-[11px] text-[#4a5568] dark:text-sage-400">
-            <MsnPresenceIcon status={status} size={11} />
-            {presenceLabel(status as "online" | "away" | "offline")}
+            <MsnPresenceIcon status={me.presence} size={11} />
+            {presenceLabel(me.presence)}
             {me.statusMessage ? ` — ${me.statusMessage}` : ""}
           </p>
         </div>
@@ -60,6 +61,19 @@ export function MessengerHomePane({
           {onlineCount} people online. Open a contact or room from the list to start chatting —
           Instant Message style.
         </p>
+
+        <div className="mt-3 space-y-2">
+          <FindBuddyButton />
+          {cityTonightSlug ? (
+            <Link href={`/app/chat/${cityTonightSlug}`} className="btn-secondary w-full justify-center text-sm">
+              Dining tonight near you
+            </Link>
+          ) : (
+            <p className="text-[11px] text-[#64748b]">
+              Add your city on Profile to unlock a dining-tonight room.
+            </p>
+          )}
+        </div>
 
         <div className="mt-4">
           <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-[#64748b]">

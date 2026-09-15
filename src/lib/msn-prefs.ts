@@ -5,14 +5,17 @@ export type MsnPrefs = {
   notifications: boolean;
 };
 
-const KEY = "safely-msn-prefs";
+const KEY = "lumen-msn-prefs";
+const LEGACY_KEY = "safely-msn-prefs";
+const PREFS_EVENT = "lumen-msn-prefs";
+const TOAST_EVENT = "lumen-toast";
 
 const DEFAULTS: MsnPrefs = { sounds: true, notifications: false };
 
 export function getMsnPrefs(): MsnPrefs {
   if (typeof window === "undefined") return DEFAULTS;
   try {
-    const raw = window.localStorage.getItem(KEY);
+    const raw = window.localStorage.getItem(KEY) ?? window.localStorage.getItem(LEGACY_KEY);
     if (!raw) return { ...DEFAULTS };
     const parsed = JSON.parse(raw) as Partial<MsnPrefs>;
     return {
@@ -28,7 +31,8 @@ export function setMsnPrefs(next: Partial<MsnPrefs>): MsnPrefs {
   const merged = { ...getMsnPrefs(), ...next };
   if (typeof window !== "undefined") {
     window.localStorage.setItem(KEY, JSON.stringify(merged));
-    window.dispatchEvent(new CustomEvent("safely-msn-prefs", { detail: merged }));
+    window.localStorage.removeItem(LEGACY_KEY);
+    window.dispatchEvent(new CustomEvent(PREFS_EVENT, { detail: merged }));
   }
   return merged;
 }
@@ -49,13 +53,28 @@ export async function ensureNotificationPermission(): Promise<boolean> {
   return result === "granted";
 }
 
-export function notifyMsnMessage(title: string, body: string) {
+export function notifyMsnMessage(
+  title: string,
+  body: string,
+  opts?: { evenIfVisible?: boolean; tag?: string }
+) {
   if (typeof window === "undefined" || !("Notification" in window)) return;
   if (!msnNotificationsEnabled() || Notification.permission !== "granted") return;
-  if (document.visibilityState === "visible") return;
+  if (!opts?.evenIfVisible && document.visibilityState === "visible") return;
   try {
-    new Notification(title, { body, icon: "/logo.webp" });
+    new Notification(title, { body, icon: "/logo.png", tag: opts?.tag });
   } catch {
     /* ignore */
   }
 }
+
+/** In-app + browser ping for buddy / DM nudges while the tab is open. */
+export function notifyBuddyNudge(title: string, body: string) {
+  notifyMsnMessage(title, body, { evenIfVisible: true, tag: "lumen-buddy" });
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent(TOAST_EVENT, { detail: { title, body } }));
+  }
+}
+
+export const MSN_PREFS_EVENT = PREFS_EVENT;
+export const LUMEN_TOAST_EVENT = TOAST_EVENT;
