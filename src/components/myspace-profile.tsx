@@ -4,6 +4,7 @@ import { MapPin, Calendar } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { FollowButton } from "@/components/follow-button";
 import { MessageButton } from "@/components/message-button";
+import { BlockMuteButtons } from "@/components/block-mute-buttons";
 import { PostCard, type PostCardData } from "@/components/post-card";
 import { MoodTracker } from "@/components/wellness-widgets";
 import { effectivePresence } from "@/lib/presence";
@@ -52,6 +53,8 @@ export type MyspaceProfileData = {
   isOwn: boolean;
   viewerId?: string;
   isFollowing?: boolean;
+  blockedByMe?: boolean;
+  mutedByMe?: boolean;
   topFriends: TopFriend[];
   posts: PostCardData[];
   recipes?: ProfileRecipe[];
@@ -163,11 +166,18 @@ export function MyspaceProfile({ data }: { data: MyspaceProfileData }) {
             {data.isOwn ? (
               <div className="space-y-2">{data.editSlot}</div>
             ) : (
-              <div className="flex flex-wrap gap-2">
-                <MessageButton targetUserId={data.id} />
-                <FollowButton
+              <div className="flex flex-col gap-2">
+                <div className="flex flex-wrap gap-2">
+                  <MessageButton targetUserId={data.id} />
+                  <FollowButton
+                    targetUserId={data.id}
+                    initiallyFollowing={!!data.isFollowing}
+                  />
+                </div>
+                <BlockMuteButtons
                   targetUserId={data.id}
-                  initiallyFollowing={!!data.isFollowing}
+                  initiallyBlocked={data.blockedByMe}
+                  initiallyMuted={data.mutedByMe}
                 />
               </div>
             )}

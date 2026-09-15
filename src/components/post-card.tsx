@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { useState, useTransition } from "react";
-import { Heart, MessageCircle, Bookmark, Share2, Check } from "lucide-react";
+import { Heart, MessageCircle, Bookmark, Share2, Check, Flag } from "lucide-react";
 import { Avatar } from "./ui/avatar";
 import { categoryBySlug } from "@/lib/constants";
 import { timeAgo, cn } from "@/lib/utils";
 import { toggleLike, toggleSave } from "@/lib/actions/posts";
+import { flagContent } from "@/lib/actions/moderation";
 
 export type PostCardData = {
   id: string;
@@ -28,6 +29,7 @@ export function PostCard({ post }: { post: PostCardData }) {
   const [saved, setSaved] = useState(post.savedByMe);
   const [likeCount, setLikeCount] = useState(post.likeCount);
   const [copied, setCopied] = useState(false);
+  const [flagged, setFlagged] = useState(false);
   const [, startTransition] = useTransition();
 
   function onLike() {
@@ -133,6 +135,25 @@ export function PostCard({ post }: { post: PostCardData }) {
           ) : (
             <Share2 className="h-[18px] w-[18px]" />
           )}
+        </button>
+        <button
+          type="button"
+          className="btn-ghost gap-1.5 text-sm"
+          disabled={flagged}
+          title="Flag post"
+          onClick={() =>
+            startTransition(async () => {
+              const res = await flagContent({
+                type: "post",
+                refId: post.id,
+                reason: "Community post report",
+              });
+              if (!res?.error) setFlagged(true);
+            })
+          }
+        >
+          <Flag className="h-[18px] w-[18px]" />
+          <span className="hidden sm:inline">{flagged ? "Flagged" : "Flag"}</span>
         </button>
       </div>
     </article>

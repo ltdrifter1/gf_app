@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
+import { isAllowedImageUrl } from "@/lib/uploads";
 
 function money(n: unknown) {
   const v = typeof n === "number" ? n : Number(n);
@@ -20,7 +21,7 @@ export async function addGfCostEntry(formData: FormData) {
   const parsedDate = dateRaw ? new Date(dateRaw) : new Date();
   const purchasedAt = Number.isNaN(parsedDate.getTime()) ? new Date() : parsedDate;
   const photoRaw = String(formData.get("photoUrl") || "").trim();
-  const photoUrl = /^https?:\/\/.+/i.test(photoRaw) ? photoRaw : "";
+  const photoUrl = photoRaw && isAllowedImageUrl(photoRaw) ? photoRaw : "";
 
   if (!productName) return { error: "Add a product name" };
   if (gfPrice == null) return { error: "Add the gluten-free price" };

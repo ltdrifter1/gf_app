@@ -54,7 +54,8 @@ model User {
   healthLogs     HealthLog[]
   notifications  Notification[]
 
-  flagsRaised FlaggedContent[] @relation("reporter")
+  flagsRaised   FlaggedContent[] @relation("reporter")
+  flagsResolved FlaggedContent[] @relation("resolver")
 
   buddyMatchesAsA BuddyMatch[] @relation("buddyA")
   buddyMatchesAsB BuddyMatch[] @relation("buddyB")
@@ -63,6 +64,12 @@ model User {
   labelScans         LabelScan[]
   insightDismissals  InsightDismissal[]
   pushSubscriptions  PushSubscription[]
+  passwordResets     PasswordReset[]
+  scanMisses         ScanMissReport[]
+  blocking           UserBlock[] @relation("blocker")
+  blockedBy          UserBlock[] @relation("blocked")
+  muting             UserMute[]  @relation("muter")
+  mutedBy            UserMute[]  @relation("muted")
 }
 
 model Profile {
@@ -84,6 +91,16 @@ model Profile {
   insightsOptIn Boolean @default(false)
   /// Optional buddy to nudge after a glutening (user id) — never public
   panicBuddyId  String?
+  /// Keep scan history past 90 days
+  keepScanHistory Boolean @default(false)
+  notifyDms       Boolean @default(true)
+  notifyBuddy     Boolean @default(true)
+  notifyCheckin   Boolean @default(true)
+  notifyDining    Boolean @default(true)
+  /// Quiet hours in local 0–23; null = off
+  quietHoursStart Int?
+  quietHoursEnd   Int?
+  lastCheckinNudgeAt DateTime?
 }
 
 model Follow {
@@ -105,6 +122,7 @@ model Post {
   title     String
   content   String
   imageUrl  String?
+  hidden    Boolean  @default(false)
   createdAt DateTime @default(now())
 
   comments Comment[]
@@ -153,6 +171,8 @@ model ChatRoom {
   kind        String    @default("community")
   city        String?
   expiresAt   DateTime?
+  /// DMs: null = message request awaiting accept; set = open thread. Default now() backfills existing DMs.
+  dmAcceptedAt DateTime? @default(now())
   createdAt   DateTime  @default(now())
 
   members  ChatRoomMember[]
@@ -180,6 +200,7 @@ model Message {
   roomId    String
   senderId  String
   content   String
+  hidden    Boolean  @default(false)
   room      ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
   sender    User     @relation(fields: [senderId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
@@ -219,8 +240,8 @@ model Restaurant {
   staffTrainingLevel     String    @default("basic")
   crossContaminationRisk Int       @default(50)
   communityConfidence    Int       @default(50)
-  /// published | pending
-  status                 String    @default("published")
+  /// published | pending | hidden | disputed
+  status                 String    @default("pending")
   lastReviewAt           DateTime?
   submittedById          String?
   submittedBy            User?     @relation("restaurantSubmitter", fields: [submittedById], references: [id], onDelete: SetNull)
@@ -341,14 +362,19 @@ model HealthLog {
 }
 
 model FlaggedContent {
-  id         String   @id @default(cuid())
-  type       String
-  refId      String
-  reason     String
-  status     String   @default("open")
-  reporterId String
-  reporter   User     @relation("reporter", fields: [reporterId], references: [id], onDelete: Cascade)
-  createdAt  DateTime @default(now())
+  id           String    @id @default(cuid())
+  type         String
+  refId        String
+  reason       String
+  status       String    @default("open") // open | resolved | dismissed
+  /// hide | unpublish | disputed | dismiss
+  action       String?
+  reporterId   String
+  reporter     User      @relation("reporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  resolvedById String?
+  resolvedBy   User?     @relation("resolver", fields: [resolvedById], references: [id], onDelete: SetNull)
+  createdAt    DateTime  @default(now())
+  resolvedAt   DateTime?
 }
 
 /// In-app notifications (DMs, companion nudges, system)
@@ -405,12 +431,14 @@ model LabelScan {
   id        String   @id @default(cuid())
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  /// image | paste
+  /// image | paste | barcode
   source    String
   rawText   String
-  /// safe | caution | unsafe
+  barcode   String?
+  /// safe | caution | unsafe | unknown
   verdict   String
   reasons   Json
+  keep      Boolean  @default(false)
   createdAt DateTime @default(now())
 
   @@index([userId, createdAt])
@@ -448,4 +476,52 @@ model ChatBusEvent {
   createdAt DateTime @default(now())
 
   @@index([roomId, createdAt])
+}
+
+model UserBlock {
+  id        String   @id @default(cuid())
+  blockerId String
+  blockedId String
+  blocker   User     @relation("blocker", fields: [blockerId], references: [id], onDelete: Cascade)
+  blocked   User     @relation("blocked", fields: [blockedId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([blockerId, blockedId])
+  @@index([blockedId])
+}
+
+model UserMute {
+  id        String   @id @default(cuid())
+  muterId   String
+  mutedId   String
+  muter     User     @relation("muter", fields: [muterId], references: [id], onDelete: Cascade)
+  muted     User     @relation("muted", fields: [mutedId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([muterId, mutedId])
+}
+
+model PasswordReset {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+model ScanMissReport {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scanId    String?
+  barcode   String?
+  rawText   String
+  note      String?
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
 }

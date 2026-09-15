@@ -4,6 +4,7 @@ import { useRef, useState, useTransition } from "react";
 import { MapPin, Plus } from "lucide-react";
 import { submitRestaurant } from "@/lib/actions/restaurants";
 import { cn } from "@/lib/utils";
+import { ImageUpload } from "@/components/image-upload";
 
 const FLAGS = [
   { name: "dedicatedKitchen", label: "Dedicated kitchen" },
@@ -69,7 +70,7 @@ export function AddRestaurantForm({ defaultCity }: { defaultCity?: string | null
           <h2 className="font-display text-lg font-semibold text-sage-900 dark:text-white">
             Add a restaurant
           </h2>
-          <p className="text-sm text-sage-500">Contribute to the celiac safety graph.</p>
+          <p className="text-sm text-sage-500">Claims stay capped until visits are logged. An admin publishes the listing.</p>
         </div>
         <button type="button" className="btn-ghost text-sm" onClick={() => setOpen(false)}>
           Cancel
@@ -141,11 +142,11 @@ export function AddRestaurantForm({ defaultCity }: { defaultCity?: string | null
         ))}
       </div>
 
-      <input name="imageUrl" type="url" className="input" placeholder="Photo URL (optional)" />
+      <ImageUpload name="imageUrl" folder="dining" label="Photo (optional)" />
 
       {error && <p className="text-sm text-rose-600">{error}</p>}
       <button type="submit" disabled={pending} className="btn-primary">
-        {pending ? "Publishing…" : "Publish spot"}
+        {pending ? "Submitting…" : "Submit for review"}
       </button>
     </form>
   );

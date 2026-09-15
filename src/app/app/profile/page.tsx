@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
 import { MyspaceProfile } from "@/components/myspace-profile";
 import { ProfileEditForm } from "@/components/profile-edit-form";
+import { AccountSettings } from "@/components/account-settings";
 import { getTopFriends } from "@/lib/actions/profile";
 import type { PostCardData } from "@/components/post-card";
 
@@ -10,7 +11,7 @@ export default async function ProfilePage() {
   const [posts, followers, following, fullUser, topFriends, recipes, diningReviews] =
     await Promise.all([
       prisma.post.findMany({
-        where: { authorId: user.id },
+        where: { authorId: user.id, hidden: false },
         orderBy: { createdAt: "desc" },
         include: {
           author: true,
@@ -59,6 +60,7 @@ export default async function ProfilePage() {
   }));
 
   return (
+    <div className="space-y-6">
     <MyspaceProfile
       data={{
         id: user.id,
@@ -108,5 +110,18 @@ export default async function ProfilePage() {
         ),
       }}
     />
+    <AccountSettings
+      username={user.username}
+      prefs={{
+        notifyDms: fullUser?.profile?.notifyDms ?? true,
+        notifyBuddy: fullUser?.profile?.notifyBuddy ?? true,
+        notifyCheckin: fullUser?.profile?.notifyCheckin ?? true,
+        notifyDining: fullUser?.profile?.notifyDining ?? true,
+        quietHoursStart: fullUser?.profile?.quietHoursStart ?? null,
+        quietHoursEnd: fullUser?.profile?.quietHoursEnd ?? null,
+        keepScanHistory: fullUser?.profile?.keepScanHistory ?? false,
+      }}
+    />
+    </div>
   );
 }

@@ -3,7 +3,13 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
-import { computeRestaurantConfidence } from "@/lib/dining-confidence";
+import {
+  computeRestaurantConfidence,
+  hasRecentCrossContactIncident,
+  listingStatusAfterReviews,
+} from "@/lib/dining-confidence";
+import { isAllowedImageUrl } from "@/lib/uploads";
+import { notifyUser } from "@/lib/notify";
 
 function boolField(formData: FormData, key: string): boolean | null {
   const v = formData.get(key);
@@ -26,8 +32,8 @@ export async function addRestaurantReview(restaurantId: string, formData: FormDa
   }
 
   const evidenceUrl = String(formData.get("evidenceUrl") || "").trim() || null;
-  if (evidenceUrl && !/^https?:\/\//i.test(evidenceUrl)) {
-    return { error: "Evidence photo must be an http(s) URL" };
+  if (evidenceUrl && !isAllowedImageUrl(evidenceUrl)) {
+    return { error: "Evidence photo must be an uploaded image or https URL we allow" };
   }
 
   const crossContactIncident =
@@ -60,6 +66,12 @@ export async function addRestaurantReview(restaurantId: string, formData: FormDa
 }
 
 export async function refreshRestaurantConfidence(restaurantId: string) {
+  const restaurant = await prisma.restaurant.findUnique({
+    where: { id: restaurantId },
+    select: { status: true, city: true, name: true },
+  });
+  if (!restaurant) return;
+
   const reviews = await prisma.restaurantReview.findMany({
     where: { restaurantId },
     select: {
@@ -75,6 +87,8 @@ export async function refreshRestaurantConfidence(restaurantId: string) {
   });
 
   const { confidence, risk, lastReviewAt } = computeRestaurantConfidence(reviews);
+  const nextStatus = listingStatusAfterReviews(restaurant.status, reviews);
+  const incident = hasRecentCrossContactIncident(reviews);
 
   // Soft-sync feature flags from recent positive observations
   const recent = reviews
@@ -94,6 +108,7 @@ export async function refreshRestaurantConfidence(restaurantId: string) {
       communityConfidence: confidence,
       crossContaminationRisk: risk,
       lastReviewAt,
+      status: nextStatus,
       ...(majority("observedDedicatedKitchen") !== undefined
         ? { dedicatedKitchen: majority("observedDedicatedKitchen")! }
         : {}),
@@ -106,9 +121,28 @@ export async function refreshRestaurantConfidence(restaurantId: string) {
       ...(majority("observedLabeledMenu") !== undefined
         ? { glutenFreeMenu: majority("observedLabeledMenu")! }
         : {}),
-      celiacSafe: confidence >= 70,
+      celiacSafe: !incident && confidence >= 70,
     },
   });
+
+  if (incident && restaurant.status !== "disputed" && restaurant.status !== "hidden") {
+    const nearby = await prisma.user.findMany({
+      where: { location: { contains: restaurant.city, mode: "insensitive" } },
+      select: { id: true },
+      take: 40,
+    });
+    await Promise.all(
+      nearby.map((u) =>
+        notifyUser({
+          userId: u.id,
+          type: "dining",
+          title: `Cross-contact report: ${restaurant.name}`,
+          body: `A visit in ${restaurant.city} reported a glutening / cross-contact incident. Treat this listing as disputed until more visits land.`,
+          href: `/app/restaurants/${restaurantId}`,
+        }).catch(() => {})
+      )
+    );
+  }
 }
 
 export async function rateRecipe(recipeId: string, formData: FormData) {

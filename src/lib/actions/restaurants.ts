@@ -6,6 +6,8 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
 import { createNotification } from "@/lib/actions/notifications";
+import { CLAIM_CONFIDENCE_CAP } from "@/lib/dining-confidence";
+import { isAllowedImageUrl } from "@/lib/uploads";
 
 const submitSchema = z.object({
   name: z.string().min(2, "Restaurant name is required").max(120),
@@ -23,7 +25,11 @@ const submitSchema = z.object({
   certified: z.boolean().default(false),
   celiacSafe: z.boolean().default(false),
   delivery: z.boolean().default(false),
-  imageUrl: z.string().url().optional().or(z.literal("")),
+  imageUrl: z
+    .string()
+    .optional()
+    .or(z.literal(""))
+    .refine((v) => !v || isAllowedImageUrl(v), "Photo must be an uploaded image or allowed URL"),
 });
 
 function flag(formData: FormData, key: string) {
@@ -65,15 +71,17 @@ export async function submitRestaurant(formData: FormData) {
     return { error: "Drop a pin or enter valid coordinates" };
   }
 
-  // Seed confidence from submitter claims (reviews will refine)
-  let confidence = 45;
-  if (data.dedicatedKitchen) confidence += 18;
-  if (data.dedicatedFryer) confidence += 10;
-  if (data.separatePrepArea) confidence += 8;
-  if (data.certified) confidence += 12;
-  if (data.glutenFreeMenu) confidence += 6;
-  if (data.celiacSafe) confidence += 8;
-  confidence = Math.min(88, confidence);
+  // Claim-only scores stay capped until a visit review lands.
+  let confidence = 40;
+  if (data.dedicatedKitchen) confidence += 4;
+  if (data.dedicatedFryer) confidence += 3;
+  if (data.separatePrepArea) confidence += 2;
+  if (data.certified) confidence += 4;
+  if (data.glutenFreeMenu) confidence += 2;
+  if (data.celiacSafe) confidence += 2;
+  confidence = Math.min(CLAIM_CONFIDENCE_CAP, confidence);
+
+  const imageUrl = data.imageUrl && isAllowedImageUrl(data.imageUrl) ? data.imageUrl : null;
 
   const restaurant = await prisma.restaurant.create({
     data: {
@@ -90,13 +98,13 @@ export async function submitRestaurant(formData: FormData) {
       separatePrepArea: data.separatePrepArea,
       glutenFreeMenu: data.glutenFreeMenu,
       certified: data.certified,
-      celiacSafe: data.celiacSafe || confidence >= 70,
+      celiacSafe: false,
       delivery: data.delivery,
-      imageUrl: data.imageUrl || null,
+      imageUrl,
       communityConfidence: confidence,
       crossContaminationRisk: 100 - confidence,
       staffTrainingLevel: data.dedicatedKitchen ? "trained" : "basic",
-      status: "published",
+      status: "pending",
       submittedById: user.id,
     },
   });
@@ -105,7 +113,7 @@ export async function submitRestaurant(formData: FormData) {
     userId: user.id,
     type: "dining",
     title: "Spot submitted",
-    body: `${restaurant.name} is live — add a structured review when you visit.`,
+    body: `${restaurant.name} is pending review. Claims don't raise confidence past ${CLAIM_CONFIDENCE_CAP}% until visits are logged.`,
     href: `/app/restaurants/${restaurant.id}`,
   }).catch(() => {});
 

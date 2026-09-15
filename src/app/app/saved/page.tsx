@@ -19,7 +19,9 @@ export default async function SavedPage() {
     },
   });
 
-  const data: PostCardData[] = saved.map(({ post: p }) => ({
+  const data: PostCardData[] = saved
+    .filter(({ post: p }) => !p.hidden)
+    .map(({ post: p }) => ({
     id: p.id,
     title: p.title,
     content: p.content,

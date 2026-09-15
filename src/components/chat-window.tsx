@@ -11,6 +11,8 @@ import { isNudgeMessage, isCheckinMessage, nudgeSystemLine, checkinSystemLine } 
 import { playMessageSound, playNudgeSound } from "@/lib/msn-sounds";
 import { notifyBuddyNudge, notifyMsnMessage } from "@/lib/msn-prefs";
 import { flagContent } from "@/lib/actions/moderation";
+import { acceptDmRequest, declineDmRequest } from "@/lib/actions/blocks";
+import { BlockMuteButtons } from "@/components/block-mute-buttons";
 
 type Msg = {
   id: string;
@@ -34,6 +36,8 @@ export function ChatWindow({
   peerStatusMessage,
   embedded = false,
   canFlag = false,
+  dmPending = false,
+  peerUserId = null,
 }: {
   roomId: string;
   roomName: string;
@@ -45,6 +49,9 @@ export function ChatWindow({
   peerStatusMessage?: string | null;
   embedded?: boolean;
   canFlag?: boolean;
+  dmPending?: boolean;
+  dmIncoming?: boolean;
+  peerUserId?: string | null;
 }) {
   const [messages, setMessages] = useState<Msg[]>([]);
   const [typing, setTyping] = useState<string[]>([]);
@@ -485,7 +492,32 @@ export function ChatWindow({
             {flagged ? "Flagged" : "Flag room"}
           </button>
         ) : null}
+        {isDm && peerUserId ? <BlockMuteButtons targetUserId={peerUserId} /> : null}
       </div>
+
+      {dmPending && isDm ? (
+        <div className="flex flex-wrap items-center gap-2 border-b border-[#94a3b8]/40 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:border-white/10 dark:bg-amber-500/10 dark:text-amber-100">
+          <span className="flex-1">Message request — accept to open a full thread, or decline to delete it.</span>
+          <button
+            type="button"
+            className="btn-primary text-xs"
+            onClick={() => {
+              void acceptDmRequest(roomId);
+            }}
+          >
+            Accept
+          </button>
+          <button
+            type="button"
+            className="btn-ghost text-xs"
+            onClick={() => {
+              void declineDmRequest(roomId);
+            }}
+          >
+            Decline
+          </button>
+        </div>
+      ) : null}
 
       <div
         ref={scrollRef}

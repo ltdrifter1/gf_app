@@ -9,6 +9,7 @@ import { ContactListPane } from "@/components/contact-list-pane";
 import { ChatWindow } from "@/components/chat-window";
 import { MessengerRoomShell } from "@/components/messenger-shell";
 import { effectivePresence } from "@/lib/presence";
+import { isPendingDm } from "@/lib/dm";
 
 export default async function ChatRoomPage({
   params,
@@ -26,6 +27,7 @@ export default async function ChatRoomPage({
         include: {
           user: {
             select: {
+              id: true,
               name: true,
               username: true,
               avatarUrl: true,
@@ -105,6 +107,9 @@ export default async function ChatRoomPage({
             }
             peerStatusMessage={isDm && peer ? peer.profile?.mood ?? null : null}
             canFlag={!isDm}
+            dmPending={isPendingDm(room)}
+            dmIncoming={isPendingDm(room) && isDm}
+            peerUserId={isDm && peer ? peer.id : null}
           />
         }
       />

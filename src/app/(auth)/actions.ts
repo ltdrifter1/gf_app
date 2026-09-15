@@ -21,7 +21,7 @@ function makeUsername(name: string, email: string) {
 }
 
 export async function registerAction(_prev: unknown, formData: FormData) {
-  const limited = rateLimit(await clientIpKey("register"), 5, 60 * 60 * 1000);
+  const limited = await rateLimit(await clientIpKey("register"), 5, 60 * 60 * 1000);
   if (!limited.ok) {
     return { error: `Too many signups from this network. Try again in ${limited.retryAfterSec}s.` };
   }
@@ -85,7 +85,7 @@ export async function registerAction(_prev: unknown, formData: FormData) {
 }
 
 export async function loginAction(_prev: unknown, formData: FormData) {
-  const limited = rateLimit(await clientIpKey("login"), 10, 15 * 60 * 1000);
+  const limited = await rateLimit(await clientIpKey("login"), 10, 15 * 60 * 1000);
   if (!limited.ok) {
     return { error: `Too many sign-in attempts. Try again in ${limited.retryAfterSec}s.` };
   }

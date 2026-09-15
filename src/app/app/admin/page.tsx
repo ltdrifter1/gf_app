@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
-import { Users, FileText, MessageCircle, UserPlus, ShieldAlert } from "lucide-react";
+import { Users, FileText, MessageCircle, UserPlus, ShieldAlert, Utensils } from "lucide-react";
+import { resolveFlag, setRestaurantStatus } from "@/lib/actions/admin";
 
 export default async function AdminPage() {
   const user = await requireUser();
@@ -10,17 +11,30 @@ export default async function AdminPage() {
   const weekAgo = new Date(Date.now() - 7 * 86400_000);
   const dayAgo = new Date(Date.now() - 86400_000);
 
-  const [dau, posts, messages, newMembers, flagged] = await Promise.all([
-    prisma.user.count({ where: { lastSeen: { gte: dayAgo } } }),
-    prisma.post.count(),
-    prisma.message.count(),
-    prisma.user.count({ where: { createdAt: { gte: weekAgo } } }),
-    prisma.flaggedContent.findMany({
-      where: { status: "open" },
-      include: { reporter: true },
-      take: 10,
-    }),
-  ]);
+  const [dau, posts, messages, newMembers, flagged, pendingRestaurants, missReports] =
+    await Promise.all([
+      prisma.user.count({ where: { lastSeen: { gte: dayAgo } } }),
+      prisma.post.count(),
+      prisma.message.count(),
+      prisma.user.count({ where: { createdAt: { gte: weekAgo } } }),
+      prisma.flaggedContent.findMany({
+        where: { status: "open" },
+        include: { reporter: true },
+        take: 20,
+        orderBy: { createdAt: "desc" },
+      }),
+      prisma.restaurant.findMany({
+        where: { status: { in: ["pending", "disputed", "hidden"] } },
+        orderBy: { createdAt: "desc" },
+        take: 30,
+        select: { id: true, name: true, city: true, status: true, createdAt: true },
+      }),
+      prisma.scanMissReport.findMany({
+        orderBy: { createdAt: "desc" },
+        take: 10,
+        include: { user: { select: { username: true } } },
+      }),
+    ]);
 
   const metrics = [
     { icon: Users, label: "Daily active", value: dau, accent: "from-brand-400 to-brand-600" },
@@ -33,7 +47,9 @@ export default async function AdminPage() {
     <div className="mx-auto max-w-6xl space-y-5">
       <div>
         <h1 className="font-display text-2xl font-bold text-sage-900 dark:text-white">Admin</h1>
-        <p className="text-sage-500 dark:text-sage-400">Community health at a glance.</p>
+        <p className="text-sage-500 dark:text-sage-400">
+          Resolve flags, publish dining listings, and hide harmful content.
+        </p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -68,17 +84,100 @@ export default async function AdminPage() {
             {flagged.map((f) => (
               <li
                 key={f.id}
-                className="flex items-center justify-between rounded-xl bg-white/60 p-3 text-sm dark:bg-white/5"
+                className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-white/60 p-3 text-sm dark:bg-white/5"
               >
                 <span className="text-sage-700 dark:text-sage-200">
-                  {f.type}: {f.reason}
+                  {f.type}: {f.reason}{" "}
+                  <span className="text-xs text-sage-400">· {f.refId.slice(0, 8)}</span>
                 </span>
-                <span className="text-xs text-sage-400">by {f.reporter.name}</span>
+                <div className="flex flex-wrap gap-1">
+                  <form action={resolveFlag}>
+                    <input type="hidden" name="id" value={f.id} />
+                    <input type="hidden" name="action" value="hide" />
+                    <button className="btn-ghost text-xs">Hide</button>
+                  </form>
+                  <form action={resolveFlag}>
+                    <input type="hidden" name="id" value={f.id} />
+                    <input type="hidden" name="action" value="unpublish" />
+                    <button className="btn-ghost text-xs">Unpublish</button>
+                  </form>
+                  <form action={resolveFlag}>
+                    <input type="hidden" name="id" value={f.id} />
+                    <input type="hidden" name="action" value="disputed" />
+                    <button className="btn-ghost text-xs">Dispute listing</button>
+                  </form>
+                  <form action={resolveFlag}>
+                    <input type="hidden" name="id" value={f.id} />
+                    <input type="hidden" name="action" value="dismiss" />
+                    <button className="btn-ghost text-xs">Dismiss</button>
+                  </form>
+                </div>
+                <span className="w-full text-xs text-sage-400">by {f.reporter.name}</span>
               </li>
             ))}
           </ul>
         )}
       </div>
+
+      <div className="card p-5">
+        <h2 className="flex items-center gap-2 font-display font-semibold text-sage-900 dark:text-white">
+          <Utensils className="h-4 w-4 text-brand-600" /> Dining queue
+        </h2>
+        {pendingRestaurants.length === 0 ? (
+          <p className="mt-3 text-sm text-sage-500">No pending, disputed, or hidden listings.</p>
+        ) : (
+          <ul className="mt-3 space-y-2">
+            {pendingRestaurants.map((r) => (
+              <li
+                key={r.id}
+                className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-white/60 p-3 text-sm dark:bg-white/5"
+              >
+                <div>
+                  <p className="font-medium text-sage-900 dark:text-white">
+                    {r.name}{" "}
+                    <span className="text-xs font-normal uppercase text-sage-400">{r.status}</span>
+                  </p>
+                  <p className="text-xs text-sage-500">{r.city}</p>
+                </div>
+                <form action={setRestaurantStatus} className="flex flex-wrap gap-1">
+                  <input type="hidden" name="id" value={r.id} />
+                  <button className="btn-ghost text-xs" name="status" value="published">
+                    Publish
+                  </button>
+                  <button className="btn-ghost text-xs" name="status" value="disputed">
+                    Dispute
+                  </button>
+                  <button className="btn-ghost text-xs" name="status" value="hidden">
+                    Hide
+                  </button>
+                  <button className="btn-ghost text-xs" name="status" value="pending">
+                    Pending
+                  </button>
+                </form>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      {missReports.length > 0 ? (
+        <div className="card p-5">
+          <h2 className="font-display font-semibold text-sage-900 dark:text-white">
+            Scan miss reports
+          </h2>
+          <ul className="mt-3 space-y-2 text-sm">
+            {missReports.map((m) => (
+              <li key={m.id} className="rounded-xl bg-white/60 p-3 dark:bg-white/5">
+                <p className="text-sage-700 dark:text-sage-200">
+                  @{m.user.username}
+                  {m.barcode ? ` · barcode ${m.barcode}` : ""}
+                </p>
+                <p className="text-xs text-sage-500">{m.note || m.rawText.slice(0, 160)}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
     </div>
   );
 }

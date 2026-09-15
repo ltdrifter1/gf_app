@@ -5,6 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
 import { effectivePresence } from "@/lib/presence";
 import { isNudgeMessage, isCheckinMessage } from "@/lib/msn";
+import { isBlockedEitherWay, blockedPairIds } from "@/lib/blocks";
+import { isPendingDm } from "@/lib/dm";
 
 /** Stable DM slug for two users (order-independent). */
 function dmSlug(a: string, b: string) {
@@ -12,12 +14,40 @@ function dmSlug(a: string, b: string) {
 }
 
 /** Create or open a DM without redirecting — used by buddy match and recovery. */
-export async function getOrCreateDmRoom(targetUserId: string) {
+export async function getOrCreateDmRoom(
+  targetUserId: string,
+  opts?: { accept?: boolean }
+) {
   const user = await requireUser();
   if (user.id === targetUserId) return { error: "Can't message yourself" };
+  if (await isBlockedEitherWay(user.id, targetUserId)) {
+    return { error: "You can't message this person" };
+  }
 
   const target = await prisma.user.findUnique({ where: { id: targetUserId } });
   if (!target) return { error: "User not found" };
+
+  const [follow, buddy] = await Promise.all([
+    prisma.follow.findFirst({
+      where: {
+        OR: [
+          { followerId: user.id, followingId: targetUserId },
+          { followerId: targetUserId, followingId: user.id },
+        ],
+      },
+      select: { id: true },
+    }),
+    prisma.buddyMatch.findFirst({
+      where: {
+        OR: [
+          { userAId: user.id, userBId: targetUserId },
+          { userAId: targetUserId, userBId: user.id },
+        ],
+      },
+      select: { id: true },
+    }),
+  ]);
+  const autoAccept = Boolean(opts?.accept || follow || buddy);
 
   const slug = dmSlug(user.id, targetUserId);
   let room = await prisma.chatRoom.findUnique({ where: { slug } });
@@ -30,6 +60,7 @@ export async function getOrCreateDmRoom(targetUserId: string) {
         description: `Chat with ${target.name}`,
         isCommunity: false,
         kind: "dm",
+        dmAcceptedAt: autoAccept ? new Date() : null,
         members: {
           create: [{ userId: user.id }, { userId: targetUserId }],
         },
@@ -41,12 +72,15 @@ export async function getOrCreateDmRoom(targetUserId: string) {
       create: { roomId: room.id, userId: user.id },
       update: {},
     });
-    if (room.kind !== "dm") {
-      await prisma.chatRoom.update({ where: { id: room.id }, data: { kind: "dm" } });
+    const patch: { kind?: string; dmAcceptedAt?: Date } = {};
+    if (room.kind !== "dm") patch.kind = "dm";
+    if (autoAccept && room.dmAcceptedAt == null) patch.dmAcceptedAt = new Date();
+    if (Object.keys(patch).length) {
+      room = await prisma.chatRoom.update({ where: { id: room.id }, data: patch });
     }
   }
 
-  return { id: room.id, slug: room.slug };
+  return { id: room.id, slug: room.slug, pending: isPendingDm(room) };
 }
 
 export async function getOrCreateDm(targetUserId: string) {
@@ -95,6 +129,7 @@ export type ContactListEntry = {
 /** Classic MSN contact list: Online + Offline (DM peers & follows) — one row per person. */
 export async function getContactList(userId: string) {
   const since = new Date(Date.now() - 60_000);
+  const blocked = await blockedPairIds(userId);
 
   const [onlineUsers, follows, dmMemberships] = await Promise.all([
     prisma.user.findMany({
@@ -133,7 +168,7 @@ export async function getContactList(userId: string) {
       take: 60,
     }),
     prisma.chatRoomMember.findMany({
-      where: { userId, room: { isCommunity: false } },
+      where: { userId, room: { isCommunity: false, kind: "dm", dmAcceptedAt: { not: null } } },
       include: {
         room: {
           include: {
@@ -176,11 +211,11 @@ export async function getContactList(userId: string) {
 
   const favoriteIds = new Set(follows.map((f) => f.following.id));
   const byId = new Map<string, Raw>();
-  for (const u of onlineUsers) byId.set(u.id, u);
-  for (const f of follows) byId.set(f.following.id, f.following);
+  for (const u of onlineUsers) if (!blocked.has(u.id)) byId.set(u.id, u);
+  for (const f of follows) if (!blocked.has(f.following.id)) byId.set(f.following.id, f.following);
   for (const m of dmMemberships) {
     const peer = m.room.members[0]?.user;
-    if (peer) byId.set(peer.id, peer);
+    if (peer && !blocked.has(peer.id)) byId.set(peer.id, peer);
   }
 
   type DmMeta = {
@@ -198,6 +233,7 @@ export async function getContactList(userId: string) {
         where: {
           roomId: m.room.id,
           senderId: { not: userId },
+          hidden: false,
           createdAt: { gt: m.lastReadAt },
         },
       });
@@ -272,6 +308,7 @@ export async function getMessengerUnreadTotal(userId: string) {
         where: {
           roomId: m.roomId,
           senderId: { not: userId },
+          hidden: false,
           createdAt: { gt: m.lastReadAt },
         },
       })
@@ -282,7 +319,7 @@ export async function getMessengerUnreadTotal(userId: string) {
 
 export async function getDirectMessageRooms(userId: string) {
   const memberships = await prisma.chatRoomMember.findMany({
-    where: { userId, room: { isCommunity: false } },
+    where: { userId, room: { isCommunity: false, dmAcceptedAt: { not: null } } },
     include: {
       room: {
         include: {
@@ -320,6 +357,7 @@ export async function getDirectMessageRooms(userId: string) {
         where: {
           roomId: m.room.id,
           senderId: { not: userId },
+          hidden: false,
           createdAt: { gt: m.lastReadAt },
         },
       });
@@ -365,4 +403,47 @@ export async function getDirectMessageRooms(userId: string) {
     unreadCount: number;
     lastMessage: { text: string; sender: string; at: string } | null;
   }[];
+}
+
+/** Incoming DMs that the other person started and you haven't accepted. */
+export async function getIncomingDmRequests(userId: string) {
+  const memberships = await prisma.chatRoomMember.findMany({
+    where: { userId, room: { kind: "dm", dmAcceptedAt: null } },
+    include: {
+      room: {
+        include: {
+          members: {
+            where: { userId: { not: userId } },
+            include: {
+              user: {
+                select: { name: true, username: true, avatarUrl: true },
+              },
+            },
+          },
+          messages: {
+            where: { hidden: false },
+            orderBy: { createdAt: "desc" },
+            take: 1,
+          },
+        },
+      },
+    },
+  });
+
+  const rows = [];
+  for (const m of memberships) {
+    const peer = m.room.members[0]?.user;
+    if (!peer) continue;
+    const last = m.room.messages[0];
+    if (last && last.senderId === userId) continue;
+    rows.push({
+      roomId: m.room.id,
+      slug: m.room.slug,
+      name: peer.name,
+      username: peer.username,
+      avatarUrl: peer.avatarUrl,
+      preview: last?.content ?? null,
+    });
+  }
+  return rows;
 }

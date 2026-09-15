@@ -3,13 +3,18 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
+import { isAllowedImageUrl } from "@/lib/uploads";
 
 export async function createPost(formData: FormData) {
   const user = await requireUser();
   const title = String(formData.get("title") || "").trim();
   const content = String(formData.get("content") || "").trim();
   const category = String(formData.get("category") || "newly-diagnosed");
-  const imageUrl = String(formData.get("imageUrl") || "").trim() || null;
+  const imageRaw = String(formData.get("imageUrl") || "").trim();
+  if (imageRaw && !isAllowedImageUrl(imageRaw)) {
+    return { error: "Use an uploaded photo or an allowed image URL" };
+  }
+  const imageUrl = imageRaw || null;
 
   if (!content && !title) return { error: "Write something to share" };
 

@@ -23,7 +23,7 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
     },
   });
 
-  if (!post) notFound();
+  if (!post || post.hidden) notFound();
 
   const data: PostCardData = {
     id: post.id,
