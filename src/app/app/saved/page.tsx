@@ -2,9 +2,11 @@ import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
 import { PostCard, type PostCardData } from "@/components/post-card";
 import { Bookmark } from "lucide-react";
+import { silencedAuthorIds } from "@/lib/blocks";
 
 export default async function SavedPage() {
   const user = await requireUser();
+  const silenced = await silencedAuthorIds(user.id);
   const saved = await prisma.savedPost.findMany({
     where: { userId: user.id },
     orderBy: { createdAt: "desc" },
@@ -20,7 +22,7 @@ export default async function SavedPage() {
   });
 
   const data: PostCardData[] = saved
-    .filter(({ post: p }) => !p.hidden)
+    .filter(({ post: p }) => !p.hidden && !silenced.has(p.authorId))
     .map(({ post: p }) => ({
     id: p.id,
     title: p.title,

@@ -11,6 +11,16 @@ export async function assertRoomAccess(roomId: string, userId: string) {
   });
   if (!room) return { ok: false as const, status: 404 as const, error: "not found" };
 
+  if (room.hidden) {
+    const actor = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { role: true },
+    });
+    if (actor?.role !== "ADMIN") {
+      return { ok: false as const, status: 404 as const, error: "not found" };
+    }
+  }
+
   if (room.kind === "city-tonight-archive") {
     const membership = await prisma.chatRoomMember.findUnique({
       where: { roomId_userId: { roomId, userId } },

@@ -3,6 +3,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { isClassicAutoPresence } from "@/lib/presence";
 import { maybeNudgePanicBuddy } from "@/lib/checkin-nudge";
+import { isValidTimeZone } from "@/lib/quiet-hours";
 
 /**
  * Heartbeat: bump lastSeen. Never forces offline users online.
@@ -14,7 +15,7 @@ export async function POST(req: NextRequest) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ ok: false }, { status: 401 });
 
-  const body = await req.json().catch(() => ({} as { hidden?: boolean }));
+  const body = await req.json().catch(() => ({} as { hidden?: boolean; timezone?: string }));
   const current = await prisma.user.findUnique({
     where: { id: user.id },
     select: { presence: true },
@@ -43,6 +44,16 @@ export async function POST(req: NextRequest) {
     data,
     select: { presence: true },
   });
+
+  const tz = typeof body.timezone === "string" ? body.timezone.trim() : "";
+  if (isValidTimeZone(tz)) {
+    await prisma.profile
+      .updateMany({
+        where: { userId: user.id, OR: [{ timezone: null }, { timezone: { not: tz } }] },
+        data: { timezone: tz },
+      })
+      .catch(() => {});
+  }
 
   return NextResponse.json({ ok: true, presence: updated.presence });
 }

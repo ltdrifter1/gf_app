@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { Download, Loader2, Trash2 } from "lucide-react";
 import { deleteMyAccount, exportMyData } from "@/lib/actions/account";
 import { updateNotificationPrefs } from "@/lib/actions/profile";
@@ -21,6 +21,15 @@ export function AccountSettings({ username, prefs }: { username: string; prefs: 
   const [prefError, setPrefError] = useState<string | null>(null);
   const [prefSaved, setPrefSaved] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [timezone, setTimezone] = useState("");
+
+  useEffect(() => {
+    try {
+      setTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone || "");
+    } catch {
+      setTimezone("");
+    }
+  }, []);
 
   return (
     <div className="space-y-4">
@@ -30,7 +39,7 @@ export function AccountSettings({ username, prefs }: { username: string; prefs: 
         </h2>
         <p className="text-sm text-sage-500">
           In-app always stores a copy. Push and sounds respect these toggles and quiet hours (your
-          local clock).
+          local clock — we save your browser timezone).
         </p>
         <form
           className="space-y-3"
@@ -44,6 +53,7 @@ export function AccountSettings({ username, prefs }: { username: string; prefs: 
             });
           }}
         >
+          <input type="hidden" name="timezone" value={timezone} />
           <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" name="notifyDms" defaultChecked={prefs.notifyDms} />
             Direct messages

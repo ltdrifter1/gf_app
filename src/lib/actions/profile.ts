@@ -7,6 +7,7 @@ import { JOURNEY_STAGES } from "@/lib/constants";
 import { isPresenceSlug, type PresenceSlug } from "@/lib/presence";
 import { isAllowedImageUrl } from "@/lib/uploads";
 import { maybeNudgePanicBuddy } from "@/lib/checkin-nudge";
+import { isValidTimeZone } from "@/lib/quiet-hours";
 
 export async function updateProfile(formData: FormData) {
   const user = await requireUser();
@@ -133,6 +134,8 @@ export async function updateNotificationPrefs(formData: FormData) {
   if ((start == null) !== (end == null)) {
     return { error: "Set both quiet-hour times, or leave both off." };
   }
+  const tzRaw = String(formData.get("timezone") || "").trim();
+  const timezone = isValidTimeZone(tzRaw) ? tzRaw : undefined;
 
   await prisma.profile.upsert({
     where: { userId: user.id },
@@ -146,6 +149,7 @@ export async function updateNotificationPrefs(formData: FormData) {
       keepScanHistory: formData.get("keepScanHistory") === "on",
       quietHoursStart: start,
       quietHoursEnd: end,
+      ...(timezone ? { timezone } : {}),
     },
     update: {
       notifyDms: formData.get("notifyDms") === "on",
@@ -155,6 +159,7 @@ export async function updateNotificationPrefs(formData: FormData) {
       keepScanHistory: formData.get("keepScanHistory") === "on",
       quietHoursStart: start,
       quietHoursEnd: end,
+      ...(timezone ? { timezone } : {}),
     },
   });
   revalidatePath("/app/profile");

@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
 import { effectivePresence } from "@/lib/presence";
 import { isNudgeMessage, isCheckinMessage } from "@/lib/msn";
-import { isBlockedEitherWay, blockedPairIds } from "@/lib/blocks";
+import { isBlockedEitherWay, blockedPairIds, mutedIds } from "@/lib/blocks";
 import { isPendingDm } from "@/lib/dm";
 
 /** Stable DM slug for two users (order-independent). */
@@ -129,7 +129,7 @@ export type ContactListEntry = {
 /** Classic MSN contact list: Online + Offline (DM peers & follows) — one row per person. */
 export async function getContactList(userId: string) {
   const since = new Date(Date.now() - 60_000);
-  const blocked = await blockedPairIds(userId);
+  const [blocked, muted] = await Promise.all([blockedPairIds(userId), mutedIds(userId)]);
 
   const [onlineUsers, follows, dmMemberships] = await Promise.all([
     prisma.user.findMany({
@@ -168,7 +168,7 @@ export async function getContactList(userId: string) {
       take: 60,
     }),
     prisma.chatRoomMember.findMany({
-      where: { userId, room: { isCommunity: false, kind: "dm", dmAcceptedAt: { not: null } } },
+      where: { userId, room: { isCommunity: false, kind: "dm", hidden: false, dmAcceptedAt: { not: null } } },
       include: {
         room: {
           include: {
@@ -189,6 +189,7 @@ export async function getContactList(userId: string) {
               },
             },
             messages: {
+              where: { hidden: false },
               orderBy: { createdAt: "desc" },
               take: 1,
               include: { sender: { select: { name: true } } },
@@ -229,28 +230,31 @@ export async function getContactList(userId: string) {
       const peer = m.room.members[0]?.user;
       if (!peer) return;
       const last = m.room.messages[0];
-      const unreadCount = await prisma.message.count({
-        where: {
-          roomId: m.room.id,
-          senderId: { not: userId },
-          hidden: false,
-          createdAt: { gt: m.lastReadAt },
-        },
-      });
+      const unreadCount = muted.has(peer.id)
+        ? 0
+        : await prisma.message.count({
+            where: {
+              roomId: m.room.id,
+              senderId: { notIn: [userId, ...muted] },
+              hidden: false,
+              createdAt: { gt: m.lastReadAt },
+            },
+          });
       dmByPeer.set(peer.id, {
         dmSlug: m.room.slug,
         unreadCount,
-        lastMessage: last
-          ? {
-              text: isNudgeMessage(last.content)
-                ? "sent a nudge!"
-                : isCheckinMessage(last.content)
-                  ? "asked for a check-in"
-                  : last.content,
-              sender: last.sender.name,
-              at: last.createdAt.toISOString(),
-            }
-          : null,
+        lastMessage:
+          muted.has(peer.id) || !last
+            ? null
+            : {
+                text: isNudgeMessage(last.content)
+                  ? "sent a nudge!"
+                  : isCheckinMessage(last.content)
+                    ? "asked for a check-in"
+                    : last.content,
+                sender: last.sender.name,
+                at: last.createdAt.toISOString(),
+              },
       });
     })
   );
@@ -297,17 +301,21 @@ export async function getContactList(userId: string) {
 
 /** Unread DMs + community rooms for nav badge. */
 export async function getMessengerUnreadTotal(userId: string) {
-  const memberships = await prisma.chatRoomMember.findMany({
-    where: { userId },
-    select: { roomId: true, lastReadAt: true },
-  });
+  const [memberships, muted] = await Promise.all([
+    prisma.chatRoomMember.findMany({
+      where: { userId, room: { hidden: false } },
+      select: { roomId: true, lastReadAt: true },
+    }),
+    mutedIds(userId),
+  ]);
   if (memberships.length === 0) return 0;
+  const skipSenders = [userId, ...muted];
   const counts = await Promise.all(
     memberships.map((m) =>
       prisma.message.count({
         where: {
           roomId: m.roomId,
-          senderId: { not: userId },
+          senderId: { notIn: skipSenders },
           hidden: false,
           createdAt: { gt: m.lastReadAt },
         },
@@ -319,7 +327,7 @@ export async function getMessengerUnreadTotal(userId: string) {
 
 export async function getDirectMessageRooms(userId: string) {
   const memberships = await prisma.chatRoomMember.findMany({
-    where: { userId, room: { isCommunity: false, dmAcceptedAt: { not: null } } },
+    where: { userId, room: { isCommunity: false, hidden: false, dmAcceptedAt: { not: null } } },
     include: {
       room: {
         include: {

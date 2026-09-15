@@ -7,6 +7,7 @@ import { PostCard, type PostCardData } from "@/components/post-card";
 import { CommentForm } from "@/components/comment-form";
 import { Avatar } from "@/components/ui/avatar";
 import { timeAgo } from "@/lib/utils";
+import { isBlockedEitherWay } from "@/lib/blocks";
 
 export default async function PostPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -24,6 +25,7 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
   });
 
   if (!post || post.hidden) notFound();
+  if (await isBlockedEitherWay(user.id, post.authorId)) notFound();
 
   const data: PostCardData = {
     id: post.id,

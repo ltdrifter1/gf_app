@@ -4,6 +4,7 @@ import { requireUser } from "@/lib/auth";
 import { Search, FileText, MapPin, ChefHat, Users, MessageCircle } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { containsI } from "@/lib/search";
+import { blockedPairIds, silencedAuthorIds } from "@/lib/blocks";
 
 export default async function SearchPage({
   searchParams,
@@ -11,14 +12,21 @@ export default async function SearchPage({
   searchParams: Promise<{ q?: string }>;
 }) {
   const { q } = await searchParams;
-  await requireUser();
+  const me = await requireUser();
   const query = (q || "").trim();
+  const [silenced, blocked] = await Promise.all([
+    silencedAuthorIds(me.id),
+    blockedPairIds(me.id),
+  ]);
+  const silencedList = [...silenced];
+  const blockedList = [...blocked];
 
   const [posts, restaurants, recipes, people, rooms] = query
     ? await Promise.all([
         prisma.post.findMany({
           where: {
             hidden: false,
+            ...(silencedList.length ? { authorId: { notIn: silencedList } } : {}),
             OR: [{ title: containsI(query) }, { content: containsI(query) }],
           },
           take: 6,
@@ -43,6 +51,7 @@ export default async function SearchPage({
         }),
         prisma.user.findMany({
           where: {
+            ...(blockedList.length ? { id: { notIn: blockedList } } : {}),
             OR: [{ name: containsI(query) }, { username: containsI(query) }],
           },
           take: 6,
@@ -50,6 +59,7 @@ export default async function SearchPage({
         prisma.chatRoom.findMany({
           where: {
             isCommunity: true,
+            hidden: false,
             OR: [{ name: containsI(query) }, { description: containsI(query) }],
           },
           take: 4,

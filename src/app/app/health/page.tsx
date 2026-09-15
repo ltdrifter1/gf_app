@@ -13,8 +13,10 @@ import { CaregiverPack } from "@/components/caregiver-pack";
 import { PatternInsights } from "@/components/pattern-insights";
 import { RecoveryCard } from "@/components/recovery-card";
 import { FindBuddyButton } from "@/components/find-buddy-button";
+import { TaxHelpCard } from "@/components/tax-help-card";
 import { getPrivateInsights } from "@/lib/actions/insights";
 import { getContactList } from "@/lib/actions/chat";
+import { silencedAuthorIds } from "@/lib/blocks";
 
 type Props = {
   searchParams: Promise<{ tab?: string; category?: string }>;
@@ -53,13 +55,20 @@ export default async function HealthPage({ searchParams }: Props) {
         })
       : Promise.resolve([]),
     tab === "mental"
-      ? prisma.post.findMany({
-          where: { category: "mental-health" },
-          orderBy: { createdAt: "desc" },
-          take: 3,
-          include: {
-            author: { select: { name: true, username: true, avatarUrl: true } },
-          },
+      ? silencedAuthorIds(user.id).then((ids) => {
+          const notIn = [...ids];
+          return prisma.post.findMany({
+            where: {
+              category: "mental-health",
+              hidden: false,
+              ...(notIn.length ? { authorId: { notIn } } : {}),
+            },
+            orderBy: { createdAt: "desc" },
+            take: 3,
+            include: {
+              author: { select: { name: true, username: true, avatarUrl: true } },
+            },
+          });
         })
       : Promise.resolve([]),
     getPrivateInsights(),
@@ -168,6 +177,7 @@ export default async function HealthPage({ searchParams }: Props) {
         </Link>
         <FindBuddyButton compact className="w-auto" />
       </div>
+      <TaxHelpCard compact />
 
       <div id="recovery" className="grid gap-4 lg:grid-cols-2">
         <RecoveryCard

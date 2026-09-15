@@ -100,6 +100,8 @@ model Profile {
   /// Quiet hours in local 0–23; null = off
   quietHoursStart Int?
   quietHoursEnd   Int?
+  /// IANA zone from the browser (e.g. America/Toronto) so quiet hours follow the user
+  timezone        String?
   lastCheckinNudgeAt DateTime?
 }
 
@@ -173,6 +175,7 @@ model ChatRoom {
   expiresAt   DateTime?
   /// DMs: null = message request awaiting accept; set = open thread. Default now() backfills existing DMs.
   dmAcceptedAt DateTime? @default(now())
+  hidden      Boolean   @default(false)
   createdAt   DateTime  @default(now())
 
   members  ChatRoomMember[]

@@ -32,3 +32,15 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ ok: true });
 }
+
+export async function DELETE(req: NextRequest) {
+  const user = await getCurrentUser();
+  if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+
+  const body = await req.json().catch(() => null);
+  const endpoint = String(body?.endpoint || "");
+  if (!endpoint) return NextResponse.json({ error: "invalid subscription" }, { status: 400 });
+
+  await prisma.pushSubscription.deleteMany({ where: { userId: user.id, endpoint } });
+  return NextResponse.json({ ok: true });
+}

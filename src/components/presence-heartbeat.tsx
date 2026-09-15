@@ -11,6 +11,7 @@ export function PresenceHeartbeat() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           hidden: hidden ?? document.visibilityState === "hidden",
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         }),
       }).catch(() => {});
 

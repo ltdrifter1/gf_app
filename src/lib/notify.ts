@@ -3,7 +3,7 @@ import "server-only";
 import { prisma } from "@/lib/prisma";
 import { webPushConfigured } from "@/lib/push";
 import { BRAND } from "@/lib/brand";
-import { inQuietHours } from "@/lib/quiet-hours";
+import { hourInTimeZone, inQuietHours } from "@/lib/quiet-hours";
 
 export { inQuietHours };
 
@@ -42,6 +42,7 @@ export async function notifyUser(opts: {
       notifyDining: true,
       quietHoursStart: true,
       quietHoursEnd: true,
+      timezone: true,
     },
   });
 
@@ -54,7 +55,7 @@ export async function notifyUser(opts: {
 
   if (!typeOk) return;
 
-  const hour = new Date().getHours();
+  const hour = hourInTimeZone(new Date(), profile?.timezone);
   const quiet = inQuietHours(profile?.quietHoursStart, profile?.quietHoursEnd, hour);
 
   await prisma.notification.create({

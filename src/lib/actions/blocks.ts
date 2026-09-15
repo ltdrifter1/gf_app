@@ -5,6 +5,20 @@ import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
 import { isBlockedEitherWay } from "@/lib/blocks";
 
+async function revalidateSocialSurfaces(targetUserId: string) {
+  const target = await prisma.user.findUnique({
+    where: { id: targetUserId },
+    select: { username: true },
+  });
+  revalidatePath("/app");
+  revalidatePath("/app/chat");
+  revalidatePath("/app/search");
+  revalidatePath("/app/saved");
+  revalidatePath("/app/health");
+  revalidatePath("/app/profile");
+  if (target?.username) revalidatePath(`/app/u/${target.username}`);
+}
+
 export async function blockUser(targetUserId: string) {
   const user = await requireUser();
   if (user.id === targetUserId) return { error: "Can't block yourself" };
@@ -13,16 +27,14 @@ export async function blockUser(targetUserId: string) {
     create: { blockerId: user.id, blockedId: targetUserId },
     update: {},
   });
-  revalidatePath("/app/chat");
-  revalidatePath("/app/profile");
+  await revalidateSocialSurfaces(targetUserId);
   return { ok: true };
 }
 
 export async function unblockUser(targetUserId: string) {
   const user = await requireUser();
   await prisma.userBlock.deleteMany({ where: { blockerId: user.id, blockedId: targetUserId } });
-  revalidatePath("/app/chat");
-  revalidatePath("/app/profile");
+  await revalidateSocialSurfaces(targetUserId);
   return { ok: true };
 }
 
@@ -34,12 +46,14 @@ export async function muteUser(targetUserId: string) {
     create: { muterId: user.id, mutedId: targetUserId },
     update: {},
   });
+  await revalidateSocialSurfaces(targetUserId);
   return { ok: true };
 }
 
 export async function unmuteUser(targetUserId: string) {
   const user = await requireUser();
   await prisma.userMute.deleteMany({ where: { muterId: user.id, mutedId: targetUserId } });
+  await revalidateSocialSurfaces(targetUserId);
   return { ok: true };
 }
 

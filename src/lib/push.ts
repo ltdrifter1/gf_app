@@ -1,7 +1,7 @@
 /**
  * Web-push foundations. Browser Notification API works without VAPID.
  * Real Web Push (even with the tab closed) needs VAPID keys in env —
- * do not rewrite this module; fill keys and POST /api/push/subscribe.
+ * fill keys, allow Alerts in Messenger, and the client POSTs /api/push/subscribe.
  */
 
 export function vapidPublicKey() {

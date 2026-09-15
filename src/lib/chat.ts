@@ -4,6 +4,7 @@ import { isCheckinMessage, isNudgeMessage } from "@/lib/msn";
 import { cityFromUserLocation, isCityTonightSlug } from "@/lib/city-rooms";
 import { ensureCityTonightForUser } from "@/lib/city-tonight";
 import { isLivePresence } from "@/lib/presence";
+import { mutedIds } from "@/lib/blocks";
 
 export const ROOM_EMOJI: Record<string, string> = {
   "general-support": "💬",
@@ -23,6 +24,7 @@ export async function getRoomsWithStats(userId?: string) {
   await ensureLaunchCatalog();
 
   let userCity: string | null = null;
+  let muted = new Set<string>();
   if (userId) {
     const me = await prisma.user.findUnique({
       where: { id: userId },
@@ -30,11 +32,13 @@ export async function getRoomsWithStats(userId?: string) {
     });
     userCity = cityFromUserLocation(me?.location);
     if (userCity) await ensureCityTonightForUser(me?.location);
+    muted = await mutedIds(userId);
   }
 
   const rooms = await prisma.chatRoom.findMany({
     where: {
       isCommunity: true,
+      hidden: false,
       OR: [
         { kind: { not: "city-tonight" } },
         ...(userCity
@@ -47,7 +51,10 @@ export async function getRoomsWithStats(userId?: string) {
     include: {
       _count: { select: { members: true, messages: true } },
       messages: {
-        where: { hidden: false },
+        where: {
+          hidden: false,
+          ...(muted.size ? { senderId: { notIn: [...muted] } } : {}),
+        },
         orderBy: { createdAt: "desc" },
         take: 1,
         include: { sender: { select: { name: true } } },
@@ -83,7 +90,7 @@ export async function getRoomsWithStats(userId?: string) {
         unreadCount = await prisma.message.count({
           where: {
             roomId: r.id,
-            senderId: { not: userId },
+            senderId: { notIn: [userId, ...muted] },
             hidden: false,
             createdAt: { gt: lastReadAt },
           },

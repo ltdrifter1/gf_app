@@ -1,8 +1,24 @@
+import Link from "next/link";
 import { Mail } from "lucide-react";
 import { BRAND, taxesMailto } from "@/lib/brand";
 
 /** Soft, one-beat offer after the receipt log — not a filing product. */
-export function TaxHelpCard() {
+export function TaxHelpCard({ compact }: { compact?: boolean }) {
+  if (compact) {
+    return (
+      <p className="text-xs text-sage-500">
+        The cost tracker is a receipt log, not a filing.{" "}
+        <Link href="/app/costs" className="font-medium text-brand-700 underline dark:text-brand-300">
+          Open it
+        </Link>
+        {" · "}
+        <a href={taxesMailto()} className="font-medium text-brand-700 underline dark:text-brand-300">
+          Ask about personal taxes
+        </a>
+      </p>
+    );
+  }
+
   return (
     <aside className="card space-y-3 p-5">
       <div className="flex items-start gap-3">

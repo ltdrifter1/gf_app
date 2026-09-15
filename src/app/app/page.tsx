@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
-import { blockedPairIds } from "@/lib/blocks";
+import { silencedAuthorIds } from "@/lib/blocks";
 import { POST_CATEGORIES, categoryBySlug } from "@/lib/constants";
 import { PostComposer } from "@/components/post-composer";
 import { PostCard, type PostCardData } from "@/components/post-card";
@@ -14,23 +14,24 @@ export default async function FeedPage({
   const { category, scope } = await searchParams;
   const user = await requireUser();
   const followingOnly = scope === "following";
-  const blocked = await blockedPairIds(user.id);
-  const blockedList = [...blocked];
+  const silenced = await silencedAuthorIds(user.id);
+  const silencedList = [...silenced];
 
-  let authorFilter: { authorId?: string | { in: string[] } } = {};
+  let authorFilter: { authorId?: string | { in: string[] } | { notIn: string[] } } = {};
   if (followingOnly) {
     const follows = await prisma.follow.findMany({
       where: { followerId: user.id },
       select: { followingId: true },
     });
-    const ids = follows.map((f) => f.followingId).filter((id) => !blocked.has(id));
+    const ids = follows.map((f) => f.followingId).filter((id) => !silenced.has(id));
     authorFilter = { authorId: { in: [...ids, user.id] } };
+  } else if (silencedList.length) {
+    authorFilter = { authorId: { notIn: silencedList } };
   }
 
   const posts = await prisma.post.findMany({
     where: {
       hidden: false,
-      ...(blockedList.length ? { authorId: { notIn: blockedList } } : {}),
       ...(category ? { category } : {}),
       ...authorFilter,
     },

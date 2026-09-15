@@ -41,6 +41,7 @@ export default async function ChatRoomPage({
     },
   });
   if (!room) notFound();
+  if (room.hidden && user.role !== "ADMIN") notFound();
 
   const membership = await prisma.chatRoomMember.findUnique({
     where: { roomId_userId: { roomId: room.id, userId: user.id } },

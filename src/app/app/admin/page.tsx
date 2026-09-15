@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
 import { Users, FileText, MessageCircle, UserPlus, ShieldAlert, Utensils } from "lucide-react";
-import { resolveFlag, setRestaurantStatus } from "@/lib/actions/admin";
+import { resolveFlag, setRestaurantStatus, mergeRestaurants } from "@/lib/actions/admin";
 
 export default async function AdminPage() {
   const user = await requireUser();
@@ -137,7 +137,9 @@ export default async function AdminPage() {
                     {r.name}{" "}
                     <span className="text-xs font-normal uppercase text-sage-400">{r.status}</span>
                   </p>
-                  <p className="text-xs text-sage-500">{r.city}</p>
+                  <p className="text-xs text-sage-500">
+                    {r.city} · {r.id}
+                  </p>
                 </div>
                 <form action={setRestaurantStatus} className="flex flex-wrap gap-1">
                   <input type="hidden" name="id" value={r.id} />
@@ -158,6 +160,22 @@ export default async function AdminPage() {
             ))}
           </ul>
         )}
+      </div>
+
+      <div className="card p-5">
+        <h2 className="font-display font-semibold text-sage-900 dark:text-white">
+          Merge duplicate listings
+        </h2>
+        <p className="mt-1 text-sm text-sage-500">
+          Visit reviews move onto the keep id. The duplicate is hidden — not deleted.
+        </p>
+        <form action={mergeRestaurants} className="mt-3 grid gap-2 sm:grid-cols-[1fr_1fr_auto]">
+          <input name="keepId" className="input" placeholder="Keep listing id" required />
+          <input name="dropId" className="input" placeholder="Hide duplicate id" required />
+          <button className="btn-secondary" type="submit">
+            Merge reviews
+          </button>
+        </form>
       </div>
 
       {missReports.length > 0 ? (

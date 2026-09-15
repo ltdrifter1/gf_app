@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
 import { notifyUser } from "@/lib/notify";
+import { refreshRestaurantConfidence } from "@/lib/actions/reviews";
 
 async function requireAdmin() {
   const user = await requireUser();
@@ -21,8 +22,11 @@ export async function resolveFlag(formData: FormData) {
   if (action === "hide" && flag.type === "message") {
     await prisma.message.update({ where: { id: flag.refId }, data: { hidden: true } }).catch(() => {});
   }
-  if (action === "hide" && (flag.type === "post" || flag.type === "community-room")) {
+  if (action === "hide" && flag.type === "post") {
     await prisma.post.update({ where: { id: flag.refId }, data: { hidden: true } }).catch(() => {});
+  }
+  if (action === "hide" && (flag.type === "chat-room" || flag.type === "community-room")) {
+    await prisma.chatRoom.update({ where: { id: flag.refId }, data: { hidden: true } }).catch(() => {});
   }
   if ((action === "unpublish" || action === "hide") && (flag.type === "restaurant" || flag.type === "listing")) {
     await prisma.restaurant
@@ -46,6 +50,8 @@ export async function resolveFlag(formData: FormData) {
   });
 
   revalidatePath("/app/admin");
+  revalidatePath("/app/chat");
+  revalidatePath("/app");
 }
 
 export async function setRestaurantStatus(formData: FormData) {
@@ -70,8 +76,29 @@ export async function setRestaurantStatus(formData: FormData) {
   }
 }
 
-export async function mergeRestaurantHint() {
-  return {
-    hint: "Duplicates: hide the worse listing after copying reviews by hand for now.",
-  };
+/** Move visit reviews onto the keeper listing and hide the duplicate. */
+export async function mergeRestaurants(formData: FormData) {
+  await requireAdmin();
+  const keepId = String(formData.get("keepId") || "").trim();
+  const dropId = String(formData.get("dropId") || "").trim();
+  if (!keepId || !dropId || keepId === dropId) return;
+  const [keep, drop] = await Promise.all([
+    prisma.restaurant.findUnique({ where: { id: keepId }, select: { id: true } }),
+    prisma.restaurant.findUnique({ where: { id: dropId }, select: { id: true } }),
+  ]);
+  if (!keep || !drop) return;
+
+  await prisma.$transaction([
+    prisma.restaurantReview.updateMany({
+      where: { restaurantId: dropId },
+      data: { restaurantId: keepId },
+    }),
+    prisma.restaurant.update({ where: { id: dropId }, data: { status: "hidden" } }),
+  ]);
+  await refreshRestaurantConfidence(keepId);
+
+  revalidatePath("/app/admin");
+  revalidatePath("/app/restaurants");
+  revalidatePath(`/app/restaurants/${keepId}`);
+  revalidatePath(`/app/restaurants/${dropId}`);
 }

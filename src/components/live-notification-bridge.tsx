@@ -11,11 +11,13 @@ import { playMessageSound } from "@/lib/msn-sounds";
 export function LiveNotificationBridge() {
   const seen = useRef<Set<string>>(new Set());
   const primed = useRef(false);
-  const [toast, setToast] = useState<{ title: string; body: string } | null>(null);
+  const [toast, setToast] = useState<{ title: string; body: string; href?: string | null } | null>(
+    null
+  );
 
   useEffect(() => {
     const onToast = (e: Event) => {
-      const detail = (e as CustomEvent<{ title: string; body: string }>).detail;
+      const detail = (e as CustomEvent<{ title: string; body: string; href?: string }>).detail;
       if (detail) setToast(detail);
     };
     window.addEventListener("lumen-toast", onToast);
@@ -39,10 +41,10 @@ export function LiveNotificationBridge() {
           seen.current.add(n.id);
           if (!primed.current) continue;
           if (n.readAt) continue;
-          if (n.type === "companion" || n.type === "message") {
+          if (n.type === "companion" || n.type === "message" || n.type === "dining") {
             playMessageSound();
             notifyBuddyNudge(n.title, n.body);
-            setToast({ title: n.title, body: n.body });
+            setToast({ title: n.title, body: n.body, href: n.href });
           }
         }
         primed.current = true;
@@ -59,12 +61,26 @@ export function LiveNotificationBridge() {
   }, []);
 
   if (!toast) return null;
+  const inner = (
+    <>
+      <p className="text-sm font-semibold text-sage-900 dark:text-white">{toast.title}</p>
+      <p className="mt-0.5 text-xs text-sage-600 dark:text-sage-300">{toast.body}</p>
+    </>
+  );
   return (
     <div className="pointer-events-none fixed bottom-20 right-4 z-[70] max-w-sm lg:bottom-6">
-      <div className="pointer-events-auto rounded-2xl border border-white/50 bg-white/95 p-3 shadow-glass-lg backdrop-blur-xl dark:border-white/10 dark:bg-[#0f1715]/95">
-        <p className="text-sm font-semibold text-sage-900 dark:text-white">{toast.title}</p>
-        <p className="mt-0.5 text-xs text-sage-600 dark:text-sage-300">{toast.body}</p>
-      </div>
+      {toast.href ? (
+        <a
+          href={toast.href}
+          className="pointer-events-auto block rounded-2xl border border-white/50 bg-white/95 p-3 shadow-glass-lg backdrop-blur-xl dark:border-white/10 dark:bg-[#0f1715]/95"
+        >
+          {inner}
+        </a>
+      ) : (
+        <div className="pointer-events-auto rounded-2xl border border-white/50 bg-white/95 p-3 shadow-glass-lg backdrop-blur-xl dark:border-white/10 dark:bg-[#0f1715]/95">
+          {inner}
+        </div>
+      )}
     </div>
   );
 }

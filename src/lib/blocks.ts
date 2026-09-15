@@ -22,6 +22,12 @@ export async function mutedIds(userId: string) {
   return new Set(rows.map((r) => r.mutedId));
 }
 
+/** Blocked either way plus people this user muted — hide their public posts. */
+export async function silencedAuthorIds(userId: string) {
+  const [blocked, muted] = await Promise.all([blockedPairIds(userId), mutedIds(userId)]);
+  return new Set([...blocked, ...muted]);
+}
+
 export async function isBlockedEitherWay(a: string, b: string) {
   const hit = await prisma.userBlock.findFirst({
     where: {

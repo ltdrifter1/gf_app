@@ -118,6 +118,30 @@ export default async function LandingPage() {
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
+
+          <ul className="mt-8 flex flex-wrap gap-x-4 gap-y-2 text-sm text-sage-600 animate-fade-in dark:text-sage-300 [animation-delay:260ms]">
+            <li>
+              <Link href={user ? "/app/scan" : "/register"} className="hover:text-sage-900 dark:hover:text-white">
+                Scan a label
+              </Link>
+            </li>
+            <li className="text-sage-300 dark:text-sage-600" aria-hidden>
+              ·
+            </li>
+            <li>
+              <Link href={user ? "/app/costs" : "/register"} className="hover:text-sage-900 dark:hover:text-white">
+                Track GF costs
+              </Link>
+            </li>
+            <li className="text-sage-300 dark:text-sage-600" aria-hidden>
+              ·
+            </li>
+            <li>
+              <Link href={user ? "/app/health" : "/register"} className="hover:text-sage-900 dark:hover:text-white">
+                Find a buddy
+              </Link>
+            </li>
+          </ul>
         </div>
 
         <div className="relative flex min-w-0 items-start justify-center px-4 pb-20 pt-4 sm:px-8 sm:pb-24 xl:items-center xl:justify-end xl:px-6 xl:pb-12 xl:pt-24">

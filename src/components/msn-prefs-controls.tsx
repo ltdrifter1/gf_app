@@ -8,6 +8,7 @@ import {
   type MsnPrefs,
 } from "@/lib/msn-prefs";
 import { playMessageSound } from "@/lib/msn-sounds";
+import { subscribeWebPush, unsubscribeWebPush } from "@/lib/web-push-client";
 
 export function MsnPrefsControls() {
   const [prefs, setPrefs] = useState<MsnPrefs>({ sounds: true, notifications: false });
@@ -47,8 +48,10 @@ export function MsnPrefsControls() {
               const ok = await ensureNotificationPermission();
               const next = setMsnPrefs({ notifications: ok });
               setPrefs(next);
+              if (ok) subscribeWebPush().catch(() => {});
             } else {
               setPrefs(setMsnPrefs({ notifications: false }));
+              unsubscribeWebPush().catch(() => {});
             }
           }}
           className="rounded border-sage-300"
