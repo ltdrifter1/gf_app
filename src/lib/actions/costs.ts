@@ -17,8 +17,10 @@ export async function addGfCostEntry(formData: FormData) {
   const regularPrice = money(formData.get("regularPrice"));
   const store = String(formData.get("store") || "").trim().slice(0, 80) || null;
   const dateRaw = String(formData.get("purchasedAt") || "");
-  const photoUrl = String(formData.get("photoUrl") || "").trim();
-  const purchasedAt = dateRaw ? new Date(dateRaw) : new Date();
+  const parsedDate = dateRaw ? new Date(dateRaw) : new Date();
+  const purchasedAt = Number.isNaN(parsedDate.getTime()) ? new Date() : parsedDate;
+  const photoRaw = String(formData.get("photoUrl") || "").trim();
+  const photoUrl = /^https?:\/\/.+/i.test(photoRaw) ? photoRaw : "";
 
   if (!productName) return { error: "Add a product name" };
   if (gfPrice == null) return { error: "Add the gluten-free price" };

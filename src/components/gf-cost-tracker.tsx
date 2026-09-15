@@ -83,18 +83,18 @@ export function GfCostTracker({ initial }: { initial: CostRow[] }) {
           documentation (date, supplier, description, amounts, differential). You still file your own taxes —
           this is not legal or tax advice.
         </p>
-        <form id="gf-cost-form" action={onSubmit} className="grid gap-3 sm:grid-cols-2">
+        <form id="gf-cost-form" action={onSubmit} noValidate className="grid gap-3 sm:grid-cols-2">
           <div className="sm:col-span-2">
             <label className="text-xs font-medium text-sage-500">Product</label>
-            <input name="productName" className="input mt-1" required placeholder="GF pasta, 454 g" />
+            <input name="productName" className="input mt-1" placeholder="GF pasta, 454 g" />
           </div>
           <div>
             <label className="text-xs font-medium text-sage-500">GF price (CAD)</label>
-            <input name="gfPrice" type="number" step="0.01" min="0" className="input mt-1" required />
+            <input name="gfPrice" type="number" step="0.01" min="0" className="input mt-1" />
           </div>
           <div>
             <label className="text-xs font-medium text-sage-500">Regular price (CAD)</label>
-            <input name="regularPrice" type="number" step="0.01" min="0" className="input mt-1" required />
+            <input name="regularPrice" type="number" step="0.01" min="0" className="input mt-1" />
           </div>
           <div>
             <label className="text-xs font-medium text-sage-500">Store</label>
