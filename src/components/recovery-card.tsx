@@ -90,7 +90,7 @@ export function RecoveryCard({
 
       <p className="rounded-xl bg-amber-50/80 px-3 py-2 text-[11px] text-sage-700 dark:bg-amber-500/10 dark:text-sage-200">
         <AlertTriangle className="mr-1 inline h-3.5 w-3.5" />
-        Educational support only. Safely does not diagnose or treat. Confirm care with a clinician who knows you.
+        Educational support only. Lumen does not diagnose or treat. Confirm care with a clinician who knows you.
       </p>
 
       {done ? (

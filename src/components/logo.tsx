@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { BRAND } from "@/lib/brand";
 
 export function Logo({
   className = "",
@@ -11,7 +12,7 @@ export function Logo({
   return (
     <Image
       src="/logo.webp"
-      alt="Safely Celiac Community"
+      alt={BRAND.ogAlt}
       width={size}
       height={size}
       className={cn("rounded-[22%] shadow-soft", className)}

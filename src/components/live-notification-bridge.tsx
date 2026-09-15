@@ -18,8 +18,8 @@ export function LiveNotificationBridge() {
       const detail = (e as CustomEvent<{ title: string; body: string }>).detail;
       if (detail) setToast(detail);
     };
-    window.addEventListener("safely-toast", onToast);
-    return () => window.removeEventListener("safely-toast", onToast);
+    window.addEventListener("lumen-toast", onToast);
+    return () => window.removeEventListener("lumen-toast", onToast);
   }, []);
 
   useEffect(() => {

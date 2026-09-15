@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
 import { GeistSans } from "geist/font/sans";
+import { BRAND } from "@/lib/brand";
 import "./globals.css";
 import "maplibre-gl/dist/maplibre-gl.css";
 
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL ?? `https://${BRAND.domain}`;
+
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_APP_URL ?? "https://safelyceliac.com"
-  ),
-  title: "Safely",
-  description: "Find your people. Your gluten-free companion.",
+  metadataBase: new URL(siteUrl),
+  title: BRAND.name,
+  description: BRAND.tagline,
   alternates: {
     canonical: "/",
   },
@@ -19,15 +20,15 @@ export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
-    title: "Safely",
+    title: BRAND.name,
     statusBarStyle: "default",
   },
   openGraph: {
-    title: "Safely",
-    description: "Find your people.",
-    url: "https://safelyceliac.com",
-    siteName: "Safely",
-    images: [{ url: "/og-logo.png", width: 512, height: 512, alt: "Safely Celiac Community" }],
+    title: BRAND.name,
+    description: BRAND.landingLine,
+    url: siteUrl,
+    siteName: BRAND.name,
+    images: [{ url: "/og-logo.png", width: 512, height: 512, alt: BRAND.ogAlt }],
     type: "website",
   },
 };

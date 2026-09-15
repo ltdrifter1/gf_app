@@ -1,6 +1,6 @@
-# Deploy Safely to safelyceliac.com
+# Deploy Lumen to safelyceliac.com
 
-Safely runs on **Next.js 15** + **PostgreSQL**, hosted on **Vercel**, with DNS at **Namecheap**.
+**Lumen** (the gluten-free companion formerly called Safely) runs on **Next.js 15** + **PostgreSQL**, hosted on **Vercel**, with DNS at **Namecheap**. The current production host remains **safelyceliac.com**.
 
 ## 1. Create a Postgres database
 
@@ -87,7 +87,7 @@ npm run dev
 
 ## Security notes
 
-- Session cookie is httpOnly + Secure in production (`safely_session`)
+- Session cookie is httpOnly + Secure in production (`lumen_session`; readers still accept legacy `safely_session` until the next login)
 - DMs are membership-gated (no auto-join via URL)
 - Security headers set in `next.config.mjs`
 - Rate limits: register 5/hr/IP, login 10/15min/IP, chat send 30/min/user

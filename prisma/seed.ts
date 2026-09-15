@@ -8,17 +8,27 @@ const img = (seed: string, w = 800, h = 600) =>
   `https://picsum.photos/seed/${seed}/${w}/${h}`;
 
 async function main() {
-  console.log("🔵 Seeding Safely…");
+  console.log("🔵 Seeding Lumen…");
   const passwordHash = await bcrypt.hash("password123", 10);
 
   const usersData = [
-    { email: "maya@safely.app", username: "maya", name: "Maya Patel", role: "USER", bio: "Diagnosed 2021. Still gets weirdly emotional about good tortillas.", location: "Austin, TX", diagnosis: "celiac", journeyStage: "experienced", mood: "found a bakery that gets it", likeToMeet: "Anyone who rehearses the allergen question in the car", interests: "Safe dining · GF baking · late-night Messenger" },
-    { email: "leo@safely.app", username: "leo", name: "Leo Martins", role: "USER", bio: "Dad of a celiac kiddo. Professional lunchbox diplomat.", location: "Portland, OR", diagnosis: "supporter", journeyStage: "caregiver", mood: "packing school snacks like a spy", likeToMeet: "Other GF parents & patient school advocates", interests: "Kid-friendly recipes · school IEPs · meal prep" },
-    { email: "sara@safely.app", username: "sara", name: "Sara Kim", role: "USER", bio: "Gluten intolerance + strong opinions about toast. You’ve been warned.", location: "Brooklyn, NY", diagnosis: "gluten-intolerance", journeyStage: "intermediate", mood: "on a quest for the perfect loaf", likeToMeet: "Bakers, New Yorkers, fellow sauce detectives", interests: "Bread rankings · restaurants · hot takes" },
-    { email: "admin@safely.app", username: "admin", name: "Safely Admin", role: "ADMIN", bio: "Keeping the rooms kind, weird, and welcoming.", location: "Remote", diagnosis: "supporter", journeyStage: "experienced", mood: "online if you need a hand", likeToMeet: "Kind community members", interests: "Moderation · community health" },
-    { email: "theo@safely.app", username: "theo", name: "Theo Nguyen", role: "USER", bio: "Travel + gluten-free = my personality, my packing list, and half my photos.", location: "Austin, TX", diagnosis: "celiac", journeyStage: "experienced", mood: "plotting the next safe trip", likeToMeet: "Travelers who share phrase cards without judgment", interests: "Travel · AIC spots · street food" },
-    { email: "priya@safely.app", username: "priya", name: "Priya Shah", role: "USER", bio: "Two weeks in. Learning labels like it’s a second language — because it kind of is.", location: "Brooklyn, NY", diagnosis: "celiac", journeyStage: "newly-diagnosed", mood: "still figuring out soy sauce", likeToMeet: "Newly diagnosed friends who ask the “dumb” questions too", interests: "Starter tips · mental health · labeling" },
+    { email: "maya@lumen.app", username: "maya", name: "Maya Patel", role: "USER", bio: "Diagnosed 2021. Still gets weirdly emotional about good tortillas.", location: "Austin, TX", diagnosis: "celiac", journeyStage: "experienced", mood: "found a bakery that gets it", likeToMeet: "Anyone who rehearses the allergen question in the car", interests: "Safe dining · GF baking · late-night Messenger" },
+    { email: "leo@lumen.app", username: "leo", name: "Leo Martins", role: "USER", bio: "Dad of a celiac kiddo. Professional lunchbox diplomat.", location: "Portland, OR", diagnosis: "supporter", journeyStage: "caregiver", mood: "packing school snacks like a spy", likeToMeet: "Other GF parents & patient school advocates", interests: "Kid-friendly recipes · school IEPs · meal prep" },
+    { email: "sara@lumen.app", username: "sara", name: "Sara Kim", role: "USER", bio: "Gluten intolerance + strong opinions about toast. You’ve been warned.", location: "Brooklyn, NY", diagnosis: "gluten-intolerance", journeyStage: "intermediate", mood: "on a quest for the perfect loaf", likeToMeet: "Bakers, New Yorkers, fellow sauce detectives", interests: "Bread rankings · restaurants · hot takes" },
+    { email: "admin@lumen.app", username: "admin", name: "Lumen Admin", role: "ADMIN", bio: "Keeping the rooms kind, weird, and welcoming.", location: "Remote", diagnosis: "supporter", journeyStage: "experienced", mood: "online if you need a hand", likeToMeet: "Kind community members", interests: "Moderation · community health" },
+    { email: "theo@lumen.app", username: "theo", name: "Theo Nguyen", role: "USER", bio: "Travel + gluten-free = my personality, my packing list, and half my photos.", location: "Austin, TX", diagnosis: "celiac", journeyStage: "experienced", mood: "plotting the next safe trip", likeToMeet: "Travelers who share phrase cards without judgment", interests: "Travel · AIC spots · street food" },
+    { email: "priya@lumen.app", username: "priya", name: "Priya Shah", role: "USER", bio: "Two weeks in. Learning labels like it’s a second language — because it kind of is.", location: "Brooklyn, NY", diagnosis: "celiac", journeyStage: "newly-diagnosed", mood: "still figuring out soy sauce", likeToMeet: "Newly diagnosed friends who ask the “dumb” questions too", interests: "Starter tips · mental health · labeling" },
   ];
+
+  for (const u of usersData) {
+    const legacyEmail = u.email.replace(/@lumen\.app$/i, "@safely.app");
+    if (legacyEmail === u.email) continue;
+    const old = await prisma.user.findUnique({ where: { email: legacyEmail } });
+    const neu = await prisma.user.findUnique({ where: { email: u.email } });
+    if (old && !neu) {
+      await prisma.user.update({ where: { id: old.id }, data: { email: u.email } });
+    }
+  }
 
   const users: Record<string, { id: string }> = {};
   for (const u of usersData) {
@@ -73,7 +83,7 @@ async function main() {
   }
 
   const rooms = [
-    { slug: "general-support", name: "General Support", description: "The living room of Safely — wins, questions, and mid-week pep talks." },
+    { slug: "general-support", name: "General Support", description: "The living room of Lumen — wins, questions, and mid-week pep talks." },
     { slug: "newly-diagnosed", name: "Newly Diagnosed", description: "Fresh labels, weird sauces, and people who just got here too." },
     { slug: "mental-health", name: "Mental Health", description: "Soft landings for hard days — judgment stays outside." },
     { slug: "parents", name: "Parents", description: "Lunchbox diplomacy, school emails, and high-fives that count." },
@@ -365,7 +375,7 @@ async function main() {
   }
 
   console.log("✅ Seed complete.");
-  console.log("   Demo login → maya@safely.app / password123");
+  console.log("   Demo login → maya@lumen.app / password123");
 }
 
 main()

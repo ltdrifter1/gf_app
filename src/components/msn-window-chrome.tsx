@@ -2,6 +2,7 @@
 
 import { MsnPresenceIcon } from "@/components/msn-presence-icon";
 import { cn } from "@/lib/utils";
+import { BRAND } from "@/lib/brand";
 
 const MENUS = ["File", "Edit", "Actions", "Tools", "Help"] as const;
 
@@ -18,7 +19,7 @@ export function MsnWindowChrome({
       <div className="msn-titlebar">
         <MsnPresenceIcon status="online" size={14} />
         <span className="min-w-0 flex-1 truncate text-[12px] font-semibold tracking-wide">
-          Safely Messenger
+          {BRAND.name} Messenger
         </span>
         {subtitle ? (
           <span className="hidden max-w-[40%] truncate text-[10px] font-medium text-white/75 sm:inline">

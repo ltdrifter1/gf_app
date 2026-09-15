@@ -1,5 +1,5 @@
-/* Safely PWA service worker — cache the shell; Web Push VAPID can hook here later. */
-const CACHE = "safely-shell-v1";
+/* Lumen PWA service worker — cache the shell; Web Push VAPID can hook here later. */
+const CACHE = "lumen-shell-v1";
 const PRECACHE = ["/", "/app/chat", "/logo.png", "/apple-touch-icon.png"];
 
 self.addEventListener("install", (event) => {
@@ -38,7 +38,7 @@ self.addEventListener("fetch", (event) => {
 });
 
 self.addEventListener("push", (event) => {
-  let title = "Safely";
+  let title = "Lumen";
   let body = "You have a new ping.";
   try {
     if (event.data) {

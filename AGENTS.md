@@ -1,12 +1,13 @@
-# Safely
+# Lumen
 
-**Your gluten-free companion. Find your people.**
+**Your gluten-free companion. Find your people — and a little more light.**
 
-Safely is a **gluten-free social network** with an MSN Messenger–style chat lounge.
+Lumen is a **gluten-free social network** with an MSN Messenger–style chat lounge.
 Full-stack **Next.js 15** + **TypeScript** + **Tailwind** + **Prisma** + **PostgreSQL**.
 
-Design: glassmorphism with MSN gloss. Brand gradient: `bg-safely-gradient`.
-Product name lives in `src/lib/brand.ts` (`BRAND`) so a later rename is one-file.
+Design: glassmorphism with MSN gloss. Brand gradient: `bg-lumen-gradient`.
+Product name lives in `src/lib/brand.ts` (`BRAND`).
+Current production domain: `safelyceliac.com` (host is unchanged in this pass).
 
 ## Surface
 
@@ -43,13 +44,13 @@ Product name lives in `src/lib/brand.ts` (`BRAND`) so a later rename is one-file
 
 - Dev: Postgres required — see `.env.example`, then `npm run dev` → http://localhost:3000
 - Reset: `npx prisma db push --force-reset && npx prisma db seed`
-- Demo (local only): `maya@safely.app` / `password123`
+- Demo (local only): `maya@lumen.app` / `password123`
 - Prod catalog (no demos): `npm run db:seed:prod` — also auto-runs via `ensureLaunchCatalog`
 - Production domain: `https://safelyceliac.com` (see `DEPLOY.md` for Namecheap → Vercel DNS)
 - `AUTH_SECRET` is required in production (fails closed)
 - Vercel build: `ship:build` (see `vercel.json`)
 - DMs are membership-gated; community rooms auto-join
 - Chat/presence: SSE live stream (+ short poll fallback); live statuses = lastSeen < 60s
-- Auth cookie: `safely_session`
+- Auth cookie: `lumen_session` (readers still accept legacy `safely_session`; login writes the new name and drops the old one)
 - Rate limits on register / login / chat send / buddy match / scans
 - Optional Web Push: `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`

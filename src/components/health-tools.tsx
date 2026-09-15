@@ -254,7 +254,7 @@ function BoxBreathing() {
             style={{
               width: "100%",
               transform: "scaleX(0)",
-              animation: "safelyGrowBar 4s linear forwards",
+              animation: "lumenGrowBar 4s linear forwards",
             }}
           />
         </div>

@@ -12,7 +12,7 @@ export const COMMUNITY_ROOMS = [
   {
     slug: "general-support",
     name: "General Support",
-    description: "The living room of Safely — wins, questions, and mid-week pep talks.",
+    description: "The living room of Lumen — wins, questions, and mid-week pep talks.",
   },
   {
     slug: "newly-diagnosed",
@@ -418,22 +418,46 @@ export const LAUNCH_RECIPES = [
   },
 ] as const;
 
-const CATALOG_EMAIL = "catalog@safely.internal";
-const CATALOG_USERNAME = "safely";
+const CATALOG_EMAIL = "catalog@lumen.internal";
+const CATALOG_USERNAME = "lumen";
+const LEGACY_CATALOG_EMAIL = "catalog@safely.internal";
 
 /** Non-loginable catalog author for seed recipes (random password, never printed). */
 async function ensureCatalogAuthor(prisma: PrismaClient) {
-  const existing = await prisma.user.findUnique({ where: { email: CATALOG_EMAIL } });
-  if (existing) return existing;
+  const existing =
+    (await prisma.user.findUnique({ where: { email: CATALOG_EMAIL } })) ??
+    (await prisma.user.findUnique({ where: { email: LEGACY_CATALOG_EMAIL } }));
+
+  const kitchenBio = "Recipes from the Lumen kitchen — tested by hungry friends, not robots.";
+
+  if (existing) {
+    if (
+      existing.email !== CATALOG_EMAIL ||
+      existing.username !== CATALOG_USERNAME ||
+      existing.name !== "Lumen" ||
+      existing.bio !== kitchenBio
+    ) {
+      return prisma.user.update({
+        where: { id: existing.id },
+        data: {
+          email: CATALOG_EMAIL,
+          username: CATALOG_USERNAME,
+          name: "Lumen",
+          bio: kitchenBio,
+        },
+      });
+    }
+    return existing;
+  }
 
   const passwordHash = await bcrypt.hash(randomBytes(48).toString("hex"), 10);
   return prisma.user.create({
     data: {
       email: CATALOG_EMAIL,
       username: CATALOG_USERNAME,
-      name: "Safely",
+      name: "Lumen",
       role: "USER",
-      bio: "Recipes from the Safely kitchen — tested by hungry friends, not robots.",
+      bio: kitchenBio,
       passwordHash,
       presence: "offline",
       profile: { create: { diagnosis: "supporter" } },

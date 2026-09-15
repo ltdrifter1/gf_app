@@ -118,7 +118,7 @@ In the US, call or text 988. Needing more than an app doesn’t make you weak. I
 Ways people gently rebuild:
 - One sensory win that isn’t a “cheat”: a beautiful plate, a scent, a texture you still love
 - Shared non-food rituals with friends (walks, movies, tea with sealed snacks)
-- Cooking one low-stakes recipe from Safely Recipes when energy allows — curiosity over perfection
+- Cooking one low-stakes recipe from Lumen Recipes when energy allows — curiosity over perfection
 
 If nothing feels good for weeks, that’s clinical information, not laziness. Bring it to a professional. Joy isn’t a luxury metric; it’s a health signal.`,
   },
@@ -158,7 +158,7 @@ Scripts that help:
 - “I’m bringing a dish I trust so I can actually hang out instead of hovering by the kitchen.”
 - “Rain check on dinner, but I’m free for a walk / coffee with something sealed.”
 
-On Safely: open a room, follow folks who get it, and post when you need a reality check. Wanting company isn’t neediness — it’s how humans work.
+On Lumen: open a room, follow folks who get it, and post when you need a reality check. Wanting company isn’t neediness — it’s how humans work.
 
 If you’ve declined everything for months, start with one low-stakes yes. Belonging rebuilds in small reps.`,
   },
@@ -233,7 +233,7 @@ If the answer is vague (“should be fine”), it’s okay to choose a different
     body: `Group dinners amplify everything: menus, opinions, “just try it” energy.
 
 Before:
-- Suggest 2–3 places you’ve researched (or Safely Dining favorites)
+- Suggest 2–3 places you’ve researched (or Lumen Dining favorites)
 - Eat a small safe snack so you’re not starving into bad decisions
 - Tell one ally your plan (“I may step out / order carefully”)
 
@@ -477,7 +477,7 @@ Decide your non-negotiables before you walk in. You’re allowed to leave early.
 Protect the caregiver:
 - Templates for teacher emails (reuse them)
 - One trusted parent ally for parties
-- Safely Parents room when you need “is this normal?”
+- Lumen Parents room when you need “is this normal?”
 - Your own Journal / Track — kids’ charts aren’t the only ones that matter
 
 Ask for help explicitly. Martyrdom doesn’t keep anyone safer.`,

@@ -1,6 +1,6 @@
-# Safely
+# Lumen
 
-**Your gluten-free companion. Find your people.**
+**Your gluten-free companion. Find your people — and a little more light.**
 
 A gluten-free social network with an MSN Messenger–style lounge — community,
 safe dining, recipes, and health support.
@@ -17,11 +17,12 @@ npx prisma db seed     # local demo users only
 npm run dev            # http://localhost:3000
 ```
 
-Local demo login (dev only): `maya@safely.app` / `password123`
+Local demo login (dev only): `maya@lumen.app` / `password123`
 
 ## Ship to production
 
-See **[DEPLOY.md](./DEPLOY.md)** — Postgres + Vercel + Namecheap DNS for **https://safelyceliac.com**.  
+See **[DEPLOY.md](./DEPLOY.md)** — Postgres + Vercel + Namecheap DNS for **https://safelyceliac.com**
+(current host; product name is **Lumen**).  
 Catalog boots safely without demo accounts (`npm run db:seed:prod` or auto on first request).
 
 ## Features

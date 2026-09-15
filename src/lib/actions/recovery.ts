@@ -65,7 +65,7 @@ export async function logGluteningRecovery(formData: FormData) {
       userId: buddyId,
       type: "companion",
       title: `${user.name} could use a hello`,
-      body: "They used Safely's check-in button. No details were shared — just a wave when you can.",
+      body: "They used Lumen's check-in button. No details were shared — just a wave when you can.",
       href: `/app/chat/${dm.slug}`,
     }).catch(() => {});
 

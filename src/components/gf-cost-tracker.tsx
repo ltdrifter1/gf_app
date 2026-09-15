@@ -69,7 +69,7 @@ export function GfCostTracker({ initial }: { initial: CostRow[] }) {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `safely-gf-costs-${res.year}.csv`;
+      a.download = `lumen-gf-costs-${res.year}.csv`;
       a.click();
       URL.revokeObjectURL(url);
     });
@@ -179,7 +179,7 @@ export function GfCostTracker({ initial }: { initial: CostRow[] }) {
 
       <p className="text-[11px] text-sage-400">
         CRA medical-expense rules change and depend on your situation (including whether a practitioner
-        recommended a gluten-free diet). Keep receipts. Safely does not file taxes or give legal advice.
+        recommended a gluten-free diet). Keep receipts. Lumen does not file taxes or give legal advice.
       </p>
     </div>
   );

@@ -18,8 +18,8 @@ export function MsnPrefsControls() {
       const detail = (e as CustomEvent<MsnPrefs>).detail;
       if (detail) setPrefs(detail);
     };
-    window.addEventListener("safely-msn-prefs", onChange);
-    return () => window.removeEventListener("safely-msn-prefs", onChange);
+    window.addEventListener("lumen-msn-prefs", onChange);
+    return () => window.removeEventListener("lumen-msn-prefs", onChange);
   }, []);
 
   return (

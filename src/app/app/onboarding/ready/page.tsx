@@ -52,7 +52,7 @@ export default async function OnboardingReadyPage({
               Start in {match.room?.name ?? "General Support"}
             </h2>
             <p className="text-sm text-sage-500">
-              {match.room?.description ?? "The living room of Safely — wins, questions, and mid-week pep talks."}
+              {match.room?.description ?? "The living room of Lumen — wins, questions, and mid-week pep talks."}
             </p>
             <Link href={`/app/chat/${roomSlug}`} className="btn-primary mt-3 inline-flex">
               Open room <ArrowRight className="h-4 w-4" />

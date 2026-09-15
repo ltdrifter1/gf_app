@@ -6,6 +6,7 @@ import { useFormStatus } from "react-dom";
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Loader2 } from "lucide-react";
+import { BRAND } from "@/lib/brand";
 
 export function SubmitButton({ children }: { children: React.ReactNode }) {
   const { pending } = useFormStatus();
@@ -40,15 +41,15 @@ export function AuthShell({
         <div className="relative z-10 mx-auto max-w-sm text-center">
           <Image
             src="/logo.webp"
-            alt="Safely Celiac Community"
+            alt={BRAND.ogAlt}
             width={140}
             height={140}
             className="mx-auto rounded-[28%] shadow-soft"
             priority
           />
-          <p className="mt-8 font-display text-xl text-white/75">Find your people.</p>
+          <p className="mt-8 font-display text-xl text-white/75">{BRAND.landingLine}</p>
         </div>
-        <p className="relative z-10 text-sm text-white/40">safelyceliac.com</p>
+        <p className="relative z-10 text-sm text-white/40">{BRAND.domain}</p>
       </div>
 
       <div className="flex min-h-screen items-center justify-center p-6">

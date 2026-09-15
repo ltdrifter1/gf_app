@@ -6,6 +6,7 @@ import { rateLimit } from "@/lib/rate-limit";
 import { cityFromLocation } from "@/lib/companion";
 import { createNotification } from "@/lib/actions/notifications";
 import { getOrCreateDmRoom } from "@/lib/actions/chat";
+import { BRAND } from "@/lib/brand";
 
 const MATCH_LIMIT_PER_DAY = 5;
 
@@ -15,15 +16,15 @@ function pairIds(a: string, b: string) {
 
 function icebreaker(reason: string, city: string | null) {
   if (reason === "mentoring") {
-    return "Hey — Safely paired you as buddies (newer + more miles). Share whatever feels useful; skip the rest. No pressure.";
+    return `Hey — ${BRAND.name} paired you as buddies (newer + more miles). Share whatever feels useful; skip the rest. No pressure.`;
   }
   if (reason === "caregiver") {
-    return "Hi — Safely paired you as caregiver buddies. Lunchbox diplomacy and pep talks both count. Say hello whenever.";
+    return `Hi — ${BRAND.name} paired you as caregiver buddies. Lunchbox diplomacy and pep talks both count. Say hello whenever.`;
   }
   if (reason === "same-city" && city) {
-    return `Hey — you're both around ${city}. Safely thought a buddy hello might be nice. Favourite safe snack?`;
+    return `Hey — you're both around ${city}. ${BRAND.name} thought a buddy hello might be nice. Favourite safe snack?`;
   }
-  return "Hey — Safely thought you two might get along as buddies. A wave is plenty. No medical homework.";
+  return `Hey — ${BRAND.name} thought you two might get along as buddies. A wave is plenty. No medical homework.`;
 }
 
 function scoreCandidate(opts: {
@@ -179,7 +180,7 @@ export async function findBuddyMatch() {
       userId: pick.id,
       type: "companion",
       title: "A buddy said hi",
-      body: `${me.name} was matched with you as a Safely buddy. Open the DM when you're ready — no pressure.`,
+      body: `${me.name} was matched with you as a ${BRAND.name} buddy. Open the DM when you're ready — no pressure.`,
       href: `/app/chat/${dm.slug}`,
     }),
   ]).catch(() => {});
