@@ -5,6 +5,7 @@ import { Download, Trash2 } from "lucide-react";
 import { addGfCostEntry, deleteGfCostEntry, exportGfCostsCsv } from "@/lib/actions/costs";
 import { cn } from "@/lib/utils";
 import { ImageUpload } from "@/components/image-upload";
+import { TaxHelpCard } from "@/components/tax-help-card";
 
 export type CostRow = {
   id: string;
@@ -81,8 +82,8 @@ export function GfCostTracker({ initial }: { initial: CostRow[] }) {
       <div className="card space-y-3 p-5">
         <p className="text-sm text-sage-600 dark:text-sage-300">
           Track the extra you pay for gluten-free staples. The CSV is shaped like Canadian medical-expense
-          documentation (date, supplier, description, amounts, differential). You still file your own taxes —
-          this is not legal or tax advice.
+          documentation (date, supplier, description, amounts, differential). Eligibility still depends on
+          your situation — this is not tax advice.
         </p>
         <form id="gf-cost-form" action={onSubmit} noValidate className="grid gap-3 sm:grid-cols-2">
           <div className="sm:col-span-2">
@@ -178,9 +179,12 @@ export function GfCostTracker({ initial }: { initial: CostRow[] }) {
         })
       )}
 
+      <TaxHelpCard />
+
       <p className="text-[11px] text-sage-400">
         CRA medical-expense rules change and depend on your situation (including whether a practitioner
-        recommended a gluten-free diet). Keep receipts. Lumen does not file taxes or give legal advice.
+        recommended a gluten-free diet). Keep receipts. The tracker does not file a return or give legal
+        advice.
       </p>
     </div>
   );

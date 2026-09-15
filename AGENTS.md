@@ -34,7 +34,7 @@ Current production domain: `safelyceliac.com` (host is unchanged in this pass).
 - **I got gluten** — Recovery card on Health (`#recovery`) and Messenger me-strip. Optional private `HealthLog` + buddy check-in (`::checkin::`) with no details.
 - **MSN statuses** — `need-check-in`, `dining-out`, `quiet-today`, `helping-new` plus classic online/away/offline. Buddy list sorts need-check-in first.
 - **Label scan** — Photo (Tesseract on-device), barcode (Open Food Facts), or paste → Safe / Caution / Unsafe / Unknown. Not lab-grade.
-- **Canadian GF costs** — Receipts + monthly list + CRA-style CSV. Not tax advice.
+- **Canadian GF costs** — Receipts + monthly list + CRA-style CSV. Not tax advice. Soft CTA: founder is a Canadian chartered accountant; `mailto` on `/app/costs` for personal-tax enquiries (`BRAND.taxesEmail`).
 - **Dining tonight** — Auto city rooms `city-{city}-tonight` in Messenger; archived after ~10:00 UTC.
 - **Dining trust** — New spots are **pending** until an admin publishes. Claims cap at 50%. Cross-contact incidents demote to **disputed** and ping nearby diners. Admin can hide / unpublish / resolve flags.
 - **Safety** — Block/mute, DM message requests (auto-accept for follows/buddies), working flag queue.

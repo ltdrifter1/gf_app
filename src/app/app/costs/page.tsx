@@ -22,8 +22,8 @@ export default async function CostsPage() {
           Canadian GF cost tracker
         </h1>
         <p className="text-sage-500">
-          Favour receipts you already have. Export a CSV for your own medical-expense records — we
-          don&apos;t file taxes.
+          Keep the extra you pay for gluten-free staples in one place. Export a CRA-shaped CSV when
+          you&apos;re ready — this is a receipt log, not a filing.
         </p>
       </div>
       <GfCostTracker
