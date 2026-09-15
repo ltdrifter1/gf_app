@@ -8,6 +8,7 @@ import { categoryBySlug } from "@/lib/constants";
 import { timeAgo, cn } from "@/lib/utils";
 import { toggleLike, toggleSave } from "@/lib/actions/posts";
 import { flagContent } from "@/lib/actions/moderation";
+import { SafeImg } from "./safe-img";
 
 export type PostCardData = {
   id: string;
@@ -101,8 +102,7 @@ export function PostCard({ post }: { post: PostCardData }) {
 
       {post.imageUrl && (
         <Link href={`/app/post/${post.id}`} className="mt-3 block overflow-hidden rounded-2xl">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <SafeImg
             src={post.imageUrl}
             alt=""
             className="max-h-96 w-full object-cover transition hover:scale-[1.02]"

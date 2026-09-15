@@ -18,6 +18,7 @@ import { AddRestaurantForm } from "./add-restaurant-form";
 import { safetyColor, safetyLabel, cn } from "@/lib/utils";
 import { distanceKm, formatDistanceKm } from "@/lib/geo";
 import { ConfidenceMeter, TrustBadges } from "./trust-badges";
+import { SafeImg } from "./safe-img";
 
 export type RestaurantItem = {
   id: string;
@@ -159,15 +160,12 @@ export function RestaurantDirectory({
             onMouseEnter={() => setSelected(r.id)}
             className="card group flex gap-4 overflow-hidden p-3 transition hover:shadow-glass-lg"
           >
-            <div className="h-28 w-28 shrink-0 overflow-hidden rounded-2xl bg-sage-100">
-              {r.imageUrl && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={r.imageUrl}
-                  alt={r.name}
-                  className="h-full w-full object-cover transition group-hover:scale-105"
-                />
-              )}
+            <div className="h-28 w-28 shrink-0 overflow-hidden rounded-2xl bg-sage-100 dark:bg-sage-800">
+              <SafeImg
+                src={r.imageUrl}
+                alt={r.name}
+                className="h-full w-full object-cover transition group-hover:scale-105"
+              />
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex items-start justify-between gap-2">

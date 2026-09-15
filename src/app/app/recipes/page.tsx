@@ -4,6 +4,7 @@ import { requireUser } from "@/lib/auth";
 import { RECIPE_CATEGORIES } from "@/lib/constants";
 import { containsI } from "@/lib/search";
 import { Stars } from "@/components/star-rating";
+import { SafeImg } from "@/components/safe-img";
 import { Clock, Flame, Search } from "lucide-react";
 
 export default async function RecipesPage({
@@ -148,15 +149,12 @@ export default async function RecipesPage({
             className="card group overflow-hidden transition hover:-translate-y-1 hover:shadow-glass-lg"
           >
             <Link href={`/app/recipes/${r.id}`} className="block">
-              <div className="h-44 overflow-hidden bg-sage-100">
-                {r.imageUrl && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={r.imageUrl}
-                    alt={r.title}
-                    className="h-full w-full object-cover transition group-hover:scale-105"
-                  />
-                )}
+              <div className="h-44 overflow-hidden bg-sage-100 dark:bg-sage-800">
+                <SafeImg
+                  src={r.imageUrl}
+                  alt={r.title}
+                  className="h-full w-full object-cover transition group-hover:scale-105"
+                />
               </div>
             </Link>
             <div className="p-4">

@@ -2,13 +2,15 @@ import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth";
 import { MyspaceProfile } from "@/components/myspace-profile";
 import { ProfileEditForm } from "@/components/profile-edit-form";
+import { ProfileWall } from "@/components/profile-wall";
 import { AccountSettings } from "@/components/account-settings";
 import { getTopFriends } from "@/lib/actions/profile";
+import { studioLookFromProfile } from "@/lib/profile-theme";
 import type { PostCardData } from "@/components/post-card";
 
 export default async function ProfilePage() {
   const user = await requireUser();
-  const [posts, followers, following, fullUser, topFriends, recipes, diningReviews] =
+  const [posts, followers, following, fullUser, topFriends, recipes, diningReviews, wall] =
     await Promise.all([
       prisma.post.findMany({
         where: { authorId: user.id, hidden: false },
@@ -36,6 +38,14 @@ export default async function ProfilePage() {
         take: 5,
         include: {
           restaurant: { select: { id: true, name: true, city: true, imageUrl: true } },
+        },
+      }),
+      prisma.profileWallComment.findMany({
+        where: { profileUserId: user.id },
+        orderBy: { createdAt: "desc" },
+        take: 40,
+        include: {
+          author: { select: { id: true, name: true, username: true, avatarUrl: true } },
         },
       }),
     ]);
@@ -90,6 +100,11 @@ export default async function ProfilePage() {
           content: r.content,
           restaurant: r.restaurant,
         })),
+        look: studioLookFromProfile(fullUser?.profile),
+        wall,
+        wallSlot: (
+          <ProfileWall profileUserId={user.id} isOwn viewerId={user.id} comments={wall} />
+        ),
         editSlot: (
           <ProfileEditForm
             username={user.username}

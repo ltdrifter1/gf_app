@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Map, { Marker, Popup, NavigationControl } from "react-map-gl/maplibre";
 import Link from "next/link";
 import { OSM_STYLE } from "./map-style";
+import { SafeImg } from "./safe-img";
 import { safetyColor, safetyLabel } from "@/lib/utils";
 
 export type MapPin = {
@@ -48,7 +49,9 @@ export function RestaurantMap({
         key={pins.map((p) => p.id).join(",")}
         initialViewState={initialViewState}
         mapStyle={OSM_STYLE}
-        style={{ width: "100%", height: "100%" }}
+        style={{ width: "100%", height: "100%", minHeight: 240 }}
+        attributionControl
+        cooperativeGestures
       >
         <NavigationControl position="top-right" showCompass={false} />
         {pins.map((p) => (
@@ -85,10 +88,7 @@ export function RestaurantMap({
             onClose={() => setPopup(null)}
           >
             <Link href={`/app/restaurants/${popup.id}`} className="block w-52">
-              {popup.imageUrl && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={popup.imageUrl} alt={popup.name} className="h-24 w-full object-cover" />
-              )}
+              <SafeImg src={popup.imageUrl} alt={popup.name} className="h-24 w-full object-cover" />
               <div className="p-3">
                 <p className="font-semibold text-sage-900">{popup.name}</p>
                 <p className="text-xs text-sage-500">{popup.city}</p>

@@ -70,6 +70,11 @@ model User {
   blockedBy          UserBlock[] @relation("blocked")
   muting             UserMute[]  @relation("muter")
   mutedBy            UserMute[]  @relation("muted")
+
+  topEightOwned        TopEightFriend[]     @relation("topEightOwner")
+  topEightAppearances  TopEightFriend[]     @relation("topEightFriend")
+  wallReceived         ProfileWallComment[] @relation("wallOwner")
+  wallWritten          ProfileWallComment[] @relation("wallAuthor")
 }
 
 model Profile {
@@ -101,6 +106,23 @@ model Profile {
   quietHoursStart Int?
   quietHoursEnd   Int?
   lastCheckinNudgeAt DateTime?
+
+  /// Profile Studio — Y2K skins, wallpaper, module order, name flair
+  /// lumen | classic-blue | pink-glitter | lime | midnight | sunflower | ocean
+  themeId          String  @default("lumen")
+  coverUrl         String?
+  /// theme | solid | gradient | image
+  backgroundType   String  @default("theme")
+  backgroundColor  String?
+  backgroundUrl    String?
+  /// 0–80 overlay on image / cover
+  overlayOpacity   Int     @default(35)
+  /// string[] of module ids: pic, blurbs, blog, friends, recipes, dining, wall
+  moduleOrder      Json?
+  /// default | display | typewriter | comic | hand | groovy
+  nameFlair        String  @default("default")
+  /// brand | pink | lime | gold | ice | grape
+  nameAccent       String  @default("brand")
 }
 
 model Follow {
@@ -511,6 +533,33 @@ model PasswordReset {
   createdAt DateTime  @default(now())
 
   @@index([userId])
+}
+
+/// Explicit Top 8 (not “last 8 follows”) — owner picks and orders friends
+model TopEightFriend {
+  id        String   @id @default(cuid())
+  ownerId   String
+  friendId  String
+  position  Int
+  owner     User     @relation("topEightOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  friend    User     @relation("topEightFriend", fields: [friendId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([ownerId, friendId])
+  @@index([ownerId, position])
+}
+
+/// Profile guestbook — plain text only; owner can delete
+model ProfileWallComment {
+  id            String   @id @default(cuid())
+  profileUserId String
+  authorId      String
+  content       String
+  createdAt     DateTime @default(now())
+  profileUser   User     @relation("wallOwner", fields: [profileUserId], references: [id], onDelete: Cascade)
+  author        User     @relation("wallAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([profileUserId, createdAt])
 }
 
 model ScanMissReport {

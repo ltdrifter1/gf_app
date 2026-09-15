@@ -1,4 +1,7 @@
 import "server-only";
+import { isAllowedImageUrl as httpsImageOk } from "@/lib/safe-image";
+
+export { safeImageSrc, isAllowedImageUrl, catalogImageUrl, isStaleCatalogImage } from "@/lib/safe-image";
 
 const ALLOWED = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
 const MAX_BYTES = 4 * 1024 * 1024;
@@ -14,10 +17,19 @@ function extFor(type: string) {
   return "jpg";
 }
 
+export type UploadFolder =
+  | "scans"
+  | "receipts"
+  | "posts"
+  | "avatars"
+  | "dining"
+  | "evidence"
+  | "covers";
+
 /** Store an image. Uses Vercel Blob when token is set; otherwise public/uploads (local). */
 export async function saveImageUpload(
   file: File,
-  folder: "scans" | "receipts" | "posts" | "avatars" | "dining" | "evidence"
+  folder: UploadFolder
 ): Promise<{ url: string } | { error: string }> {
   if (!file || file.size === 0) return { error: "Choose a photo" };
   if (file.size > MAX_BYTES) return { error: "Photo must be under 4 MB" };
@@ -42,20 +54,7 @@ export async function saveImageUpload(
   return { url: `/uploads/${folder}/${filename}` };
 }
 
-export function isAllowedImageUrl(url: string) {
-  if (!url) return false;
-  if (url.startsWith("/uploads/")) return true;
-  try {
-    const u = new URL(url);
-    if (u.protocol !== "https:" && u.protocol !== "http:") return false;
-    const host = u.hostname.toLowerCase();
-    return (
-      host.endsWith(".public.blob.vercel-storage.com") ||
-      host === "picsum.photos" ||
-      host.endsWith(".openfoodfacts.org") ||
-      host === "images.openfoodfacts.org"
-    );
-  } catch {
-    return false;
-  }
+/** @deprecated use isAllowedImageUrl from safe-image — kept for existing imports */
+export function assertHttpsImage(url: string) {
+  return httpsImageOk(url);
 }

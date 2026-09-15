@@ -5,6 +5,7 @@ import { useFormStatus } from "react-dom";
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Loader2 } from "lucide-react";
+import { LegalFooter } from "@/components/legal-footer";
 import { BRAND } from "@/lib/brand";
 
 export function SubmitButton({ children }: { children: React.ReactNode }) {
@@ -42,7 +43,9 @@ export function AuthShell({
           <p className="mt-6 font-display text-3xl font-bold text-white">{BRAND.name}</p>
           <p className="mt-3 font-display text-xl text-white/75">{BRAND.landingLine}</p>
         </div>
-        <p className="relative z-10 text-sm text-white/40">{BRAND.domain}</p>
+        <p className="relative z-10 text-sm text-white/40">
+          {BRAND.name} · {BRAND.domain}
+        </p>
       </div>
 
       <div className="flex min-h-screen items-center justify-center p-6">
@@ -57,6 +60,7 @@ export function AuthShell({
             <p className="mt-1 text-sage-500 dark:text-sage-400">{subtitle}</p>
             <div className="mt-6">{children}</div>
           </div>
+          <LegalFooter className="mt-6 text-center text-xs text-sage-500 dark:text-sage-400" />
         </div>
       </div>
     </div>

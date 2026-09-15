@@ -7,6 +7,7 @@ import { Stars } from "@/components/star-rating";
 import { RecipeRatingForm } from "@/components/recipe-rating-form";
 import { Avatar } from "@/components/ui/avatar";
 import { MessageButton } from "@/components/message-button";
+import { SafeImg } from "@/components/safe-img";
 import { timeAgo } from "@/lib/utils";
 
 export default async function RecipeDetail({ params }: { params: Promise<{ id: string }> }) {
@@ -39,10 +40,7 @@ export default async function RecipeDetail({ params }: { params: Promise<{ id: s
       </Link>
 
       <div className="card overflow-hidden">
-        {r.imageUrl && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={r.imageUrl} alt={r.title} className="h-64 w-full object-cover sm:h-80" />
-        )}
+        <SafeImg src={r.imageUrl} alt={r.title} className="h-64 w-full object-cover sm:h-80" />
         <div className="p-6">
           <span className="chip bg-orange-100 text-orange-700 dark:bg-orange-500/15 dark:text-orange-300">{r.category}</span>
           <h1 className="mt-2 font-display text-3xl font-bold text-sage-900 dark:text-white">{r.title}</h1>

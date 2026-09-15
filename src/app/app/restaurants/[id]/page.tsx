@@ -21,6 +21,7 @@ import { MessageButton } from "@/components/message-button";
 import { safetyColor, safetyLabel, timeAgo, cn } from "@/lib/utils";
 import { computeTrustRollup } from "@/lib/dining-confidence";
 import { TrustBadges, TrustChecklist } from "@/components/trust-badges";
+import { SafeImg } from "@/components/safe-img";
 
 export default async function RestaurantDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -66,10 +67,7 @@ export default async function RestaurantDetail({ params }: { params: Promise<{ i
       </Link>
 
       <div className="card overflow-hidden">
-        {r.imageUrl && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={r.imageUrl} alt={r.name} className="h-56 w-full object-cover sm:h-72" />
-        )}
+        <SafeImg src={r.imageUrl} alt={r.name} className="h-56 w-full object-cover sm:h-72" />
         <div className="p-6">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>

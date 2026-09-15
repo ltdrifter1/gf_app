@@ -3,7 +3,7 @@
 import { requireUser } from "@/lib/auth";
 import { saveImageUpload } from "@/lib/uploads";
 
-const FOLDERS = ["scans", "receipts", "posts", "avatars", "dining", "evidence"] as const;
+const FOLDERS = ["scans", "receipts", "posts", "avatars", "dining", "evidence", "covers"] as const;
 export type UploadFolder = (typeof FOLDERS)[number];
 
 export async function uploadImage(formData: FormData) {

@@ -92,6 +92,18 @@ export default function RegisterPage() {
         <SubmitButton>Create my account</SubmitButton>
       </form>
 
+      <p className="mt-3 text-center text-xs text-sage-500 dark:text-sage-400">
+        By joining you agree to the{" "}
+        <Link href="/terms" className="font-semibold text-brand-600 hover:underline">
+          Terms
+        </Link>{" "}
+        and{" "}
+        <Link href="/privacy" className="font-semibold text-brand-600 hover:underline">
+          Privacy Policy
+        </Link>
+        . Not medical advice — just people who get it.
+      </p>
+
       <p className="mt-5 text-center text-sm text-sage-600 dark:text-sage-300">
         Already a member?{" "}
         <Link href="/login" className="font-semibold text-brand-600 hover:underline">

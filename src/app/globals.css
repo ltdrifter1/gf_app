@@ -415,6 +415,73 @@
   animation: msn-nudge-shake 0.55s ease-in-out;
 }
 
+/* —— Profile Studio skins (CSS variables set inline on .ps-theme) —— */
+.ps-theme {
+  background: var(--ps-bg);
+  color: var(--ps-text);
+  position: relative;
+  border-radius: 1.5rem;
+  padding: 1rem;
+}
+.dark .ps-theme {
+  background: var(--ps-bg-dark);
+  color: var(--ps-text-dark);
+}
+.ps-glitter::before {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-image: radial-gradient(circle at 20% 30%, rgba(255,255,255,0.7) 0 1px, transparent 2px),
+    radial-gradient(circle at 70% 20%, rgba(255,255,255,0.55) 0 1px, transparent 2px),
+    radial-gradient(circle at 40% 80%, rgba(255,255,255,0.45) 0 1px, transparent 2px),
+    radial-gradient(circle at 85% 65%, rgba(255,255,255,0.5) 0 1px, transparent 2px);
+  background-size: 120px 120px, 90px 90px, 140px 140px, 80px 80px;
+  opacity: 0.55;
+}
+.ps-section {
+  overflow: hidden;
+  border-radius: 1rem;
+  border: 1px solid var(--ps-border);
+  background: var(--ps-panel);
+  box-shadow: 0 4px 20px -4px rgba(0,0,0,0.08);
+}
+.dark .ps-section {
+  border-color: var(--ps-border-dark);
+  background: var(--ps-panel-dark);
+}
+.ps-section-bar {
+  padding: 0.4rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #fff;
+  background: linear-gradient(to right, var(--ps-section-from), var(--ps-section-to));
+  box-shadow: inset 0 1px 0 0 rgba(255,255,255,0.35);
+}
+.dark .ps-section-bar {
+  background: linear-gradient(to right, var(--ps-section-from-dark), var(--ps-section-to-dark));
+}
+.ps-flair-default { font-family: var(--font-display), var(--font-geist-sans), sans-serif; }
+.ps-flair-display { font-family: Impact, "Arial Black", "Franklin Gothic Bold", sans-serif; letter-spacing: 0.03em; }
+.ps-flair-typewriter { font-family: "Courier New", ui-monospace, monospace; }
+.ps-flair-comic { font-family: "Comic Sans MS", "Comic Sans", "Chalkboard SE", cursive; }
+.ps-flair-hand { font-family: "Segoe Script", "Bradley Hand", "Apple Chancery", cursive; }
+.ps-flair-groovy { font-family: Georgia, "Palatino Linotype", Palatino, serif; letter-spacing: 0.04em; font-style: italic; }
+.ps-accent-brand { color: #0d9488; }
+.ps-accent-pink { color: #db2777; }
+.ps-accent-lime { color: #65a30d; }
+.ps-accent-gold { color: #d97706; }
+.ps-accent-ice { color: #0891b2; }
+.ps-accent-grape { color: #7c3aed; }
+.dark .ps-accent-brand { color: #5eead4; }
+.dark .ps-accent-pink { color: #f9a8d4; }
+.dark .ps-accent-lime { color: #a3e635; }
+.dark .ps-accent-gold { color: #fbbf24; }
+.dark .ps-accent-ice { color: #67e8f9; }
+.dark .ps-accent-grape { color: #c4b5fd; }
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 10px;

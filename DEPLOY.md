@@ -20,6 +20,9 @@ Use [Neon](https://neon.tech) (recommended), Supabase, Railway, or Vercel Postgr
 | `DATABASE_URL` | Your Postgres URL (`?sslmode=require`) |
 | `AUTH_SECRET` | Strong secret — `openssl rand -base64 48` |
 | `NEXT_PUBLIC_APP_URL` | `https://safelyceliac.com` |
+| `RESEND_API_KEY` | Optional. Without it, `/forgot` shows a one-hour recovery link in the UI |
+| `EMAIL_FROM` | Optional. e.g. `Lumen <noreply@safelyceliac.com>` |
+| `BLOB_READ_WRITE_TOKEN` | Optional. Avatar/cover uploads; otherwise `public/uploads` |
 
 4. Deploy. Confirm the `*.vercel.app` URL loads.
 
@@ -73,7 +76,7 @@ Leave **Nameservers** on Namecheap BasicDNS (`dns1/dns2.registrar-servers.com`) 
 - [ ] No demo credentials on the login page
 - [ ] HTTPS works on https://safelyceliac.com
 - [ ] First admin: register, then set `role = "ADMIN"` in the DB
-- [ ] Smoke test: register → Messenger → post → restaurants → recipes → health
+- [ ] Smoke test: register → Messenger → post → restaurants (map tiles) → recipes → health → Following feed → Profile Studio
 
 ## Local development
 

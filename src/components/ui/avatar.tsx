@@ -1,5 +1,6 @@
 import { avatarGradient, initials, cn } from "@/lib/utils";
 import { presenceMeta } from "@/lib/presence";
+import { safeImageSrc } from "@/lib/safe-image";
 
 export function Avatar({
   name,
@@ -16,16 +17,18 @@ export function Avatar({
 }) {
   const meta = presence ? presenceMeta(presence) : null;
   const pulse = presence === "need-check-in";
+  const imgSrc = safeImageSrc(src);
 
   return (
     <div className="relative inline-block shrink-0" style={{ width: size, height: size }}>
-      {src ? (
+      {imgSrc ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          src={src}
+          src={imgSrc}
           alt={name}
           className={cn("rounded-full object-cover", className)}
           style={{ width: size, height: size }}
+          referrerPolicy="no-referrer"
         />
       ) : (
         <div
