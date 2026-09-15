@@ -606,6 +606,21 @@ export async function ensureRecipes(prisma: PrismaClient) {
       },
     });
   }
+
+  const leftover = await prisma.recipe.findMany({
+    where: { OR: [{ imageUrl: { contains: "picsum" } }, { imageUrl: null }] },
+    select: { id: true, title: true },
+  });
+  for (const row of leftover) {
+    const match = LAUNCH_RECIPES.find((r) => r.title === row.title);
+    const seed =
+      match?.img ||
+      `rec-${row.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40)}`;
+    await prisma.recipe.update({
+      where: { id: row.id },
+      data: { imageUrl: img(seed) },
+    });
+  }
 }
 
 /**
