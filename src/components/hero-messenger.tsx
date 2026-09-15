@@ -96,7 +96,7 @@ export function HeroMessenger({
         <div className="msn-hero-peer">
           <div className="msn-hero-avatar">
             <Image
-              src="/logo.webp"
+              src="/lumen-mark.webp"
               alt=""
               width={44}
               height={44}

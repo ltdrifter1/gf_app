@@ -37,7 +37,7 @@ export function MessengerHomePane({
       <div className="msn-hero-peer shrink-0">
         <div className="msn-hero-avatar">
           <Image
-            src="/logo.webp"
+            src="/lumen-mark.webp"
             alt=""
             width={44}
             height={44}

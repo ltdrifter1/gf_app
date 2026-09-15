@@ -11,7 +11,7 @@ export function Logo({
 }) {
   return (
     <Image
-      src="/logo.webp"
+      src="/lumen-mark.webp"
       alt={BRAND.ogAlt}
       width={size}
       height={size}

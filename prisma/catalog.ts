@@ -603,6 +603,7 @@ export async function ensureRecipes(prisma: PrismaClient) {
  * Never creates demo logins or known passwords.
  */
 export async function ensureLaunchCatalog(prisma: PrismaClient) {
+  await ensureCatalogAuthor(prisma);
   await ensureCommunityRooms(prisma);
   await ensureHealthResources(prisma);
   await ensureRestaurants(prisma);

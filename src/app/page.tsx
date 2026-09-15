@@ -1,8 +1,8 @@
 import Link from "next/link";
-import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { HeroMessenger } from "@/components/hero-messenger";
+import { Logo } from "@/components/logo";
 import { getCurrentUser } from "@/lib/auth";
 import { ensureLaunchCatalog } from "@/lib/bootstrap";
 import { prisma } from "@/lib/prisma";
@@ -102,14 +102,10 @@ export default async function LandingPage() {
 
           <h1 className="mt-7 animate-fade-in [animation-delay:80ms]">
             <span className="sr-only">{BRAND.name}</span>
-            <Image
-              src="/logo.webp"
-              alt={BRAND.ogAlt}
-              width={168}
-              height={168}
-              priority
-              className="rounded-[28%] shadow-[0_24px_80px_-20px_rgba(13,148,136,0.55)]"
-            />
+            <Logo size={88} />
+            <span className="mt-4 block font-display text-4xl font-bold tracking-tight text-sage-900 dark:text-white sm:text-5xl">
+              {BRAND.name}
+            </span>
           </h1>
 
           <p className="mt-6 max-w-sm text-lg leading-relaxed text-sage-600 animate-fade-in dark:text-sage-300 sm:text-xl [animation-delay:140ms]">

@@ -434,7 +434,7 @@ export function ChatWindow({
               <span aria-hidden>{roomEmoji}</span>
             ) : (
               <Image
-                src="/logo.webp"
+                src="/lumen-mark.webp"
                 alt=""
                 width={44}
                 height={44}

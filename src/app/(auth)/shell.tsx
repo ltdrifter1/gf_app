@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useFormStatus } from "react-dom";
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -39,15 +38,9 @@ export function AuthShell({
           <Logo size={40} />
         </Link>
         <div className="relative z-10 mx-auto max-w-sm text-center">
-          <Image
-            src="/logo.webp"
-            alt={BRAND.ogAlt}
-            width={140}
-            height={140}
-            className="mx-auto rounded-[28%] shadow-soft"
-            priority
-          />
-          <p className="mt-8 font-display text-xl text-white/75">{BRAND.landingLine}</p>
+          <Logo size={88} className="mx-auto" />
+          <p className="mt-6 font-display text-3xl font-bold text-white">{BRAND.name}</p>
+          <p className="mt-3 font-display text-xl text-white/75">{BRAND.landingLine}</p>
         </div>
         <p className="relative z-10 text-sm text-white/40">{BRAND.domain}</p>
       </div>
