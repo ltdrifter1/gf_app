@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import { LAUNCH_HEALTH } from "./health-catalog";
 
 import { catalogImageUrl, isStaleCatalogImage } from "../src/lib/safe-image";
+import { LUMEN_HOST_EMAIL, LUMEN_HOST_USERNAME } from "../src/lib/system-accounts";
 
 export { LAUNCH_HEALTH } from "./health-catalog";
 
@@ -466,6 +467,101 @@ async function ensureCatalogAuthor(prisma: PrismaClient) {
   });
 }
 
+const HOST_EMAIL = LUMEN_HOST_EMAIL;
+const HOST_USERNAME = LUMEN_HOST_USERNAME;
+const HOST_NAME = "Lumen Host";
+const HOST_BIO =
+  "Your Lumen host 👋 I keep the lights on, welcome new folks, and make sure nobody walks into an empty room.";
+
+export const HOST_WELCOME_POST = {
+  category: "newly-diagnosed",
+  title: "Welcome to Lumen 💛 Start here",
+  content: [
+    "Hi, and welcome! I'm the Lumen host. This is a small, kind corner of the internet for people living gluten-free — celiac, NCGS, parents, partners, and the newly diagnosed who are still squinting at labels.",
+    "",
+    "A few easy ways to say hello:",
+    "• Introduce yourself below: where you're based, how long you've been GF, and one food you miss (or finally found a great GF version of).",
+    "• Pop into Messenger → General Support or Newly Diagnosed. Even a quick \"hi\" makes the room feel lived in.",
+    "• Hit \"Find me a buddy\" for a gentle one-on-one match.",
+    "• Share a safe spot in Dining so the next person eats out with less worry.",
+    "",
+    "House rules: be kind, no medical advice dressed up as fact, and no gatekeeping — every stage of the journey is welcome here.",
+    "",
+    "We're just getting started, so you're one of the first. Thanks for being here. 💙",
+  ].join("\n"),
+};
+
+/** First message the host leaves in each community room so nobody walks into silence. */
+export const HOST_ROOM_GREETINGS: Record<string, string> = {
+  "general-support":
+    "Welcome to General Support 👋 This is the living room — wins, questions, rants, all fine. Tell us how your week's going?",
+  "newly-diagnosed":
+    "New here? You're in the right room 🌱 No question is too basic. What's been the most confusing part so far?",
+  "mental-health":
+    "Soft landing zone 💙 Food anxiety, eating-out nerves, the loneliness of always being 'the difficult one' — it all belongs here. How are you really doing?",
+  parents:
+    "Hi parents 👋 Lunchbox wins, school emails, birthday-party strategy — share what's working (or what's not).",
+  teens:
+    "Hey 👋 GF life without the lecture. What's the best GF snack you've found lately?",
+};
+
+/** Non-loginable host account (random password, never printed). */
+async function ensureHostAccount(prisma: PrismaClient) {
+  const existing = await prisma.user.findUnique({ where: { email: HOST_EMAIL } });
+  if (existing) {
+    if (existing.name !== HOST_NAME || existing.bio !== HOST_BIO) {
+      return prisma.user.update({
+        where: { id: existing.id },
+        data: { name: HOST_NAME, bio: HOST_BIO },
+      });
+    }
+    return existing;
+  }
+  const passwordHash = await bcrypt.hash(randomBytes(48).toString("hex"), 10);
+  return prisma.user.create({
+    data: {
+      email: HOST_EMAIL,
+      username: HOST_USERNAME,
+      name: HOST_NAME,
+      role: "USER",
+      bio: HOST_BIO,
+      passwordHash,
+      presence: "offline",
+      profile: { create: { diagnosis: "supporter" } },
+    },
+  });
+}
+
+/**
+ * Warm start for a cold community: one welcome post on the feed and a host
+ * greeting in each community room. Idempotent — only writes when the host
+ * hasn't posted yet / a room has no messages at all.
+ */
+export async function ensureHostWelcome(prisma: PrismaClient) {
+  const host = await ensureHostAccount(prisma);
+
+  const hostPosts = await prisma.post.count({ where: { authorId: host.id } });
+  if (hostPosts === 0) {
+    await prisma.post.create({ data: { authorId: host.id, ...HOST_WELCOME_POST } });
+  }
+
+  for (const [slug, content] of Object.entries(HOST_ROOM_GREETINGS)) {
+    const room = await prisma.chatRoom.findUnique({ where: { slug }, select: { id: true } });
+    if (!room) continue;
+    const anyMessage = await prisma.message.findFirst({
+      where: { roomId: room.id },
+      select: { id: true },
+    });
+    if (anyMessage) continue;
+    await prisma.chatRoomMember.upsert({
+      where: { roomId_userId: { roomId: room.id, userId: host.id } },
+      update: {},
+      create: { roomId: room.id, userId: host.id },
+    });
+    await prisma.message.create({ data: { roomId: room.id, senderId: host.id, content } });
+  }
+}
+
 export async function ensureCommunityRooms(prisma: PrismaClient) {
   for (const r of COMMUNITY_ROOMS) {
     await prisma.chatRoom.upsert({
@@ -630,6 +726,7 @@ export async function ensureRecipes(prisma: PrismaClient) {
 export async function ensureLaunchCatalog(prisma: PrismaClient) {
   await ensureCatalogAuthor(prisma);
   await ensureCommunityRooms(prisma);
+  await ensureHostWelcome(prisma);
   await ensureHealthResources(prisma);
   await ensureRestaurants(prisma);
   await ensureRecipes(prisma);

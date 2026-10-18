@@ -7,6 +7,7 @@ import { effectivePresence } from "@/lib/presence";
 import { isNudgeMessage, isCheckinMessage } from "@/lib/msn";
 import { isBlockedEitherWay, blockedPairIds } from "@/lib/blocks";
 import { isPendingDm } from "@/lib/dm";
+import { notLumenHost } from "@/lib/system-accounts";
 
 /** Stable DM slug for two users (order-independent). */
 function dmSlug(a: string, b: string) {
@@ -93,9 +94,14 @@ export async function getOnlineBuddies(excludeUserId?: string) {
   const since = new Date(Date.now() - 60_000);
   return prisma.user.findMany({
     where: {
-      presence: { not: "offline" },
-      lastSeen: { gte: since },
-      ...(excludeUserId ? { id: { not: excludeUserId } } : {}),
+      AND: [
+        {
+          presence: { not: "offline" },
+          lastSeen: { gte: since },
+          ...(excludeUserId ? { id: { not: excludeUserId } } : {}),
+        },
+        notLumenHost,
+      ],
     },
     select: {
       id: true,
@@ -134,9 +140,14 @@ export async function getContactList(userId: string) {
   const [onlineUsers, follows, dmMemberships] = await Promise.all([
     prisma.user.findMany({
       where: {
-        id: { not: userId },
-        presence: { not: "offline" },
-        lastSeen: { gte: since },
+        AND: [
+          {
+            id: { not: userId },
+            presence: { not: "offline" },
+            lastSeen: { gte: since },
+          },
+          notLumenHost,
+        ],
       },
       select: {
         id: true,

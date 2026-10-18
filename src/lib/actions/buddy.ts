@@ -8,6 +8,7 @@ import { getOrCreateDmRoom } from "@/lib/actions/chat";
 import { BRAND } from "@/lib/brand";
 import { blockedPairIds } from "@/lib/blocks";
 import { notifyUser } from "@/lib/notify";
+import { notLumenHost } from "@/lib/system-accounts";
 
 const MATCH_LIMIT_PER_DAY = 5;
 
@@ -101,9 +102,14 @@ export async function findBuddyMatch() {
 
   const candidates = await prisma.user.findMany({
     where: {
-      id: { not: me.id, notIn: [...taken] },
-      role: { not: "ADMIN" },
-      profile: { isNot: null },
+      AND: [
+        {
+          id: { not: me.id, notIn: [...taken] },
+          role: { not: "ADMIN" },
+          profile: { isNot: null },
+        },
+        notLumenHost,
+      ],
     },
     select: {
       id: true,

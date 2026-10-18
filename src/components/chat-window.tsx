@@ -13,6 +13,7 @@ import { notifyBuddyNudge, notifyMsnMessage } from "@/lib/msn-prefs";
 import { flagContent } from "@/lib/actions/moderation";
 import { acceptDmRequest, declineDmRequest } from "@/lib/actions/blocks";
 import { BlockMuteButtons } from "@/components/block-mute-buttons";
+import { emptyThreadMessage } from "@/lib/empty-thread";
 
 type Msg = {
   id: string;
@@ -531,7 +532,7 @@ export function ChatWindow({
         )}
         {messages.length === 0 && (
           <p className="mt-8 text-center text-[13px] text-[#64748b]">
-            This is the beginning of your conversation. Say hello!
+            {emptyThreadMessage(Boolean(isDm))}
           </p>
         )}
         {messages.map((m) => {

@@ -12,6 +12,7 @@ import {
 } from "@/lib/companion";
 import { JOURNEY_STAGES } from "@/lib/constants";
 import { createNotification } from "@/lib/actions/notifications";
+import { notLumenHost } from "@/lib/system-accounts";
 
 export async function completeOnboarding(formData: FormData) {
   const user = await requireUser();
@@ -73,10 +74,15 @@ export async function completeOnboarding(formData: FormData) {
   const city = location.split(",")[0]?.trim();
   const candidates = await prisma.user.findMany({
     where: {
-      id: { not: user.id },
-      OR: [
-        { location: { contains: city, mode: "insensitive" } },
-        { profile: { diagnosis } },
+      AND: [
+        {
+          id: { not: user.id },
+          OR: [
+            { location: { contains: city, mode: "insensitive" } },
+            { profile: { diagnosis } },
+          ],
+        },
+        notLumenHost,
       ],
     },
     select: { id: true },
@@ -132,12 +138,17 @@ export async function getCompanionMatch(userId: string) {
     prisma.chatRoom.findUnique({ where: { slug: roomSlug } }),
     prisma.user.findMany({
       where: {
-        id: { not: userId },
-        ...(city
-          ? { location: { contains: city, mode: "insensitive" } }
-          : user.profile?.diagnosis
-            ? { profile: { diagnosis: user.profile.diagnosis } }
-            : {}),
+        AND: [
+          {
+            id: { not: userId },
+            ...(city
+              ? { location: { contains: city, mode: "insensitive" } }
+              : user.profile?.diagnosis
+                ? { profile: { diagnosis: user.profile.diagnosis } }
+                : {}),
+          },
+          notLumenHost,
+        ],
       },
       select: {
         id: true,

@@ -159,12 +159,21 @@ export default async function FeedPage({
               ? followedCount === 0
                 ? "You're not following anyone yet, so Following stays empty. Your own posts live on Community."
                 : "No posts from people you follow yet. Find someone in Messenger."
-              : "No posts yet here. Be the first to share something."}
+              : "It's quiet in here — which means you get to set the tone. Say hi, share a win, or ask the question you've been Googling at 2am. Someone will be glad you did. 💛"}
           </p>
-          {followingOnly && (
+          {followingOnly ? (
             <Link href="/app/chat" className="btn-secondary inline-flex">
               Open Messenger
             </Link>
+          ) : (
+            <div className="flex flex-wrap justify-center gap-2">
+              <Link href="/app/chat/general-support" className="btn-secondary inline-flex">
+                Say hi in General Support
+              </Link>
+              <Link href="/app/chat/newly-diagnosed" className="btn-secondary inline-flex">
+                Newly diagnosed? Start here
+              </Link>
+            </div>
           )}
         </div>
       ) : (
