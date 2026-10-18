@@ -4,6 +4,7 @@ import { requireUser } from "@/lib/auth";
 import { Search, FileText, MapPin, ChefHat, Users, MessageCircle } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { containsI } from "@/lib/search";
+import { notLumenHost } from "@/lib/system-accounts";
 
 export default async function SearchPage({
   searchParams,
@@ -43,7 +44,10 @@ export default async function SearchPage({
         }),
         prisma.user.findMany({
           where: {
-            OR: [{ name: containsI(query) }, { username: containsI(query) }],
+            AND: [
+              { OR: [{ name: containsI(query) }, { username: containsI(query) }] },
+              notLumenHost,
+            ],
           },
           take: 6,
         }),

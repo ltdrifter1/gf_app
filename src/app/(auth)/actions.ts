@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { createSession, hashPassword, verifyPassword } from "@/lib/auth";
 import { ensureLaunchCatalog } from "@/lib/bootstrap";
 import { clientIpKey, rateLimit } from "@/lib/rate-limit";
+import { isLumenHostAccount } from "@/lib/system-accounts";
 
 const registerSchema = z.object({
   name: z.string().min(2, "Please enter your name"),
@@ -37,6 +38,10 @@ export async function registerAction(_prev: unknown, formData: FormData) {
   }
   const { name, password, diagnosis } = parsed.data;
   const email = parsed.data.email.toLowerCase().trim();
+
+  if (isLumenHostAccount({ email })) {
+    return { error: "An account with that email already exists. Try signing in." };
+  }
 
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) {
@@ -97,8 +102,12 @@ export async function loginAction(_prev: unknown, formData: FormData) {
     return { error: "Enter your email and password" };
   }
 
+  if (isLumenHostAccount({ email })) {
+    return { error: "Invalid email or password" };
+  }
+
   const user = await prisma.user.findUnique({ where: { email } });
-  if (!user || !(await verifyPassword(password, user.passwordHash))) {
+  if (!user || isLumenHostAccount(user) || !(await verifyPassword(password, user.passwordHash))) {
     return { error: "Invalid email or password" };
   }
 

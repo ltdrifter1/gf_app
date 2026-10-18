@@ -6,6 +6,7 @@ import { hashPassword } from "@/lib/auth";
 import { rateLimit, clientIpKey } from "@/lib/rate-limit";
 import { sendPlainEmail, appUrl } from "@/lib/email";
 import { BRAND } from "@/lib/brand";
+import { isLumenHostAccount } from "@/lib/system-accounts";
 
 function tokenHash(token: string) {
   return createHash("sha256").update(token).digest("hex");
@@ -20,8 +21,8 @@ export async function requestPasswordReset(formData: FormData) {
   if (!email) return { error: "Enter your email" };
 
   const user = await prisma.user.findUnique({ where: { email } });
-  // Always look successful
-  if (!user) {
+  // Always look successful. The host account is not loginable, so never mint a reset link.
+  if (!user || isLumenHostAccount(user)) {
     return { ok: true as const, message: "If that email is on Lumen, a reset link is on its way." };
   }
 
@@ -55,8 +56,11 @@ export async function confirmPasswordReset(formData: FormData) {
   if (password.length < 6) return { error: "Password must be at least 6 characters" };
   if (!token) return { error: "Missing reset token" };
 
-  const row = await prisma.passwordReset.findUnique({ where: { tokenHash: tokenHash(token) } });
-  if (!row || row.usedAt || row.expiresAt < new Date()) {
+  const row = await prisma.passwordReset.findUnique({
+    where: { tokenHash: tokenHash(token) },
+    include: { user: { select: { email: true, username: true } } },
+  });
+  if (!row || row.usedAt || row.expiresAt < new Date() || isLumenHostAccount(row.user)) {
     return { error: "This reset link is invalid or expired." };
   }
 
